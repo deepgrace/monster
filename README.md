@@ -1,6 +1,6 @@
 ## ![monster logo](https://raw.githubusercontent.com/deepgrace/monster/master/logo/monster.png)
 [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
-[![LICENSE](https://img.shields.io/badge/license-Anti%20996-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE)
+[![LICENSE](https://img.shields.io/badge/license-Anti%20996-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE) [![Join the chat at https://gitter.im/actmp/community](https://badges.gitter.im/actmp/community.svg)](https://gitter.im/actmp/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 # Advanced C++ Template MetaProgramming Framework 
 
 ## Overview
