@@ -572,6 +572,9 @@ int main(int argc, char* argv[])
     execute<find_maximum_subarray_t<std::integer_sequence<int, -2, -3, 4, -1, -2, 1, 5, -3>>,
             std::integer_sequence<int, 2, 6, 7>>();
 
+    execute<kadane_t<std::integer_sequence<int, -2, -3, 4, -1, -2, 1, 5, -3>>, int_<7>>();
+    execute<kadane_v<std::integer_sequence<int, -2, -3, 4, -1, -2, 1, 5, -3>>, 7>();
+
     execute<inner_dot_t<std::integer_sequence<int, -3, 1, 2, 4, 5>,
             std::integer_sequence<int, 2, 4, -3, 4>>, std::integer_sequence<int, -6, 4, -6, 16>>();
 

@@ -4011,6 +4011,21 @@ namespace monster
     template <typename T>
     using find_maximum_subarray_t = typeof_t<find_maximum_subarray<T>>;
 
+    template <typename T>
+    struct kadane
+    {
+        template <typename U, typename V>
+        using max_sum = max_t<plus_t<U, V>, V>;
+
+        using type = maximum_t<partial_sum_second<max_sum, T>>;
+    };
+
+    template <typename T>
+    using kadane_t = typeof_t<kadane<T>>;
+
+    template <typename T>
+    inline constexpr auto kadane_v = typev<kadane_t<T>>;
+
     template <typename T, typename U>
     struct count
     {

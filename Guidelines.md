@@ -218,13 +218,18 @@ using p4 = stable_partition_t<1, 6, std::integer_sequence<int, 1, 3, 2, 7, 8, 0,
 // p3 == std::integer_sequence<int, 1, 3, 7, 1, 2, 8, 0, -2, 4, 5>
 // p4 == std::integer_sequence<int, 1, 2, 8, 0, 3, 7, 1, -2, 4, 5>
 
-// get the elements' indices of maximum subarray
+// get the range and sum of maximum subarray of a sequence
 using array = std::integer_sequence<int, -2, -3, 4, -1, -2, 1, 5, -3>;
 
 using m1 = max_subarray_t<array>;          // iterative
 using m2 = find_maximum_subarray_t<array>; // recursive
+using m3 = kadane_t<array>;                // maximum type
+auto  m4 = kadane_v<array>;                // maximum value
 // m1 == std::integer_sequence<int, 2, 6, 7>
 // m2 == m1
+// m3 == int_<7>
+// m4 == 7
+// the elements in the range [2, 6] is the maximum subarray of array with sum 7
 
 // equal range
 using ins = std::integer_sequence<int, 1, 1, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6>;
