@@ -356,6 +356,18 @@ namespace monster
     using member_type_t = typeof_t<member_type<T>>;
 
     template <typename T>
+    struct member_args;
+
+    template <typename T, typename U, typename... Args>
+    struct member_args<T (U::*)(Args...)>
+    {
+        using type = tuple_t<Args...>;
+    };
+
+    template <typename T>
+    using member_args_t = typeof_t<member_args<T>>;
+
+    template <typename T>
     struct is_inheritable : std::conjunction<std::is_class<T>, std::negation<std::is_final<T>>>
     {
     };
@@ -3872,6 +3884,26 @@ namespace monster
             return std::make_tuple(std::get<N>(t)...);
         }
         (shift_right_t<i, std::index_sequence_for<Args...>>());
+    }
+
+    template <auto n, typename... Args>
+    auto tuple_take_front(const std::tuple<Args...>& t)
+    {
+        return [&]<size_t... N>(const std::index_sequence<N...>&)
+        {
+            return std::make_tuple(std::get<N>(t)...);
+        }
+        (index_sequence_of_c<n>());
+    }
+
+    template <auto n, typename... Args>
+    auto tuple_take_back(const std::tuple<Args...>& t)
+    {
+        return [&]<size_t... N>(const std::index_sequence<N...>&)
+        {
+            return std::make_tuple(std::get<N>(t)...);
+        }
+        (integer_sequence_t<size_t, n, sizeof_v<Args...> - n, 1>());
     }
 
     template <typename T, template <typename, bool> typename comp, bool b, typename... Args>

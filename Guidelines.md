@@ -1701,10 +1701,18 @@ auto r6 = tuple_rotate<0, 2, 4>(t);
 // r6 == std::make_tuple(3.0, 2, 1, 2, 4)
 
 // shift left two elements
-using s2 = tuple_shift_left<2>(t);
+auto s2 = tuple_shift_left<2>(t);
 // s2 == std::make_tuple(3.0, 2, 4, 1, 2)
 
 // shift right two elements
-using s3 = tuple_shift_right<2>(t);
+auto s3 = tuple_shift_right<2>(t);
 // s3 == std::make_tuple(2, 4, 1, 2, 3.0)
+
+// get the first three elements
+auto t1 = tuple_take_front<3>(t);
+// t1 == std::make_tuple(1, 2, 3.0)
+
+// get the last three elements
+auto t2 = tuple_take_back<3>(t);
+// t2 == std::make_tuple(3.0, 2, 4)
 ```

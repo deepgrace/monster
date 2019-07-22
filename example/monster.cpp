@@ -661,6 +661,8 @@ int main(int argc, char* argv[])
     std::cout << "tuple_rotate " << std::get<2>(tuple_rotate<0, 2, 4>(tuple)) << std::endl;
     std::cout << "tuple_shift_left " << std::get<1>(tuple_shift_left<2>(tuple)) << std::endl;
     std::cout << "tuple_shift_right " << std::get<1>(tuple_shift_right<2>(tuple)) << std::endl;
+    std::cout << "tuple_take_front " << std::get<1>(tuple_take_front<3>(tuple)) << std::endl;
+    std::cout << "tuple_take_back " << std::get<2>(tuple_take_back<3>(tuple)) << std::endl;
 
     execute<infinite_call_t<4, int, std::add_pointer>, int****>();
     execute<multi_level_pointer_t<4, int>, int****>();
