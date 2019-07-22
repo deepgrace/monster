@@ -3906,6 +3906,18 @@ namespace monster
         (integer_sequence_t<size_t, n, sizeof_v<Args...> - n, 1>());
     }
 
+    template <auto n, typename... Args>
+    auto tuple_drop_front(const std::tuple<Args...>& t)
+    {
+        return tuple_take_back<sizeof_v<Args...> - n>(t);
+    }
+
+    template <auto n, typename... Args>
+    auto tuple_drop_back(const std::tuple<Args...>& t)
+    {
+        return tuple_take_front<sizeof_v<Args...> - n>(t);
+    }
+
     template <typename T, template <typename, bool> typename comp, bool b, typename... Args>
     using extreme = std::conditional_t<!sizeof_v<Args...>, std::type_identity<T>, comp<tuple_t<T, Args...>, b>>;
 

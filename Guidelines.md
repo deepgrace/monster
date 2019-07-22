@@ -1715,4 +1715,12 @@ auto t1 = tuple_take_front<3>(t);
 // get the last three elements
 auto t2 = tuple_take_back<3>(t);
 // t2 == std::make_tuple(3.0, 2, 4)
+
+// remove the first three elements
+auto t3 = tuple_drop_front<3>(t);
+// t3 == std::make_tuple(2, 4)
+
+// remove the last three elements
+auto t4 = tuple_drop_back<3>(t);
+// t4 == std::make_tuple(1, 2)
 ```
