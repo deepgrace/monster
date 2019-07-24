@@ -3918,6 +3918,39 @@ namespace monster
         return tuple_take_front<sizeof_v<Args...> - n>(t);
     }
 
+    template <size_t i, size_t j, typename indices>
+    struct next_cartesian_product;
+
+    template <size_t i, size_t j, auto... N>
+    struct next_cartesian_product<i, j, std::index_sequence<N...>>
+    {
+        template <typename T, typename U>
+        static auto apply(T&& t, U&& u)
+        {
+            return std::tuple_cat(std::make_tuple(std::make_pair(std::get<i>(t), std::get<N>(u)))...,
+                   next_cartesian_product<i + 1, j, std::index_sequence<N...>>::template
+                   apply(std::forward<T>(t), std::forward<U>(u)));
+        }
+    };
+
+    template <size_t j, auto... N>
+    struct next_cartesian_product<j, j, std::index_sequence<N...>>
+    {
+        template <typename T, typename U>
+        static auto apply(T&& t, U&& u)
+        {
+            return std::tuple<>();
+        }
+    };
+
+    template <typename T, typename U>
+    auto tuple_cartesian_product(T&& t, U&& u)
+    {
+        return next_cartesian_product<0, sizeof_t_v<std::remove_cvref_t<T>>,
+               index_sequence_of_t<std::remove_cvref_t<U>>>::template
+               apply(std::forward<T>(t), std::forward<U>(u));
+    }
+
     template <typename T, template <typename, bool> typename comp, bool b, typename... Args>
     using extreme = std::conditional_t<!sizeof_v<Args...>, std::type_identity<T>, comp<tuple_t<T, Args...>, b>>;
 
