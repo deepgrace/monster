@@ -656,6 +656,7 @@ int main(int argc, char* argv[])
     std::cout << "tuple_take_back " << std::get<2>(tuple_take_back<3>(tuple)) << std::endl;
     std::cout << "tuple_drop_front " << std::get<0>(tuple_drop_front<3>(tuple)) << std::endl;
     std::cout << "tuple_drop_back " << std::get<1>(tuple_drop_back<3>(tuple)) << std::endl;
+    std::cout << "tuple_zip " << std::get<1>(tuple_zip(tuple, std::make_tuple(7, 5))) << std::endl;
 
     execute<infinite_call_t<4, int, std::add_pointer>, int****>();
     execute<multi_level_pointer_t<4, int>, int****>();

@@ -1728,4 +1728,7 @@ auto t4 = tuple_drop_back<3>(t);
 auto p = tuple_cartesian_product(std::make_tuple(2, 'T'), std::make_tuple(4.0, 6));
 // p == std::make_tuple(std::make_pair(2, 4.0), std::make_pair(2, 6),
                         std::make_pair('T', 4.0), std::make_pair('T', 6))
+// zip two tuples
+auto z = tuple_zip(std::make_tuple(5, 4), std::make_tuple(2, 3));
+// z == std::make_tuple(5, 2, 4, 3)
 ```

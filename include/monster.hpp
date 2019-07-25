@@ -3951,6 +3951,16 @@ namespace monster
                apply(std::forward<T>(t), std::forward<U>(u));
     }
 
+    template <typename... Args, typename... args>
+    auto tuple_zip(const std::tuple<Args...>& lhs, const std::tuple<args...>& rhs)
+    {
+        return [&]<size_t... N>(const std::index_sequence<N...>&)
+        {
+            return std::tuple_cat(std::make_tuple(std::get<N>(lhs), std::get<N>(rhs))...);
+        }
+        (index_sequence_of_c<min_v<sizeof_v<Args...>, sizeof_v<args...>>>());
+    }
+
     template <typename T, template <typename, bool> typename comp, bool b, typename... Args>
     using extreme = std::conditional_t<!sizeof_v<Args...>, std::type_identity<T>, comp<tuple_t<T, Args...>, b>>;
 
@@ -3958,16 +3968,7 @@ namespace monster
     using evaluate = std::conditional_t<less_v<std::conditional_t<B, T, U>, std::conditional_t<B, U, T>>, T, U>;
 
     template <auto p, auto q, bool B>
-    using minmax_t = int_<B ? min_v<p, q>  : max_v<p, q>>;
-
-    template <typename T, template <typename, bool> typename comp, bool b, typename... Args>
-    using extreme = std::conditional_t<!sizeof_v<Args...>, std::type_identity<T>, comp<tuple_t<T, Args...>, b>>;
-
-    template <typename T, typename U, bool B>
-    using evaluate = std::conditional_t<less_v<std::conditional_t<B, T, U>, std::conditional_t<B, U, T>>, T, U>;
-
-    template <auto p, auto q, bool B>
-    using minmax_t = int_<B ? min_v<p, q>  : max_v<p, q>>;
+    using minmax_t = int_<B ? min_v<p, q> : max_v<p, q>>;
 
     template <typename T, bool B>
     struct minmax;
