@@ -970,6 +970,11 @@ int main(int argc, char* argv[])
     execute<stable_partition_t<1, 6, std::integer_sequence<int, 1, 3, 2, 7, 8, 0, 1, -2, 4, 5>, is_even>,
             std::integer_sequence<int, 1, 2, 8, 0, 3, 7, 1, -2, 4, 5>>();
 
+    execute<partition_point_t<std::integer_sequence<int, 1, 2, 8, 0, 3, 7, 1, -2, 4, 5>,
+            is_even, 1, 6>, int_<4>>();
+
+    execute<partition_point_v<std::tuple<std::tuple<int>, std::tuple<int>, char, int>, is_tuple>, 2>();
+
     execute<stable_sort_t<std::tuple<double, uint64_t, double, float, int, char, float, char, double>>,
             std::tuple<char, char, float, int, float, double, uint64_t, double, double>>();
 

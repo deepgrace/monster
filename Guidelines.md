@@ -218,6 +218,12 @@ using p4 = stable_partition_t<1, 6, std::integer_sequence<int, 1, 3, 2, 7, 8, 0,
 // p3 == std::integer_sequence<int, 1, 3, 7, 1, 2, 8, 0, -2, 4, 5>
 // p4 == std::integer_sequence<int, 1, 2, 8, 0, 3, 7, 1, -2, 4, 5>
 
+// partition point in the range [begin, end)
+using p5 = partition_point_t<p2, is_tuple, 1, 6>;
+auto  p6 = partition_point_v<p4, is_even,  1, 6>;
+// p5 == int_<3>
+// p6 == 4
+
 // get the range and sum of maximum subarray of a sequence
 using array = std::integer_sequence<int, -2, -3, 4, -1, -2, 1, 5, -3>;
 
@@ -1727,7 +1733,8 @@ auto t4 = tuple_drop_back<3>(t);
 // cartesian product of two tuples
 auto p = tuple_cartesian_product(std::make_tuple(2, 'T'), std::make_tuple(4.0, 6));
 // p == std::make_tuple(std::make_pair(2, 4.0), std::make_pair(2, 6),
-                        std::make_pair('T', 4.0), std::make_pair('T', 6))
+//                      std::make_pair('T', 4.0), std::make_pair('T', 6))
+
 // zip two tuples
 auto z = tuple_zip(std::make_tuple(5, 4), std::make_tuple(2, 3));
 // z == std::make_tuple(5, 2, 4, 3)

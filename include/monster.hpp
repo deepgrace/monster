@@ -17,10 +17,10 @@
  *
  *   Identifies the API version of Monster.
  *   This is a simple integer that is incremented by one every
- *   time a set of code changes is merged to the develop branch.
+ *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 20
+#define MONSTER_VERSION 21
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -384,7 +384,7 @@ namespace monster
     inline constexpr auto is_instantiable_v = typev<is_instantiable<T>>;
 
     template <typename T>
-    struct remove_cvref : std::remove_cv<std::remove_reference<T>>
+    struct remove_cvref : std::remove_cv<std::remove_reference_t<T>>
     {
     };
 
@@ -4995,6 +4995,33 @@ namespace monster
 
     template <size_t i, size_t j, typename T, template <typename, typename> typename comparator>
     inline constexpr auto compare_v = typev<compare<i, j, T, comparator>>;
+
+    template <typename T, template <typename> typename F, int B = 0, int E = sizeof_t_v<T>>
+    struct partition_point
+    {
+        template <int i, int j, bool = (i > 0)>
+        struct impl
+        {
+            static constexpr auto half = i / 2;
+            static constexpr auto value = typev<F<element_t<j + half, T>>>;
+
+            static constexpr auto delta = value * half + value;
+            using type = typeof_t<impl<value ? i - delta : half, j + delta>>;
+        };
+
+        template <int i, int j>
+        struct impl<i, j, false> : int_<j>
+        {
+        };
+
+        using type = typeof_t<impl<E - B, B>>;
+    };
+
+    template <typename T, template <typename> typename F, int B = 0, int E = sizeof_t_v<T>>
+    using partition_point_t = typeof_t<partition_point<T, F, B, E>>;
+
+    template <typename T, template <typename> typename F, int B = 0, int E = sizeof_t_v<T>>
+    inline constexpr auto partition_point_v = typev<partition_point_t<T, F, B, E>>;
 
     template <int p, int r, typename T, template <typename, typename> typename comparator = less_equal_t>
     struct partition
