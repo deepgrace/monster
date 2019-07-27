@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 21
+#define MONSTER_VERSION 22
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -301,7 +301,7 @@ namespace monster
         using type = is_unique_type<Args...>;
     };
 
-    template <template <typename, auto...> typename T, typename U, auto... values>
+    template <template <typename, auto ...> typename T, typename U, auto... values>
     struct exists<true, T<U, values...>>
     {
         using type = is_unique_value<values...>;
@@ -313,7 +313,7 @@ namespace monster
         using type = has_duplicates_type<Args...>;
     };
 
-    template <template <typename, auto...> typename T, typename U, auto... values>
+    template <template <typename, auto ...> typename T, typename U, auto... values>
     struct exists<false, T<U, values...>>
     {
         using type = has_duplicates_value<values...>;
@@ -346,10 +346,16 @@ namespace monster
     template <typename T>
     struct member_type;
 
-    template <typename T, typename U, typename... Args>
-    struct member_type<T (U::*)(Args...)>
+    template <typename R, typename T, typename... Args>
+    struct member_type<R (T::*)(Args...)>
     {
-        using type = T;
+        using type = R;
+    };
+
+    template <typename R, typename T, typename... Args>
+    struct member_type<R (T::*)(Args...) const>
+    {
+        using type = R;
     };
 
     template <typename T>
@@ -559,6 +565,29 @@ namespace monster
 
     template <typename T>
     inline constexpr auto sizeof_t_v = typev<sizeof_t<T>>;
+
+    template <typename T>
+    struct argument_size : argument_size<decltype(&T::operator())>
+    {
+    };
+
+    template <typename R, typename T, typename... Args>
+    struct argument_size<R (T::*)(Args...)> : index_t<sizeof_v<Args...>>
+    {
+    };
+
+    template <typename R, typename... Args>
+    struct argument_size<R (*)(Args...)> : index_t<sizeof_v<Args...>>
+    {
+    };
+
+    template <typename R, typename T, typename... Args>
+    struct argument_size<R (T::*)(Args...) const> : index_t<sizeof_v<Args...>>
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto argument_size_v = typev<argument_size<T>>;
 
     template <auto N>
     using index_sequence_of_c = std::make_index_sequence<N>;
@@ -1451,7 +1480,7 @@ namespace monster
         using type = typeof_t<impl<Args...>>;
     };
 
-    template <template <typename, auto...> typename T, typename U, auto... values>
+    template <template <typename, auto ...> typename T, typename U, auto... values>
     struct unique<T<U, values...>>
     {
         template <auto... args>
@@ -2824,7 +2853,12 @@ namespace monster
         using type = typeof_t<impl<T<U, value, values...>, B>>;
     };
 
-    template <bool B, template <typename...> typename T, typename U, typename... Args>
+    template <bool B, template <typename, auto ...> typename T, typename U>
+    struct pop<B, T<U>> : std::type_identity<T<U>>
+    {
+    };
+
+    template <bool B, template <typename ...> typename T, typename U, typename... Args>
     struct pop<B, T<U, Args...>>
     {
         template <typename W, bool>
@@ -2840,6 +2874,11 @@ namespace monster
         };
 
         using type = typeof_t<impl<T<U, Args...>, B>>;
+    };
+
+    template <bool B, template <typename ...> typename T>
+    struct pop<B, T<>> : std::type_identity<T<>>
+    {
     };
 
     template <bool B, typename T>
@@ -3493,10 +3532,10 @@ namespace monster
         iterate(f, std::make_integer_sequence<decltype(N), N>());
     }
 
-    template <typename...>
+    template <typename ...>
     inline constexpr bool true_v = true;
 
-    template <typename...>
+    template <typename ...>
     inline constexpr bool false_v = false;
 
     template <auto... values>
@@ -3916,6 +3955,100 @@ namespace monster
     auto tuple_drop_back(const std::tuple<Args...>& t)
     {
         return tuple_take_front<sizeof_v<Args...> - n>(t);
+    }
+
+    template <auto n, typename T, auto m>
+    auto array_take_front(const std::array<T, m>& a)
+    {
+        return [&]<size_t... N>(const std::index_sequence<N...>&)
+        {
+            return std::array<T, n>{std::get<N>(a)...};
+        }
+        (index_sequence_of_c<n>());
+    }
+
+    template <auto n, typename T, auto m>
+    auto array_take_back(const std::array<T, m>& a)
+    {
+        return [&]<size_t... N>(const std::index_sequence<N...>&)
+        {
+            return std::array<T, n>{std::get<N>(a)...};
+        }
+        (integer_sequence_t<size_t, n, m - n, 1>());
+    }
+
+    template <auto n, typename T, auto m>
+    auto array_drop_front(const std::array<T, m>& a)
+    {
+        return array_take_back<m - n>(a);
+    }
+
+    template <auto n, typename T, auto m>
+    auto array_drop_back(const std::array<T, m>& a)
+    {
+        return array_take_front<m - n>(a);
+    }
+
+    template <typename F, typename T>
+    requires is_tuple_v<T>
+    struct invocable
+    {
+        template <auto N, typename U>
+        struct impl;
+
+        template <auto N, template <typename ...> typename U, typename... Args>
+        struct impl<N, U<Args...>>
+        {
+            using type = typeof_t<std::conditional_t<std::is_invocable_v<F, Args...>, int_<N>, invocable<F, pop_back_t<T>>>>;
+        };
+
+        using type = typeof_t<impl<sizeof_t_v<T>, T>>;
+    };
+
+    template <typename F, typename T>
+    requires is_tuple_v<T>
+    using invocable_t = typeof_t<invocable<F, T>>;
+
+    template <typename F, typename T>
+    requires is_tuple_v<T>
+    inline constexpr auto invocable_v = typev<invocable_t<F, T>>;
+
+    template <typename T, T depth>
+    requires std::is_integral_v<T> && std::is_signed_v<T>
+    struct loop_indices_generator
+    {
+        using indices_t = std::array<T, depth>;
+
+        template <typename F>
+        void operator()(F&& f)
+        {
+            indices_t curr;
+            std::fill(curr.begin(), curr.end(), -1);
+            constexpr auto N = invocable_v<F, fill_t<depth, T>>;
+
+            int i = 0;
+            while (i >= 0)
+            {
+                if (curr[i] + 1 >= limit[i])
+                {
+                    curr[i--] = -1;
+                    continue;
+                }
+                ++curr[i];
+                if (i + 1 >= depth)
+                    std::apply(std::forward<F>(f), array_take_front<N>(curr));
+                else
+                    ++i;
+            }
+        }
+
+        indices_t limit;
+    };
+
+    template <typename... Args>
+    auto loop(Args... indices)
+    {
+        return loop_indices_generator<std::common_type_t<Args...>, sizeof_v<Args...>>{indices...};
     }
 
     template <size_t i, size_t j, typename indices>
@@ -4511,14 +4644,14 @@ namespace monster
     template <typename L, typename R>
     struct swap_template;
 
-    template <template <typename...> typename L, template <typename...> typename R, typename... T, typename... U>
+    template <template <typename ...> typename L, template <typename ...> typename R, typename... T, typename... U>
     struct swap_template<L<T...>, R<U...>>
     {
         using first = L<U...>;
         using second = R<T...>;
     };
 
-    template <template <typename, auto...> typename L, template <typename, auto...> typename R, typename T, auto... t, typename U, auto... u>
+    template <template <typename, auto ...> typename L, template <typename, auto ...> typename R, typename T, auto... t, typename U, auto... u>
     struct swap_template<L<T, t...>, R<U, u...>>
     {
         using first = L<U, u...>;

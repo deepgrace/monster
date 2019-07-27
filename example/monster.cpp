@@ -122,6 +122,10 @@ int main(int argc, char* argv[])
     execute<sizeof_t_v<std::tuple<int, char, double>>, 3>();
     execute<sizeof_t_v<std::index_sequence<1, 2, 0, 4>>, 4>();
 
+    execute<argument_size_v<decltype([](int, char){})>, 2>();
+    execute<argument_size_v<decltype(+[](int, int){})>, 2>();
+    execute<argument_size_v<void(*)(int, char, short)>, 3>();
+
     execute<less_v<char, int>>();
     execute<less_equal_v<int_<3>, int_<4>>>();
 
@@ -631,6 +635,14 @@ int main(int argc, char* argv[])
     {
         std::cout << N << " " << v << std::endl;
     }, 4);
+
+    loop(2, 3, 4)
+    (
+        [](auto i, auto j, auto k)
+        {
+            std::cout << '(' << i << ", " << j << ", " << k << ")" << std::endl;
+        }
+    );
 
     iterate<4>([]
     {

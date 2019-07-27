@@ -759,6 +759,41 @@ loop<3>([](auto N, auto&& v)
     std::cout << N << " " << v << std::endl;
 }, 4);
 
+// call a function within a nested loop with the loop indices as optional arguments
+loop(indices...)(f);
+
+loop(2, 3, 4)
+(
+    [](auto i, auto j, auto k)
+    {
+        std::cout << '(' << i << ", " << j << ", " << k << ")" << std::endl;
+    }
+);
+
+/*  This is equivalent to the following:
+    for (int i = 0; i != 2; ++i)
+         for (int j = 0; j != 3; ++j)
+              for (int k = 0; k != 4; ++k)
+                   f(i, j, k);
+*/
+
+// f can take fewer and even empty arguments than the loop depth
+loop(2, 3, 4)
+(
+    [](auto i, auto j)
+    {
+        std::cout << '(' << i << ", " << j << ")" << std::endl;
+    }
+);
+
+loop(2, 3, 4)
+(
+    []
+    {
+        std::cout << "don't use the loop index at all" << std::endl;
+    }
+);
+
 iterate<4>([]
 {
     std::cout << "x" << std::endl;
