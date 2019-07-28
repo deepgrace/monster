@@ -4013,6 +4013,37 @@ namespace monster
     requires is_tuple_v<T>
     inline constexpr auto invocable_v = typev<invocable_t<F, T>>;
 
+    template <typename limit, typename T, template <typename ...> typename F>
+    requires is_sequence_v<limit>
+    struct loop_indices
+    {
+        static constexpr auto depth = sizeof_t_v<limit>;
+
+        template <int i, typename U, typename V, bool = (i >= 0)>
+        struct impl
+        {
+            static constexpr auto curr = get_v<i, U> + 1;
+            static constexpr auto cond = curr >= get_v<i, limit>;
+
+            static constexpr auto value = i + 1 < depth;
+            static constexpr auto j = cond ? i - 1 : i + value;
+
+            using indices = sub_t<i, cond ? -1 : curr, U>;
+            using type = typeof_t<impl<j, indices, type_if<!cond && !value, F<V, indices>, std::type_identity<V>>>>;
+        };
+
+        template <int i, typename U, typename V>
+        struct impl<i, U, V, false> : std::type_identity<V>
+        {
+        };
+
+        using type = typeof_t<impl<0, fill_c<depth, -1>, T>>;
+    };
+
+    template <typename limit, typename T, template <typename ...> typename F>
+    requires is_sequence_v<limit>
+    using loop_indices_t = typeof_t<loop_indices<limit, T, F>>;
+
     template <typename T, T depth>
     requires std::is_integral_v<T> && std::is_signed_v<T>
     struct loop_indices_generator
