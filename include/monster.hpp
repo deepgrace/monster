@@ -1577,7 +1577,7 @@ namespace monster
     using append_c = append_t<T, int_<values>...>;
 
     template <bool B, typename T, typename... Args>
-    using append_if = std::conditional_t<!B, std::type_identity<T>, append<T, Args...>>;
+    using append_if = std::conditional_t<B, append<T, Args...>, std::type_identity<T>>;
 
     template <bool B, typename T, typename... Args>
     using append_if_t = typeof_t<append_if<B, T, Args...>>;
@@ -1876,6 +1876,12 @@ namespace monster
     template <template <auto, typename> typename F, typename T, typename U, auto V = 0>
     using expand_t = typeof_t<expand<F, T, U, V>>;
 
+    template <bool B, template <auto, typename> typename F, typename T, typename U, auto V = 0>
+    using expand_if = std::conditional_t<B, expand<F, T, U, V>, std::type_identity<T>>;
+
+    template <bool B, template <auto, typename> typename F, typename T, typename U, auto V = 0>
+    using expand_if_t = typeof_t<expand_if<B, F, T, U, V>>;
+
     template <typename T, typename U, auto V = 0>
     using expand_of = expand<element, T, U, V>;
 
@@ -2055,6 +2061,12 @@ namespace monster
 
     template <auto lower, auto upper, typename T>
     using range_t = typeof_t<range<lower, upper, T>>;
+
+    template <bool B, auto lower, auto upper, typename T>
+    using range_if = std::conditional_t<B, range<lower, upper, T>, std::type_identity<T>>;
+
+    template <bool B, auto lower, auto upper, typename T>
+    using range_if_t = typeof_t<range_if<B, lower, upper, T>>;
 
     template <auto i, auto j, typename T, typename U>
     struct swap_ranges
@@ -4013,7 +4025,24 @@ namespace monster
     requires is_tuple_v<T>
     inline constexpr auto invocable_v = typev<invocable_t<F, T>>;
 
-    template <typename limit, typename T, template <typename ...> typename F>
+    template <typename T, typename U = size_t>
+    struct alter;
+
+    template <template <typename, auto ...> typename T, typename V, auto... v, typename U>
+    struct alter<T<V, v...>, U> : std::type_identity<T<U, v...>>
+    {
+    };
+
+    template <typename T, typename U>
+    using alter_t = typeof_t<alter<T, U>>;
+
+    template <bool B, typename T, typename U = size_t>
+    using alter_if = std::conditional_t<B, alter<T, U>, std::type_identity<T>>;
+
+    template <bool B, typename T, typename U = size_t>
+    using alter_if_t = typeof_t<alter_if<B, T, U>>;
+
+    template <typename limit, typename T, template <typename ...> typename F, bool ASC = true>
     requires is_sequence_v<limit>
     struct loop_indices
     {
@@ -4023,13 +4052,16 @@ namespace monster
         struct impl
         {
             static constexpr auto curr = get_v<i, U> + 1;
-            static constexpr auto cond = curr >= get_v<i, limit>;
+            static constexpr int last = get_v<i, limit>;
+            static constexpr auto cond = (ASC && curr >= last || !ASC && curr <= 1);
 
-            static constexpr auto value = i + 1 < depth;
-            static constexpr auto j = cond ? i - 1 : i + value;
+            static constexpr auto value = i + 1 >= depth;
+            static constexpr auto j = cond ? i - 1 : i + !value;
 
-            using indices = sub_t<i, cond ? -1 : curr, U>;
-            using type = typeof_t<impl<j, indices, type_if<!cond && !value, F<V, indices>, std::type_identity<V>>>>;
+            static constexpr auto end = !cond && value;
+
+            using indices = sub_t<i, cond ? (ASC ? -1 : last) : curr - 2 * !ASC, U>;
+            using type = typeof_t<impl<j, indices, type_if<end, F<V, alter_if_t<end, indices>>, std::type_identity<V>>>>;
         };
 
         template <int i, typename U, typename V>
@@ -4037,14 +4069,32 @@ namespace monster
         {
         };
 
-        using type = typeof_t<impl<0, fill_c<depth, -1>, T>>;
+        using type = typeof_t<impl<0, std::conditional_t<ASC, fill_c<depth, -1>, limit>, T>>;
     };
 
-    template <typename limit, typename T, template <typename ...> typename F>
+    template <typename limit, typename T, template <typename ...> typename F, bool ASC = true>
     requires is_sequence_v<limit>
-    using loop_indices_t = typeof_t<loop_indices<limit, T, F>>;
+    using loop_indices_t = typeof_t<loop_indices<limit, T, F, ASC>>;
 
-    template <typename T, T depth>
+    template <typename T, auto N = sizeof_t_v<T>>
+    struct loop_permutation
+    {
+        static constexpr auto depth = sizeof_t_v<T>;
+
+        template <typename U, typename indices>
+        struct impl
+        {
+            static constexpr auto value = is_unique_v<indices>;
+            using type = append_if_t<value, U, range_if_t<value, 0, N, expand_if_t<value, element, T, indices>>>;
+        };
+
+        using type = loop_indices_t<fill_c<depth, depth>, tuple_t<>, impl, true>;
+    };
+
+    template <typename T, auto N = sizeof_t_v<T>>
+    using loop_permutation_t = typeof_t<loop_permutation<T, N>>;
+
+    template <typename T, T depth, bool ASC = true>
     requires std::is_integral_v<T> && std::is_signed_v<T>
     struct loop_indices_generator
     {
@@ -4053,19 +4103,26 @@ namespace monster
         template <typename F>
         void operator()(F&& f)
         {
-            indices_t curr;
-            std::fill(curr.begin(), curr.end(), -1);
+            indices_t asc;
+            std::fill(asc.begin(), asc.end(), -1);
+
+            indices_t curr(limit);
+            if (ASC)
+                curr.swap(asc);
+
             constexpr auto N = invocable_v<F, fill_t<depth, T>>;
 
             int i = 0;
             while (i >= 0)
             {
-                if (curr[i] + 1 >= limit[i])
+                auto upper = limit[i];
+                if ((ASC && curr[i] + 1 >= upper) || (!ASC && curr[i] <= 0))
                 {
-                    curr[i--] = -1;
+                    curr[i] = ASC ? -1 : upper;
+                    --i;
                     continue;
                 }
-                ++curr[i];
+                curr[i] += 1 - 2 * !ASC;
                 if (i + 1 >= depth)
                     std::apply(std::forward<F>(f), array_take_front<N>(curr));
                 else
@@ -4076,10 +4133,10 @@ namespace monster
         indices_t limit;
     };
 
-    template <typename... Args>
-    auto loop(Args... indices)
+    template <bool ASC, typename... Args>
+    auto loop_for(Args... indices)
     {
-        return loop_indices_generator<std::common_type_t<Args...>, sizeof_v<Args...>>{indices...};
+        return loop_indices_generator<std::common_type_t<Args...>, sizeof_v<Args...>, ASC>{indices...};
     }
 
     template <size_t i, size_t j, typename indices>

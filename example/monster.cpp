@@ -591,6 +591,9 @@ int main(int argc, char* argv[])
     execute<inner_dot_t<std::integer_sequence<int, -3, 1, 2, 4, 5>,
             std::integer_sequence<int, 2, 4, -3, 4>>, std::integer_sequence<int, -6, 4, -6, 16>>();
 
+    execute<alter_t<std::integer_sequence<int, 1, 0, 3, 4>, size_t>,
+            std::integer_sequence<size_t, 1, 0, 3, 4>>();
+
     overload_sequence element_count
     {
         [](auto&&) { return 1; },
@@ -636,7 +639,17 @@ int main(int argc, char* argv[])
         std::cout << N << " " << v << std::endl;
     }, 4);
 
-    loop(2, 3, 4)
+    loop_for<1>(2, 3, 4)
+    (
+        [](auto i, auto j, auto k)
+        {
+            std::cout << '(' << i << ", " << j << ", " << k << ")" << std::endl;
+        }
+    );
+
+    std::cout << std::endl;
+
+    loop_for<0>(2, 3, 4)
     (
         [](auto i, auto j, auto k)
         {
@@ -844,16 +857,24 @@ int main(int argc, char* argv[])
             std::tuple<double, int, double, char, int, char>>>();
 
     execute<next_permutation_list<std::tuple<char, int, double>>, list_t>();
-
-    execute<next_permutation_list<std::integer_sequence<int, 1, 2, 3>>,
-            std::tuple<std::integer_sequence<int, 1, 2, 3>,
-                       std::integer_sequence<int, 1, 3, 2>,
-                       std::integer_sequence<int, 2, 1, 3>,
-                       std::integer_sequence<int, 2, 3, 1>,
-                       std::integer_sequence<int, 3, 1, 2>,
-                       std::integer_sequence<int, 3, 2, 1>>>();
-
     execute<prev_permutation_list<std::tuple<double, int, char>>, reverse_t<list_t>>();
+
+    execute<loop_permutation_t<std::tuple<char, int, double>>, list_t>();
+    execute<loop_permutation_t<std::tuple<double, int, char>>, reverse_t<list_t>>();
+
+    using list_n = std::tuple<std::integer_sequence<int, 1, 2, 3>,
+                              std::integer_sequence<int, 1, 3, 2>,
+                              std::integer_sequence<int, 2, 1, 3>,
+                              std::integer_sequence<int, 2, 3, 1>,
+                              std::integer_sequence<int, 3, 1, 2>,
+                              std::integer_sequence<int, 3, 2, 1>>;
+
+    execute<next_permutation_list<std::integer_sequence<int, 1, 2, 3>>, list_n>();
+    execute<prev_permutation_list<std::integer_sequence<int, 3, 2, 1>>, reverse_t<list_n>>();
+
+    execute<loop_permutation_t<std::integer_sequence<int, 1, 2, 3>>, list_n>();
+    execute<loop_permutation_t<std::integer_sequence<int, 3, 2, 1>>, reverse_t<list_n>>();
+
     execute<next_partial_permutation_list<3, std::tuple<char, int, double>>, list_t>();
     execute<prev_partial_permutation_list<3, std::tuple<double, int, char>>, reverse_t<list_t>>();
 
@@ -866,6 +887,9 @@ int main(int argc, char* argv[])
 
     execute<next_partial_permutation_list<2, std::tuple<char, int, double>>, list_s>();
     execute<prev_partial_permutation_list<2, std::tuple<double, int, char>>, reverse_t<list_s>>();
+
+    execute<loop_permutation_t<std::tuple<char, int, double>, 2>, list_s>();
+    execute<loop_permutation_t<std::tuple<double, int, char>, 2>, reverse_t<list_s>>();
 
     execute<permutation_recursive_t<std::integer_sequence<int, 1, 2, 3>>,
             std::tuple<std::integer_sequence<int, 1, 2, 3>,

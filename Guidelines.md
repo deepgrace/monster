@@ -759,10 +759,13 @@ loop<3>([](auto N, auto&& v)
     std::cout << N << " " << v << std::endl;
 }, 4);
 
-// call a function within a nested loop with the loop indices as optional arguments
-loop(indices...)(f);
+// call a function within a nested loop with the loop indices  
+// as arguments (optional) in ascending or descending order
 
-loop(2, 3, 4)
+loop_for<BOOL>(indices...)(f);
+
+// ascending order
+loop_for<true>(2, 3, 4)
 (
     [](auto i, auto j, auto k)
     {
@@ -777,8 +780,24 @@ loop(2, 3, 4)
                    f(i, j, k);
 */
 
+// descending order
+loop_for<false>(2, 3, 4)
+(
+    [](auto i, auto j, auto k)
+    {
+        std::cout << '(' << i << ", " << j << ", " << k << ")" << std::endl;
+    }
+);
+
+/*  This is equivalent to the following:
+    for (int i = 2 - 1; i >=0; --i)
+         for (int j = 3 - 1; j >= 0; --j)
+              for (int k = 4 - 1; k >= 0; --k)
+                   f(i, j, k);
+*/
+
 // f can take fewer and even empty arguments than the loop depth
-loop(2, 3, 4)
+loop_for<true>(2, 3, 4)
 (
     [](auto i, auto j)
     {
@@ -786,7 +805,7 @@ loop(2, 3, 4)
     }
 );
 
-loop(2, 3, 4)
+loop_for<false>(2, 3, 4)
 (
     []
     {
@@ -1058,6 +1077,14 @@ overload_set
 
 ### Permutations
 ```cpp
+/* for a type T and a value N, a permutation of P(element_size<T>, N)
+ * satisfying the following conditions
+ *
+ * loop_permutation_t<T> == loop_permutation_t<T, element_size<T>>
+ * loop_permutation_t<T, N> == reverse_t<loop_permutation_t<reverse_t<T>, N>>
+ * reverse_t<loop_permutation_t<T, N>> == loop_permutation_t<reverse_t<T>, N>
+ */
+
 // next permutation of types P(3, 3)
 using type0 = std::tuple<char, int, double>;
 using type1 = next_permutation_t<type0>; // type1 == std::tuple<char, double, int>
@@ -1076,11 +1103,19 @@ using next = next_permutation_list<type0>;
  *                    std::tuple<double, int, char>>
  *
  * next_partial_permutation_list<3, type0> == next
+ *
+ * loop_permutation_t<type0> == next
+ * loop_permutation_t<type0, 3> == next
  */
 
 using prev = prev_permutation_list<type5>;
-// prev == reverse_t<next>
-// prev_partial_permutation_list<3, type5> == prev
+/*
+ * prev == reverse_t<next>
+ * prev_partial_permutation_list<3, type5> == prev
+ *
+ * loop_permutation_t<type5> == prev
+ * loop_permutation_t<type5, 3> == prev
+ */
 
 // next permutation of values P(3, 3)
 using vals = next_permutation_list<std::integer_sequence<int, 1, 2, 3>>;
@@ -1093,6 +1128,9 @@ using vals = next_permutation_list<std::integer_sequence<int, 1, 2, 3>>;
  *                    std::integer_sequence<int, 3, 2, 1>>
  *
  * prev_permutation_list<std::integer_sequence<int, 3, 2, 1>> == reverse_t<vals>
+ *
+ * loop_permutation_t<std::integer_sequence<int, 3, 2, 1>> == reverse_t<vals>
+ * loop_permutation_t<std::integer_sequence<int, 3, 2, 1>, 3> == reverse_t<vals>
  */
 
 // next partial permutation of types P(3, 2)
@@ -1104,11 +1142,19 @@ using next_partial = next_partial_permutation_list<2, std::tuple<char, int, doub
  *                            std::tuple<int, double>,
  *                            std::tuple<double, char>,
  *                            std::tuple<double, int>>
+ *
+ * loop_permutation_t<std::tuple<char, int, double>, 2> == next_partial
  */
 
 // prev partial permutation of types P(3, 2)
+using lp1 = reverse_t<loop_permutation_t<std::tuple<char, int, double>, 2>>;
+using lp2 = loop_permutation_t<reverse_t<std::tuple<char, int, double>>, 2>;
 using prev_partial = prev_partial_permutation_list<2, std::tuple<double, int, char>>;
-// prev_partial == reverse_t<next_partial>
+/*
+ * lp1 == lp2
+ * prev_partial == reverse_t<next_partial>
+ * loop_permutation_t<std::tuple<double, int, char>, 2> == prev_partial
+ */
 
 // recursive permutation
 using pr1 = permutation_recursive_t<std::tuple<char, int, double>>;
