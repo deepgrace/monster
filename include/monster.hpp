@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 22
+#define MONSTER_VERSION 23
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3967,6 +3967,21 @@ namespace monster
     auto tuple_drop_back(const std::tuple<Args...>& t)
     {
         return tuple_take_front<sizeof_v<Args...> - n>(t);
+    }
+
+    template <size_t N, typename T>
+    void tuple_fill(T& t)
+    {
+    };
+
+    template <size_t N, typename T, typename U, typename... Args>
+    void tuple_fill(T& t, U&& u, Args&&... args)
+    {
+        if constexpr(N < sizeof_t_v<T>)
+        {
+            std::get<N>(t) = u;
+            tuple_fill<N + 1>(t, std::forward<Args>(args)...);
+        }
     }
 
     template <auto n, typename T, auto m>
