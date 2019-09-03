@@ -594,6 +594,12 @@ int main(int argc, char* argv[])
     execute<alter_t<std::integer_sequence<int, 1, 0, 3, 4>, size_t>,
             std::integer_sequence<size_t, 1, 0, 3, 4>>();
 
+    execute<splat_t<2, 4, std::integer_sequence<int, 1, 0, 3, 4>>,
+            std::integer_sequence<int, 3, 3, 3, 3>>();
+
+    execute<splat_t<3, 4, std::tuple<int, char, short, int, double, char>>,
+            std::tuple<int, int, int, int>>();
+
     overload_sequence element_count
     {
         [](auto&&) { return 1; },
@@ -691,6 +697,9 @@ int main(int argc, char* argv[])
     std::cout << "tuple_drop_front " << std::get<0>(tuple_drop_front<3>(tuple)) << std::endl;
     std::cout << "tuple_drop_back " << std::get<1>(tuple_drop_back<3>(tuple)) << std::endl;
     std::cout << "tuple_zip " << std::get<1>(tuple_zip(tuple, std::make_tuple(7, 5))) << std::endl;
+    tuple_fill<3>(tuple, 3, 5);
+    std::cout << "tuple_fill " << std::get<4>(tuple) << std::endl;
+    std::cout << "tuple_splat " << std::get<2>(tuple_splat<2, 5>(tuple)) << std::endl;
 
     execute<infinite_call_t<4, int, std::add_pointer>, int****>();
     execute<multi_level_pointer_t<4, int>, int****>();

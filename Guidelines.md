@@ -715,6 +715,14 @@ using i = infinite_call_t<4, int, std::add_pointer>;
 using p = multi_level_pointer_t<5, int>;
 // i == int****
 // p == int*****
+
+// takes a single element in a sequence and replicates it to 
+// create another sequence with some number of copies of that element
+using s1 = splat_t<2, 4, std::integer_sequence<int, 1, 0, 3, 4>>;
+using s2 = splat_t<3, 5, std::tuple<int, char, short, int, char>>;
+// s1 == std::integer_sequence<int, 3, 3, 3, 3>
+// s2 == std::tuple<int, int, int, int, int>
+
 ```
 
 ### Insert elements
@@ -1819,4 +1827,14 @@ auto p = tuple_cartesian_product(std::make_tuple(2, 'T'), std::make_tuple(4.0, 6
 // zip two tuples
 auto z = tuple_zip(std::make_tuple(5, 4), std::make_tuple(2, 3));
 // z == std::make_tuple(5, 2, 4, 3)
+
+// fill elements since specific index
+auto t5 = std::make_tuple(2, 3.0, 4, 5, 8);
+tuple_fill<2>(t5, 2, 7);
+// t5 == std::make_tuple(2, 3.0, 2, 7, 8)
+
+// takes a single element in a tuple and replicates it to 
+// create another tuple with some number of copies of that element
+auto t6 = tuple_splat<3, 4>(t5);
+// t6 == std::make_tuple(7, 7, 7, 7)
 ```

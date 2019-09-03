@@ -3984,6 +3984,16 @@ namespace monster
         }
     }
 
+    template <auto i, auto n, typename... Args>
+    auto tuple_splat(const std::tuple<Args...>& t)
+    {
+        return [&]<size_t... N>(const std::index_sequence<N...>&)
+        {
+            return std::make_tuple(std::get<typev<identity_t<N, index_t<i>>>>(t)...);
+        }
+        (index_sequence_of_c<n>());
+    }
+
     template <auto n, typename T, auto m>
     auto array_take_front(const std::array<T, m>& a)
     {
@@ -4050,6 +4060,14 @@ namespace monster
 
     template <typename T, typename U>
     using alter_t = typeof_t<alter<T, U>>;
+
+    template <auto i, auto n, typename T>
+    struct splat : expand_of<T, alter_t<fill_c<n, i>, size_t>>
+    {
+    };
+
+    template <auto i, auto n, typename T>
+    using splat_t = typeof_t<splat<i, n, T>>;
 
     template <bool B, typename T, typename U = size_t>
     using alter_if = std::conditional_t<B, alter<T, U>, std::type_identity<T>>;
