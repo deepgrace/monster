@@ -354,6 +354,21 @@ auto acc = accumulate_v<multiplies_t, int_<1>, std::integer_sequence<int, 1, 3, 
 // iota
 using io = iota_t<succ, int_<-2>, std::integer_sequence<int, 0, 0, 0, 0, 0>>;
 // io == std::integer_sequence<int, -2, -1, 0, 1, 2>
+
+// tokenize a number into a sequence of specific length (default in base ten with length one)
+constexpr auto N = 123456;
+using t1 = tokenize_t<N, 10>;
+using t2 = tokenize_t<N, 100>;
+using t3 = tokenize_t<N, 1000>;
+// t1 == std::integer_sequence<int, 1, 2, 3, 4, 5, 6>
+// t2 == std::integer_sequence<int, 12, 34, 56>
+// t3 == std::integer_sequence<int, 123, 456>
+// tokenize_t<N> == tokenize_t<N, 10>
+
+// multiply two large numbers that represented as two sequences
+using l = large_number_multiplier_t<tokenize_t<984>, tokenize_t<987>>;
+// l == std::integer_sequence<int, 9, 7, 1, 2, 0, 8>
+// 984 * 987 == 971208
 ```
 
 ### Combinations

@@ -819,6 +819,13 @@ int main(int argc, char* argv[])
     execute<cartesian_product_t<std::integer_sequence<int, 1, 2>, std::integer_sequence<int, 3, 4, 5>>,
             std::integer_sequence<int, 1, 3, 1, 4, 1, 5, 2, 3, 2, 4, 2, 5>>();
 
+    execute<tokenize_t<19073>, std::integer_sequence<int, 1, 9, 0, 7, 3>>();
+    execute<tokenize_t<19073, 100>, std::integer_sequence<int, 1, 90, 73>>();
+    execute<tokenize_t<19073, 1000>, std::integer_sequence<int, 19, 73>>();
+
+    execute<large_number_multiplier_t<tokenize_t<975>, tokenize_t<6084>>,
+            std::integer_sequence<int, 5, 9, 3, 1, 9, 0, 0>>();
+
     execute<prefix_t<std::tuple<int, double>, float, char>,
             std::tuple<float, char, int, float, char, double>>();
     execute<prefix_t<std::integer_sequence<int, 1, 2>, int_<3>, int_<4>>,

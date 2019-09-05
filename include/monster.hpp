@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 24
+#define MONSTER_VERSION 25
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3161,7 +3161,9 @@ namespace monster
     inline constexpr auto add_v = get_v<n, T> + N;
 
     template <auto n, auto N, typename T>
-    using add = sub<n, add_v<n, N, T>, T>;
+    struct add : sub<n, add_v<n, N, T>, T>
+    {
+    };
 
     template <auto n, auto N, typename T>
     using add_t = typeof_t<add<n, N, T>>;
@@ -3351,6 +3353,25 @@ namespace monster
     struct fibonacci : fib<N, (N < 2)>
     {
     };
+
+    template <int N, int base = 10>
+    struct tokenize
+    {
+        template <int i, typename T, bool = i < base>
+        struct impl : impl<i / base, prepend_c<T, i % base>>
+        {
+        };
+
+        template <int i, typename T>
+        struct impl<i, T, true> : std::type_identity<prepend_c<T, i>>
+        {
+        };
+
+        using type = typeof_t<impl<N, std::integer_sequence<int>>>;
+    };
+
+    template <int N, int base = 10>
+    using tokenize_t = typeof_t<tokenize<N, base>>;
 
     template <int N>
     struct digit
@@ -4703,6 +4724,51 @@ namespace monster
 
     template <typename T, typename U>
     using cartesian_product_t = typeof_t<cartesian_product<T, U>>;
+
+    template <typename T, typename U, auto M = sizeof_t_v<T>, auto N = sizeof_t_v<U>>
+    struct large_number_multiplier
+    {
+        template <int i, typename V, bool = i < sizeof_t_v<V> - 1>
+        struct next
+        {
+            static constexpr int m = get_v<i, V>;
+            using type = typeof_t<next<i + 1, sub_t<i, m % 10, add_t<i + 1, m / 10, V>>>>;
+        };
+
+        template <int i, typename V>
+        struct next<i, V, false>
+        {
+            static constexpr int m = get_v<i, V>;
+
+            using curr = type_if<m < 10, std::type_identity<V>, sub<i, m % 10, V>>;
+            using type = reverse_t<append_if_t<(m >= 10), curr, int_<m / 10>>>;
+        };
+
+        template <int i, int j, int k, int l, typename V>
+        struct impl
+        {
+            static constexpr auto cond = i + j < sizeof_t_v<V>;
+            static constexpr int m = get_v<M - i - 1, T> * get_v<N - j - 1, U>;
+
+            using curr = type_if<cond, add<i + j, m, V>, append<V, int_<m>>>;
+            using type = typeof_t<impl<i, j + 1, k, l, curr>>;
+        };
+
+        template <int i, int k, int l, typename V>
+        struct impl<i, l, k, l, V> : impl<i + 1, 0, k, l, V>
+        {
+        };
+
+        template <int j, int k, int l, typename V>
+        struct impl<k, j, k, l, V> : next<0, V>
+        {
+        };
+
+        using type = typeof_t<impl<0, 0, M, N, base_type_t<T>>>;
+    };
+
+    template <typename T, typename U, auto M = sizeof_t_v<T>, auto N = sizeof_t_v<U>>
+    using large_number_multiplier_t = typeof_t<large_number_multiplier<T, U, M, N>>;
 
     template <typename T, typename... Args>
     struct prefix
