@@ -1283,23 +1283,23 @@ namespace monster
     template <size_t... indices>
     struct index_tuple
     {
-        template<size_t N>
+        template <size_t N>
         using apply = index_tuple<indices..., N>;
     };
 
-    template<size_t N>
+    template <size_t N>
     struct next_index_tuple
     {
         using type = typeof_t<next_index_tuple<N - 1>>::template apply<N - 1>;
     };
 
-    template<>
+    template <>
     struct next_index_tuple<0>
     {
         using type = index_tuple<>;
     };
 
-    template<size_t N>
+    template <size_t N>
     using next_index_tuple_t = typeof_t<next_index_tuple<N>>;
 
     template <size_t N>
@@ -1345,7 +1345,7 @@ namespace monster
         using type = index_sequence<>;
     };
 
-    template<size_t N>
+    template <size_t N>
     using next_index_sequence_t = typeof_t<next_index_sequence<N>>;
 
     template <size_t N>
@@ -2140,6 +2140,11 @@ namespace monster
         {
         };
 
+        template <int j, int q, typename V>
+        struct impl<j, j, q, q, V> : std::type_identity<V>
+        {
+        };
+
         using type = typeof_t<impl<B1, E1, B2, E2, base_type_t<T>>>;
     };
 
@@ -2731,6 +2736,14 @@ namespace monster
 
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using remove_if_t = typeof_t<remove_if<F, T, B, E>>;
+
+    template <typename T, typename indices>
+    struct exclude : expand_of<T, set_difference_t<less_t, index_sequence_of_t<T>, indices>>
+    {
+    };
+
+    template <typename T, typename indices>
+    using exclude_t = typeof_t<exclude<T, indices>>;
 
     template <auto i, typename T, typename ...>
     struct insert;
@@ -4079,7 +4092,7 @@ namespace monster
     {
     };
 
-    template <typename T, typename U>
+    template <typename T, typename U = size_t>
     using alter_t = typeof_t<alter<T, U>>;
 
     template <auto i, auto n, typename T>

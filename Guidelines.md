@@ -611,6 +611,13 @@ using r8 == remove_if_t<negaf<is_tuple>::template apply, type, 1, 5>;
 // r8 == std::tuple<int, std::tuple<char>, std::tuple<double>, float, char>
 // r5 == std::integer_sequence<int, 4, 0, 6, 4, 9, 21>
 // r6 == std::integer_sequence<int, 4, 5, 1, 9, 21>
+
+// delete elements at specific sorted index sequence
+using indices = std::index_sequence<0, 1, 3, 4>;
+using e1 = exclude_t<std::tuple<int, double, int, char, char, int>, indices>;
+using e2 = exclude_t<std::integer_sequence<int, 1, 2, -2, 4, 5, 3>, indices>;
+// e1 == std::tuple<int, int>
+// e2 == std::integer_sequence<int, -2, 3>
 ```
 
 ### Expand sequences

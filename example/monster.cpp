@@ -378,6 +378,11 @@ int main(int argc, char* argv[])
     execute<remove_if_t<negaf<is_tuple>::template apply, type, 1, 5>,
             std::tuple<int, std::tuple<char>, std::tuple<double>, float, char>>();
 
+    execute<exclude_t<std::index_sequence<1, 2, 3, 4, 5, 7>, std::index_sequence<1, 3, 4>>,
+            std::index_sequence<1, 3, 7>>();
+    execute<exclude_t<std::tuple<char, int, double, int, short>, std::index_sequence<0, 2, 3>>,
+            std::tuple<int, short>>();
+
     execute<remove_t<is_tuple, type>, std::tuple<int, char, double, float, char>>();
     execute<remove_t<negaf<is_tuple>::template apply, type>,
             std::tuple<std::tuple<char>, std::tuple<double>>>();
