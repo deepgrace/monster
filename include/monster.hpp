@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 25
+#define MONSTER_VERSION 26
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -2181,6 +2181,11 @@ namespace monster
         {
         };
 
+        template <int j, int q, typename V>
+        struct impl<j, j, q, q, V> : std::type_identity<V>
+        {
+        };
+
         using type = typeof_t<impl<B1, E1, B2, E2, base_type_t<T>>>;
     };
 
@@ -2214,6 +2219,11 @@ namespace monster
 
         template <int i, int j, int q, typename V>
         struct impl<i, j, q, q, V> : std::type_identity<V>
+        {
+        };
+
+        template <int j, int q, typename V>
+        struct impl<j, j, q, q, V> : std::type_identity<V>
         {
         };
 
@@ -2253,6 +2263,11 @@ namespace monster
         {
         };
 
+        template <int j, int q, typename V>
+        struct impl<j, j, q, q, V> : std::type_identity<V>
+        {
+        };
+
         using type = typeof_t<impl<B1, E1, B2, E2, base_type_t<T>>>;
     };
 
@@ -2286,6 +2301,12 @@ namespace monster
         struct impl<i, j, q, q>
         {
             using type = pair_v<i, q>;
+        };
+
+        template <int j, int q>
+        struct impl<j, j, q, q>
+        {
+            using type = pair_v<j, q>;
         };
 
         using type = typeof_t<impl<B1, E1, B2, E2>>;
