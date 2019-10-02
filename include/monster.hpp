@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 26
+#define MONSTER_VERSION 27
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -2470,8 +2470,27 @@ namespace monster
     requires is_list_v<T, U>
     inline constexpr auto find_end_v = typev<find_end_t<F, T, U, B1, E1, B2, E2>>;
 
-    template <template <typename, typename> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
-    struct partial_sum
+    template <template <typename> typename F, typename T>
+    struct transform;
+
+    template <template <typename> typename F, template <typename ...> typename T, typename... Args>
+    struct transform<F, T<Args...>>
+    {
+        using type = T<typeof_t<F<Args>>...>;
+    };
+
+    template <template <typename> typename F, template <typename, auto ...> typename T, typename U, auto... Args>
+    struct transform<F, T<U, Args...>>
+    {
+        using type = T<U, typev<F<int_<Args, U>>>...>;
+    };
+
+    template <template <typename> typename F, typename T>
+    using transform_t = typeof_t<transform<F, T>>;
+
+    template <template <typename, typename> typename F, typename T,
+    typename init = element_t<0, T>, auto B = 0, auto E = sizeof_t_v<T>>
+    struct inclusive_scan
     {
         template <int i, int j, typename U, typename V>
         struct impl
@@ -2481,23 +2500,61 @@ namespace monster
         };
 
         template <int j, typename U, typename V>
-        struct impl<j, j, U, V>
+        struct impl<j, j, U, V> : std::type_identity<V>
         {
-            using type = pair_t<U, V>;
         };
 
-        using init = element_t<0, T>;
         using type = typeof_t<impl<B + 1, E, init, append_t<base_type_t<T>, init>>>;
     };
 
-    template <template <typename, typename> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
-    using partial_sum_t = typeof_t<partial_sum<F, T, B, E>>;
+    template <template <typename, typename> typename F, typename T,
+    typename init = element_t<0, T>, auto B = 0, auto E = sizeof_t_v<T>>
+    using inclusive_scan_t = typeof_t<inclusive_scan<F, T, init, B, E>>;
 
-    template <template <typename, typename> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
-    using partial_sum_first = first_t<partial_sum_t<F, T, B, E>>;
+    template <template <typename, typename> typename F, typename T,
+    typename init, auto B = 0, auto E = sizeof_t_v<T>>
+    struct exclusive_scan
+    {
+        template <int i, int j, typename U, typename V>
+        struct impl
+        {
+            using curr = typeof_t<F<U, element_t<i, T>>>;
+            using type = typeof_t<impl<i + 1, j, curr, append_t<V, curr>>>;
+        };
 
-    template <template <typename, typename> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
-    using partial_sum_second = second_t<partial_sum_t<F, T, B, E>>;
+        template <int j, typename U, typename V>
+        struct impl<j, j, U, V> : std::type_identity<V>
+        {
+        };
+
+        using type = typeof_t<impl<B, E - 1, init, append_t<base_type_t<T>, init>>>;
+    };
+
+    template <template <typename, typename> typename F, typename T,
+    typename init, auto B = 0, auto E = sizeof_t_v<T>>
+    using exclusive_scan_t = typeof_t<exclusive_scan<F, T, init, B, E>>;
+
+    template <template <typename, typename> typename F, typename T, template <typename> typename U,
+    typename init = typeof_t<U<element_t<0, T>>>, auto B = 0, auto E = sizeof_t_v<T>>
+    struct transform_inclusive_scan
+    {
+        using type = inclusive_scan_t<F, transform_t<U, range_t<B, E, T>>, init, B, E>;
+    };
+
+    template <template <typename, typename> typename F, typename T, template <typename> typename U,
+    typename init = typeof_t<U<element_t<0, T>>>, auto B = 0, auto E = sizeof_t_v<T>>
+    using transform_inclusive_scan_t = typeof_t<transform_inclusive_scan<F, T, U, init, B, E>>;
+
+    template <template <typename, typename> typename F, typename T, template <typename> typename U,
+    typename init, auto B = 0, auto E = sizeof_t_v<T>>
+    struct transform_exclusive_scan
+    {
+        using type = exclusive_scan_t<F, transform_t<U, range_t<B, E, T>>, init, B, E>;
+    };
+
+    template <template <typename, typename> typename F, typename T, template <typename> typename U,
+    typename init, auto B = 0, auto E = sizeof_t_v<T>>
+    using transform_exclusive_scan_t = typeof_t<transform_exclusive_scan<F, T, U, init, B, E>>;
 
     template <template <typename, typename> typename F, typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0>
     requires is_list_v<T, U>
@@ -4404,7 +4461,7 @@ namespace monster
         template <typename U, typename V>
         using max_sum = max_t<plus_t<U, V>, V>;
 
-        using type = maximum_t<partial_sum_second<max_sum, T>>;
+        using type = maximum_t<inclusive_scan_t<max_sum, T>>;
     };
 
     template <typename T>
@@ -4467,18 +4524,6 @@ namespace monster
 
     template <typename T>
     inline constexpr auto mode_v = typev<mode<T>>;
-
-    template <typename F, typename T>
-    struct transform;
-
-    template <typename F, template <typename ...> typename T, typename... Args>
-    struct transform<F, T<Args...>>
-    {
-        using type = T<call_t<F, Args>...>;
-    };
-
-    template <typename F, typename T>
-    using transform_t = typeof_t<transform<F, T>>;
 
     template <template <typename> typename F, template <typename> typename P, typename T, typename U, auto B, auto E, bool W>
     struct transform_of

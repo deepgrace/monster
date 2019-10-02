@@ -327,12 +327,31 @@ auto s7 = search_n_v<std::is_same, 2, int, std::tuple<int, char, int, int, doubl
 // s6 == 3
 // s7 == 2
 
-// partial_sum
+// inclusive_scan
 using seq = std::integer_sequence<int, 1, 2, 3, 4>;
-using fst = partial_sum_first<plus_t, seq>;
-using snd = partial_sum_second<plus_t, seq>;
-// fst == int_<10>
-// snd == std::integer_sequence<int, 1, 3, 6, 10>
+
+using in1 = inclusive_scan_t<plus_t, seq>;
+using in2 = inclusive_scan_t<multiplies_t, seq>;
+// in1 == std::integer_sequence<int, 1, 3, 6, 10>
+// in2 == std::integer_sequence<int, 1, 2, 6, 24>
+
+// exclusive_scan
+using ex1 = exclusive_scan_t<plus_t, seq, int_<2>>;
+using ex2 = exclusive_scan_t<multiplies_t, seq, int_<2>>;
+// ex1 == std::integer_sequence<int, 2, 3, 5, 8>
+// ex2 == std::integer_sequence<int, 2, 2, 4, 12>
+
+// transform_inclusive_scan
+using ti1 = transform_inclusive_scan_t<plus_t, seq, pred>;
+using ti2 = transform_inclusive_scan_t<multiplies_t, seq, succ>;
+// ti1 == std::integer_sequence<int, 0, 1, 3, 6>
+// ti2 == std::integer_sequence<int, 2, 6, 24, 120>
+
+// transform_exclusive_scan
+using te1 = transform_exclusive_scan_t<plus_t, seq, pred, int_<2>>;
+using te2 = transform_exclusive_scan_t<multiplies_t, seq, succ, int_<2>>;
+// te1 == std::integer_sequence<int, 2, 2, 3, 5>
+// te2 == std::integer_sequence<int, 2, 4, 12, 48>
 
 // sum two sequences
 using t = transmute_t<plus_t, std::integer_sequence<int, 1, 3, 0, 2>,
@@ -1725,26 +1744,30 @@ using c5 = cycle_c<3, 2, 4>;
 // c5 == c4
 
 // add pointer to each element
-using t1 = transform_t<pointer_type_of, std::tuple<int, double, char*>>;
+using t1 = transform_t<std::add_pointer, std::tuple<int, double, char*>>;
 // t1 == std::tuple<int*, double*, char**>
 
+// add one to each element
+using t2 = transform_t<succ, std::integer_sequence<int, 7, 5, -2, 3, 1>>;
+// t2 == std::integer_sequence<int, 8, 6, -1, 4, 2>
+
 // apply a function to elements that satisfying specific criteria
-using t2 = transform_if_t<succ, is_even, std::integer_sequence<int>,
+using t3 = transform_if_t<succ, is_even, std::integer_sequence<int>,
             std::integer_sequence<int, 0, 3, 1, 2, 8, 4>>;
-// t2 == std::integer_sequence<int, 1, 3, 9, 5>>
+// t3 == std::integer_sequence<int, 1, 3, 9, 5>>
 
 // apply a function to elements until the specific criteria isn't satisfied
-using t3 = transform_while_t<succ, is_even, std::integer_sequence<int>,
+using t4 = transform_while_t<succ, is_even, std::integer_sequence<int>,
            std::integer_sequence<int, 0, 2, 4, 2, 1, 8, 4>>;
-// t3 == std::integer_sequence<int, 1, 3, 5, 3>
+// t4 == std::integer_sequence<int, 1, 3, 5, 3>
 
 // turn a tuple to a integer sequence that consist of the size of the elements
-using t4 = to_sequence_t<std::tuple<int, double>>;
-// t4 == std::integer_sequence<int, sizeof(int), sizeof(double)>
+using t5 = to_sequence_t<std::tuple<int, double>>;
+// t5 == std::integer_sequence<int, sizeof(int), sizeof(double)>
 
 // turn a integer sequence to a tuple that consist of the value of the elements
-using t5 = to_tuple_t<std::integer_sequence<int, 4, 8>>;
-// t5 == std::tuple<int_<4>, int_<8>>
+using t6 = to_tuple_t<std::integer_sequence<int, 4, 8>>;
+// t6 == std::tuple<int_<4>, int_<8>>
 
 // increase elements
 using seq = std::integer_sequence<int, 2, 7, 4>;

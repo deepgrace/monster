@@ -278,9 +278,25 @@ int main(int argc, char* argv[])
     execute<search_n_v<std::is_same, 2, int_<2>, std::integer_sequence<int, 1, 2, 0, 2, 2, 7, 2>>, 3>();
     execute<search_n_v<std::is_same, 2, int, std::tuple<int, char, int, int, double, int, int, char>>, 2>();
 
-    execute<partial_sum_first<plus_t, std::integer_sequence<int, 1, 2, 3, 4>>, int_<10>>();
-    execute<partial_sum_second<plus_t, std::integer_sequence<int, 1, 2, 3, 4>>,
+    execute<inclusive_scan_t<plus_t, std::integer_sequence<int, 1, 2, 3, 4>>,
             std::integer_sequence<int, 1, 3, 6, 10>>();
+    execute<inclusive_scan_t<multiplies_t, std::integer_sequence<int, 1, 2, 3, 4>>,
+            std::integer_sequence<int, 1, 2, 6, 24>>();
+
+    execute<exclusive_scan_t<plus_t, std::integer_sequence<int, 1, 2, 3, 4>, int_<2>>,
+            std::integer_sequence<int, 2, 3, 5, 8>>();
+    execute<exclusive_scan_t<multiplies_t, std::integer_sequence<int, 1, 2, 3, 4>, int_<2>>,
+            std::integer_sequence<int, 2, 2, 4, 12>>();
+
+    execute<transform_inclusive_scan_t<plus_t, std::integer_sequence<int, 1, 2, 3, 4>, pred>,
+            std::integer_sequence<int, 0, 1, 3, 6>>();
+    execute<transform_inclusive_scan_t<multiplies_t, std::integer_sequence<int, 1, 2, 3, 4>, succ>,
+            std::integer_sequence<int, 2, 6, 24, 120>>();
+
+    execute<transform_exclusive_scan_t<plus_t, std::integer_sequence<int, 1, 2, 3, 4>, pred, int_<2>>,
+            std::integer_sequence<int, 2, 2, 3, 5>>();
+    execute<transform_exclusive_scan_t<multiplies_t, std::integer_sequence<int, 1, 2, 3, 4>, succ, int_<2>>,
+            std::integer_sequence<int, 2, 4, 12, 48>>();
 
     execute<transmute_t<plus_t, std::integer_sequence<int, 1, 3, 0, 2>,
             std::integer_sequence<int, 1, 5, 4, 2>>, std::integer_sequence<int, 2, 8, 4, 4>>();
@@ -789,8 +805,10 @@ int main(int argc, char* argv[])
     execute<monster::mode_t<std::integer_sequence<int, 1, 2, 3, 1>>, int_<1>>();
     execute<monster::mode_t<std::tuple<char, double, char, double, int, float, char>>, char>();
 
-    execute<transform_t<pointer_type_of, std::tuple<int, double, char*>>,
+    execute<transform_t<std::add_pointer, std::tuple<int, double, char*>>,
             std::tuple<int*, double*, char**>>();
+    execute<transform_t<succ, std::integer_sequence<int, 7, 5, -2, 3, 1>>,
+            std::integer_sequence<int, 8, 6, -1, 4, 2>>();
 
     execute<transform_if_t<succ, is_even, std::integer_sequence<int>,
             std::integer_sequence<int, 0, 3, 1, 2, 8, 4>>, std::integer_sequence<int, 1, 3, 9, 5>>();
