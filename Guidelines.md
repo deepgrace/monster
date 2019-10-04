@@ -1524,11 +1524,11 @@ auto i7 = value_index_v<7, std::integer_sequence<int, 1, -2, 0, 3, 6, 5>>;
 // i7 == 6, not found
 
 // maximum element
-using m4 = maximum_t<std::tuple<short, int, char>>;
-using m5 = maximum_t<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>;
-auto  m6 = maximum_v<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>;
+using m4 = max_element_t<std::tuple<short, int, char>>;
+using m5 = max_element_t<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>;
+auto  m6 = max_element_v<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>;
 using m7 = max_t<char, double>;
-using m8 = max_type_t<short, int, char, short>;
+using m8 = maximum_t<short, int, char, short>;
 // m4 == int
 // m5 == int_<4>
 // m6 == 4
@@ -1536,11 +1536,11 @@ using m8 = max_type_t<short, int, char, short>;
 // m8 == int
 
 // minimum element
-using n4 = minimum_t<std::tuple<short, int, char>>;
-using n5 = minimum_t<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>;
-auto  n6 = minimum_v<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>;
+using n4 = min_element_t<std::tuple<short, int, char>>;
+using n5 = min_element_t<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>;
+auto  n6 = min_element_v<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>;
 using n7 = min_t<char, double>;
-using n8 = min_type_t<short, int, char, int>;
+using n8 = minimum_t<short, int, char, int>;
 // n4 == char
 // n5 ==  int_<-2>
 // n6 == -2

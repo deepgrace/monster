@@ -1523,16 +1523,16 @@ namespace monster
     using max_t = typeof_t<max<T, U>>;
 
     template <typename... Args>
-    using min_type = folded<min, Args...>;
+    using minimum = folded<min, Args...>;
 
     template <typename... Args>
-    using min_type_t = typeof_t<min_type<Args...>>;
+    using minimum_t = typeof_t<minimum<Args...>>;
 
     template <typename... Args>
-    using max_type = folded<max, Args...>;
+    using maximum = folded<max, Args...>;
 
     template <typename... Args>
-    using max_type_t = typeof_t<max_type<Args...>>;
+    using maximum_t = typeof_t<maximum<Args...>>;
 
     template <bool B, typename T, typename... Args>
     struct push;
@@ -4361,22 +4361,27 @@ namespace monster
     };
 
     template <typename T>
-    using minimum = minmax<T, true>;
+    using min_element = minmax<T, true>;
 
     template <typename T>
-    using minimum_t = typeof_t<minimum<T>>;
+    using min_element_t = typeof_t<min_element<T>>;
 
     template <typename T>
-    inline constexpr auto minimum_v = typev<minimum_t<T>>;
+    inline constexpr auto min_element_v = typev<min_element_t<T>>;
 
     template <typename T>
-    using maximum = minmax<T, false>;
+    using max_element = minmax<T, false>;
 
     template <typename T>
-    using maximum_t = typeof_t<maximum<T>>;
+    using max_element_t = typeof_t<max_element<T>>;
 
     template <typename T>
-    inline constexpr auto maximum_v = typev<maximum_t<T>>;
+    inline constexpr auto max_element_v = typev<max_element_t<T>>;
+
+    template <typename T>
+    struct minmax_element : pair_t<min_element_t<T>, max_element_t<T>>
+    {
+    };
 
     template <int low, int mid, int high, typename T>
     struct find_max_crossing_subarray
@@ -4396,7 +4401,7 @@ namespace monster
             using type = pair_v<index, max>;
         };
 
-        static constexpr auto min = minimum_v<T>;
+        static constexpr auto min = min_element_v<T>;
 
         using left = typeof_t<impl<0, min, 0, mid, low - 1, -1>>;
         using right = typeof_t<impl<0, min, 0, mid + 1, high + 1, 1>>;
@@ -4461,7 +4466,7 @@ namespace monster
         template <typename U, typename V>
         using max_sum = max_t<plus_t<U, V>, V>;
 
-        using type = maximum_t<inclusive_scan_t<max_sum, T>>;
+        using type = max_element_t<inclusive_scan_t<max_sum, T>>;
     };
 
     template <typename T>
@@ -5592,7 +5597,7 @@ namespace monster
         template <typename U>
         struct impl<U, false>
         {
-            static constexpr auto delta = minimum_v<U>;
+            static constexpr auto delta = min_element_v<U>;
             static constexpr auto value = delta < 0 ? -delta : 0;
 
             using type = type_if<value || N, increase<U, N == 0 ? value : -N>, std::type_identity<U>>;
@@ -5642,7 +5647,7 @@ namespace monster
         using call = normalize_t<T>;
 
         static constexpr auto N = sizeof_t_v<T>;
-        static constexpr auto k = sizeof_t_v<maximum_t<call>>;
+        static constexpr auto k = sizeof_t_v<max_element_t<call>>;
 
         static constexpr int p = exp ? exp : 1;
         static constexpr int q = base ? base : power_v<10, digit_v<k>>;
@@ -5697,7 +5702,7 @@ namespace monster
     struct radix_sort
     {
         using call = normalize_t<T>;
-        static constexpr auto k = sizeof_t_v<maximum_t<call>>;
+        static constexpr auto k = sizeof_t_v<max_element_t<call>>;
 
         template <int exp, typename U, bool = (k / exp > 0)>
         struct impl : impl<exp * 10, typeof_t<counting_sort<U, less_t, exp, 10>>>
@@ -6173,7 +6178,7 @@ namespace monster
     template <size_t p, size_t q, size_t r, typename T, template <typename, typename> typename comparator = less_equal_t>
     struct merge
     {
-        using max = maximum_t<T>;
+        using max = max_element_t<T>;
 
         template <auto i, auto j, typename U>
         using split = append_t<expand_t<element, U, index_sequence_of_c<i>, j>, max>;

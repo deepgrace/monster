@@ -199,12 +199,12 @@ int main(int argc, char* argv[])
     execute<lcm_v<4, 18>, 36>();
     execute<lcm_v<7, 13>, 91>();
 
-    execute<unpack_t<max_type_t, std::tuple<int, double, char>>, max_type_t<int, double, char>>();
+    execute<unpack_t<maximum_t, std::tuple<int, double, char>>, maximum_t<int, double, char>>();
 
-    using bf = bind_front<max_type_t, int, double>;
-    execute<bf::template apply<char, float>, max_type_t<int, double, char, float>>();
-    execute<call_t<bf, char, float>, max_type_t<int, double, char, float>>();
-    execute<call_t<partial<bf, char>, float>, max_type_t<int, double, char, float>>();
+    using bf = bind_front<maximum_t, int, double>;
+    execute<bf::template apply<char, float>, maximum_t<int, double, char, float>>();
+    execute<call_t<bf, char, float>, maximum_t<int, double, char, float>>();
+    execute<call_t<partial<bf, char>, float>, maximum_t<int, double, char, float>>();
 
     using bb = bind_back<std::tuple, int, double>;
     execute<bb::template apply<char, float>, std::tuple<char, float, int, double>>();
@@ -415,18 +415,21 @@ int main(int argc, char* argv[])
     execute<eliminate_c<4, std::integer_sequence<int, 4, 3, 2, 4, 7, 3>>,
             std::integer_sequence<int, 3, 2, 7, 3>>();
 
-    execute<maximum_t<std::tuple<short, int, char>>, int>();
-    execute<minimum_t<std::tuple<short, int, char>>, char>();
-    execute<maximum_t<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>, int_<4>>();
-    execute<minimum_t<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>, int_<-2>>();
-    execute<maximum_v<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>, 4>();
-    execute<minimum_v<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>, -2>();
+    execute<max_element_t<std::tuple<short, int, char>>, int>();
+    execute<min_element_t<std::tuple<short, int, char>>, char>();
+    execute<max_element_t<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>, int_<4>>();
+    execute<min_element_t<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>, int_<-2>>();
+    execute<max_element_v<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>, 4>();
+    execute<min_element_v<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>, -2>();
+
+    execute<first_t<minmax_element<std::tuple<short, int, char>>>, char>();
+    execute<second_t<minmax_element<std::tuple<short, int, char>>>, int>();
 
     execute<min_t<char, double>, char>();
     execute<max_t<char, double>, double>();
 
-    execute<min_type_t<short, int, char>, char>();
-    execute<max_type_t<short, int, char>, int>();
+    execute<minimum_t<short, int, char>, char>();
+    execute<maximum_t<short, int, char>, int>();
 
     execute<expand_t<std::tuple_element, std::tuple<int, float, char, double>,
             std::index_sequence<0, 2>>, std::tuple<int, char>>();
