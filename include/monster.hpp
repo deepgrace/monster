@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 27
+#define MONSTER_VERSION 28
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3002,7 +3002,7 @@ namespace monster
     template <typename T, typename U = T, typename... Args>
     constexpr size_t typeindex()
     {
-        return std::is_same<T, U>() ? 0 : typeindex<T, Args...>() + 1;
+        return std::is_same<T, U>() ? 1 : typeindex<T, Args...>() + 1;
     }
 
     template <typename T, typename U>

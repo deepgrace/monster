@@ -1511,7 +1511,7 @@ auto i2 = typeindex<int, double, int, char>();
 auto i3 = typeindex<int, double, double, float>();
 // i1 == 3
 // i2 == 2
-// i3 == 4, not found
+// i3 == 4
 
 // returns the first index at which the provided element appears in the type
 auto i4 = type_index_v<int, std::tuple<char, float, double, int, char>>;
