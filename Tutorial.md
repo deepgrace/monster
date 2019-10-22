@@ -532,6 +532,9 @@ int main(int argc, char* argv[])
     execute<range_t<1, 4, std::integer_sequence<int, 1, 2, -2, 4, 3, 5>>,
             std::integer_sequence<int, 2, -2, 4>>();
 
+    execute<starts_with_v<std::tuple<int, char, short>, std::tuple<int, char>>>();
+    execute<ends_with_v<std::index_sequence<7, 4, 2>, std::index_sequence<4, 2>>>();
+
     execute<reverse_t<double>, double>();
     execute<reverse_t<std::tuple<float, double, int>>, std::tuple<int, double, float>>();
     execute<reverse_t<std::integer_sequence<int, 1, 2, -2>>, std::integer_sequence<int, -2, 2, 1>>();

@@ -2062,6 +2062,26 @@ namespace monster
     template <auto lower, auto upper, typename T>
     using range_t = typeof_t<range<lower, upper, T>>;
 
+    template <typename T, typename U, auto p = sizeof_t_v<T>, auto q = sizeof_t_v<U>>
+    requires q <= p
+    struct starts_with : std::is_same<range_t<0, q, T>, U>
+    {
+    };
+
+    template <typename T, typename U, auto p = sizeof_t_v<T>, auto q = sizeof_t_v<U>>
+    requires q <= p
+    inline constexpr auto starts_with_v = typev<starts_with<T, U, p, q>>;
+
+    template <typename T, typename U, auto p = sizeof_t_v<T>, auto q = sizeof_t_v<U>>
+    requires q <= p
+    struct ends_with : std::is_same<range_t<p - q, p, T>, U>
+    {
+    };
+
+    template <typename T, typename U, auto p = sizeof_t_v<T>, auto q = sizeof_t_v<U>>
+    requires q <= p
+    inline constexpr auto ends_with_v = typev<ends_with<T, U, p, q>>;
+
     template <bool B, auto lower, auto upper, typename T>
     using range_if = std::conditional_t<B, range<lower, upper, T>, std::type_identity<T>>;
 

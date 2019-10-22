@@ -388,6 +388,14 @@ using t3 = tokenize_t<N, 1000>;
 using l = large_number_multiplier_t<tokenize_t<984>, tokenize_t<987>>;
 // l == std::integer_sequence<int, 9, 7, 1, 2, 0, 8>
 // 984 * 987 == 971208
+
+// starts with
+auto sw = starts_with_v<std::tuple<int, char, short>, std::tuple<int, char>>;
+// sw == true
+
+// ends with
+auto ew = ends_with_v<std::index_sequence<7, 4, 2>, std::index_sequence<4, 2>>;
+// ew == true
 ```
 
 ### Combinations
