@@ -1610,8 +1610,9 @@ using n = insertion_sort_t<v>;
 using o = merge_sort_t<v>;
 using p = strand_sort_t<v>;
 using q = heap_sort_t<v>;
+using r = rank_sort_t<v>;
 
-// a..q == std::integer_sequence<int, -7, -3, -2, 0, 1, 1, 2, 4, 5>
+// a..r == std::integer_sequence<int, -7, -3, -2, 0, 1, 1, 2, 4, 5>
 
 // sort types
 using t = std::tuple<double, short, double, int, char, char, double>;

@@ -1123,6 +1123,7 @@ int main(int argc, char* argv[])
 
     execute<stable_sort_t<input1>, output1>();
     execute<select_sort_t<input1>, output1>();
+    execute<rank_sort_t<input1>, output1>();
     execute<counting_sort_t<input1>, output1>();
     execute<radix_sort_t<input1>, output1>();
     execute<stooge_sort_t<input1>, output1>();

@@ -5661,6 +5661,37 @@ namespace monster
     template <typename T, template <typename, typename> typename comparator = less_equal_t>
     using select_sort_t = sort_t<select_sort, T, comparator>;
 
+    template <typename T>
+    struct rank_sort;
+
+    template <typename T, T... values>
+    struct rank_sort<std::integer_sequence<T, values...>>
+    {
+        template <bool B, T value>
+        static constexpr auto rank()
+        {
+            return ((B ? value > values : value == values) + ...);
+        }
+
+        template <size_t k>
+        static constexpr auto nth()
+        {
+            T t{};
+            size_t n = 0;
+            ((n = rank<1, values>(), k >= n && k < n + rank<0, values>() ? t = values : T()), ...);
+
+            return t;
+        }
+
+        using type = decltype([]<size_t... indices>(const std::index_sequence<indices...>&)
+                     {
+                         return std::integer_sequence<T, nth<indices>()...>();
+                     }(std::make_index_sequence<sizeof...(values)>()));
+    };
+
+    template <typename T>
+    using rank_sort_t = typeof_t<rank_sort<T>>;
+
     template <typename T, template <typename, typename> typename comparator = less_t, int exp = 0, int base = 0>
     struct counting_sort
     {
