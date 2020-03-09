@@ -611,10 +611,16 @@ using u2 = unique_t<std::integer_sequence<int, 2, 1, 2, 3, 4, 3>>;
 // u1 == std::tuple<char, int, float, double>
 // u2 == std::integer_sequence<int, 1, 2, 4, 3>
 
+// delete all indices with duplicate elements, keep the last appearance
+using u3 = unique_index_t<std::tuple<int, char, int, double, float, double>>;
+using u4 = unique_index_t<std::integer_sequence<int, 2, 1, 2, 3, 4, 3>>;
+// u3 == std::index_sequence<1, 2, 4, 5>
+// u4 == u3
+
 // delete all duplicate elements satisfying specific criteria
 // for a type T, is_pointer_of_v<T*, T> == true
-using u3 = unique_if_t<is_pointer_of, std::tuple<int*, int*, int, double, char, double*, double>>;
-// u3 == std::tuple<int*, int*, double, char, double*>
+using u5 = unique_if_t<is_pointer_of, std::tuple<int*, int*, int, double, char, double*, double>>;
+// u5 == std::tuple<int*, int*, double, char, double*>
 
 // delete all elements satisfying specific criteria
 using value = std::integer_sequence<int, 4, 0, 5, 6, 4, 1, 9, 21>;

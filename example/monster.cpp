@@ -375,8 +375,11 @@ int main(int argc, char* argv[])
     execute<concat_t<std::integer_sequence<int, 1, 2, 3>, std::integer_sequence<int, 4, 5, 6>>,
             std::integer_sequence<int, 1, 2, 3, 4, 5, 6>>();
 
-    execute<unique_t<std::tuple<int, char, int, double>> , std::tuple<char, int, double>>();
+    execute<unique_t<std::tuple<int, char, int, double>>, std::tuple<char, int, double>>();
     execute<unique_t<std::integer_sequence<int, 2, 2, 3, 4, 3>>, std::integer_sequence<int, 2, 4, 3>>();
+
+    execute<unique_index_t<std::tuple<int, int, char, int, double>>, std::index_sequence<2, 3, 4>>();
+    execute<unique_index_t<std::integer_sequence<int, 3, 1, 2, 5, 3>>, std::index_sequence<1, 2, 3, 4>>();
 
     execute<unique_if_t<is_pointer_of, std::tuple<int*, int*, int, double, char, double*, double, float>>,
             std::tuple<int*, int*, double, char, double*, float>>();

@@ -1500,6 +1500,46 @@ namespace monster
     template <typename T>
     using unique_t = typeof_t<unique<T>>;
 
+    template <typename T>
+    struct unique_index;
+
+    template <template <typename ...> typename T, typename... Args>
+    struct unique_index<T<Args...>>
+    {
+        template <size_t N, typename... args>
+        struct impl : std::type_identity<std::index_sequence<>>
+        {
+        };
+
+        template <size_t N, typename U, typename... args>
+        struct impl<N, U, args...>
+        {
+            using type = dedup_t<contains<U, args...>, std::index_sequence<N>, impl<N + 1, args...>>;
+        };
+
+        using type = typeof_t<impl<0, Args...>>;
+    };
+
+    template <template <typename, auto ...> typename T, typename U, auto... values>
+    struct unique_index<T<U, values...>>
+    {
+        template <size_t N, auto... args>
+        struct impl : std::type_identity<std::index_sequence<>>
+        {
+        };
+
+        template <size_t N, auto value, auto... args>
+        struct impl<N, value, args...>
+        {
+            using type = dedup_t<comprise<value, args...>, std::index_sequence<N>, impl<N + 1, args...>>;
+        };
+
+        using type = typeof_t<impl<0, values...>>;
+    };
+
+    template <typename T>
+    using unique_index_t = typeof_t<unique_index<T>>;
+
     template <auto p, auto q>
     inline constexpr auto min_v = p < q ? p : q;
 
