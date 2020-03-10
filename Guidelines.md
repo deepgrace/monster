@@ -1897,4 +1897,8 @@ tuple_fill<2>(t5, 2, 7);
 // create another tuple with some number of copies of that element
 auto t6 = tuple_splat<3, 4>(t5);
 // t6 == std::make_tuple(7, 7, 7, 7)
+
+// delete all duplicate elements, keep the last appearance
+auto t7 = tuple_unique(std::make_tuple(1, 's', 7.0, 1, 's'));
+// t7 == std::make_tuple(7.0, 1, 's')
 ```

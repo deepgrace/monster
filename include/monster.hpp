@@ -4166,6 +4166,16 @@ namespace monster
         (index_sequence_of_c<n>());
     }
 
+    template <typename... Args>
+    auto tuple_unique(const std::tuple<Args...>& t)
+    {
+        return [&]<size_t... N>(const std::index_sequence<N...>&)
+        {
+            return std::make_tuple(std::get<N>(t)...);
+        }
+        (unique_index_t<std::tuple<Args...>>());
+    }
+
     template <auto n, typename T, auto m>
     auto array_take_front(const std::array<T, m>& a)
     {
