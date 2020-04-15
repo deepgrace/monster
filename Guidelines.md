@@ -1640,8 +1640,9 @@ using N = insertion_sort_t<t>;
 using O = merge_sort_t<t>;
 using P = strand_sort_t<t>;
 using Q = heap_sort_t<t>;
+using R = map_sort_t<t>;
 
-// A..Q == std::tuple<char, char, short, int, double, double, double>
+// A..R == std::tuple<char, char, short, int, double, double, double>
 
 // sort values by index
 using v_sorted_index = sort_index_t<v>;

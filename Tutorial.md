@@ -1065,6 +1065,9 @@ int main(int argc, char* argv[])
     execute<stable_sort_t<std::tuple<double, uint64_t, double, float, int, char, float, char, double>>,
             std::tuple<char, char, float, int, float, double, uint64_t, double, double>>();
 
+    execute<map_sort_t<std::tuple<double, uint64_t, double, float, int, char, float, char, double>>,
+            std::tuple<char, char, float, int, float, double, uint64_t, double, double>>();
+
     execute<select_sort_t<std::tuple<int, int, double, char, int, char, double>>,
             std::tuple<char, char, int, int, int, double, double>>();
 

@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 28
+#define MONSTER_VERSION 29
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -127,13 +127,13 @@ namespace monster
     template <typename T>
     inline constexpr auto second_v = T::second;
 
-    template <auto N, typename T>
+    template <int N, typename T>
     struct identity
     {
         using type = T;
     };
 
-    template <auto N, typename T>
+    template <int N, typename T>
     using identity_t = typeof_t<identity<N, T>>;
 
     template <auto N, typename T>
@@ -5741,6 +5741,77 @@ namespace monster
 
     template <typename T>
     using rank_sort_t = typeof_t<rank_sort<T>>;
+
+    template <size_t key, typename T>
+    struct field
+    {
+        T value;
+    };
+
+    template <typename... Args>
+    struct mapping : Args...
+    {
+    };
+
+    template <typename T>
+    struct map_sort;
+
+    template <typename... Args>
+    struct map_sort<std::tuple<Args...>>
+    {
+        template <size_t key, typename value>
+        static constexpr decltype(auto) get(const identity<key, value>& id)
+        {
+            return id;
+        }
+
+        template <typename indices, typename... args>
+        struct impl;
+
+        template <size_t... indices, typename... args>
+        struct impl<std::index_sequence<indices...>, args...>
+        {
+            template <typename T>
+            static constexpr auto value()
+            {
+                return sizeof(T::value);
+            }
+
+            template <size_t k, typename T>
+            static constexpr auto rankof()
+            {
+                auto n = value<T>();
+                return ((n > value<args>()) + ...) + ((n == value<args>() && indices < k) + ...);
+            }
+
+            static constexpr auto sort()
+            {
+                using ranking = mapping<identity<rankof<indices, args>(), args>...>;
+                return std::tuple<typeof_t<std::decay_t<decltype(get<indices>(std::declval<ranking>()))>>...>{};
+            }
+        };
+
+        using index = std::index_sequence_for<Args...>;
+
+        using type = decltype(
+                     []<size_t... indices, typename... args>(const std::tuple<field<indices, args>...>&)
+                     {
+                         return std::tuple<args...>{};
+                     }
+                     ([]<typename... args>(const std::tuple<args...>&)
+                     {
+                         return impl<index, args...>::sort();
+                     }
+                     ([]<size_t... indices>(std::index_sequence<indices...>)
+                     {
+                         return std::tuple<field<indices, Args>...>{};
+                     }(index{})
+                     )));
+
+    };
+
+    template <typename T>
+    using map_sort_t = typeof_t<map_sort<T>>;
 
     template <typename T, template <typename, typename> typename comparator = less_t, int exp = 0, int base = 0>
     struct counting_sort
