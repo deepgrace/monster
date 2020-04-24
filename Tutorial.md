@@ -535,6 +535,9 @@ int main(int argc, char* argv[])
     execute<range_t<1, 4, std::integer_sequence<int, 1, 2, -2, 4, 3, 5>>,
             std::integer_sequence<int, 2, -2, 4>>();
 
+    execute<pivot_t<3, std::tuple<int, char, char, int, int>>, std::tuple<int, int, int, char, char>>();
+    execute<pivot_t<3, std::index_sequence<0, 1, 2, 3, 4, 5>>, std::index_sequence<3, 4, 5, 0, 1, 2>>();
+
     execute<starts_with_v<std::tuple<int, char, short>, std::tuple<int, char>>>();
     execute<ends_with_v<std::index_sequence<7, 4, 2>, std::index_sequence<4, 2>>>();
 

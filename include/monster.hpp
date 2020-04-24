@@ -2102,6 +2102,14 @@ namespace monster
     template <auto lower, auto upper, typename T>
     using range_t = typeof_t<range<lower, upper, T>>;
 
+    template <auto N, typename T>
+    struct pivot : concat<range_t<N, sizeof_t_v<T>, T>, range_t<0, N, T>>
+    {
+    };
+
+    template <auto N, typename T>
+    using pivot_t = typeof_t<pivot<N, T>>;
+
     template <typename T, typename U, auto p = sizeof_t_v<T>, auto q = sizeof_t_v<U>>
     requires q <= p
     struct starts_with : std::is_same<range_t<0, q, T>, U>

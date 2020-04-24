@@ -1347,6 +1347,13 @@ using d1 = degree_t<1, 4, std::tuple<int, char, float, double, int, char>>;
 using d2 = degree_t<1, 4, std::integer_sequence<int, 1, 2, -2, 4, 3, 5>>;
 // d1 == std::tuple<int, double, float>
 // d2 == std::integer_sequence<int, 3, 4, -2>
+
+// pivot sequences around N
+// (A, ..., M, N, ..., Z) -> (N, ..., Z, A, ..., M)
+using p1 = pivot_t<3, std::tuple<int, char, char, int, int>>;
+using p2 = pivot_t<3, std::index_sequence<0, 1, 2, 3, 4, 5>>;
+// p1 == std::tuple<int, int, int, char, char>
+// p2 == std::index_sequence<3, 4, 5, 0, 1, 2>
 ```
 
 ### Replace elements
