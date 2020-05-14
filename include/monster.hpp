@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 29
+#define MONSTER_VERSION 30
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -732,6 +732,17 @@ namespace monster
     using element_if_t = typeof_t<element_if<B, N, T, U>>;
 
     template <typename T>
+    struct midpoint : element<(sizeof_t_v<T> + 1) /  2 - 1, T>
+    {
+    };
+
+    template <typename T>
+    using midpoint_t = typeof_t<midpoint<T>>;
+
+    template <typename T>
+    inline constexpr auto midpoint_v = typev<midpoint_t<T>>;
+
+    template <typename T>
     using front = element<0, T>;
 
     template <typename T>
@@ -1255,14 +1266,14 @@ namespace monster
     using arg_t = call_t<T, Args...>;
 
     template <size_t N, typename T, typename... Args>
-    requires N == 0
+    requires (N == 0)
     decltype(auto) nth_value_v(T&& t, Args&&... args)
     {
         return std::forward<T>(t);
     }
     
     template <size_t N, typename T, typename... Args>
-    requires N > 0
+    requires (N > 0)
     decltype(auto) nth_value_v(T&& t, Args&&... args)
     {
         return std::forward<nth_type_t<N - 1, Args...>>(nth_value_v<N - 1>((std::forward<Args>(args))...));
@@ -2111,23 +2122,23 @@ namespace monster
     using pivot_t = typeof_t<pivot<N, T>>;
 
     template <typename T, typename U, auto p = sizeof_t_v<T>, auto q = sizeof_t_v<U>>
-    requires q <= p
+    requires (q <= p)
     struct starts_with : std::is_same<range_t<0, q, T>, U>
     {
     };
 
     template <typename T, typename U, auto p = sizeof_t_v<T>, auto q = sizeof_t_v<U>>
-    requires q <= p
+    requires (q <= p)
     inline constexpr auto starts_with_v = typev<starts_with<T, U, p, q>>;
 
     template <typename T, typename U, auto p = sizeof_t_v<T>, auto q = sizeof_t_v<U>>
-    requires q <= p
+    requires (q <= p)
     struct ends_with : std::is_same<range_t<p - q, p, T>, U>
     {
     };
 
     template <typename T, typename U, auto p = sizeof_t_v<T>, auto q = sizeof_t_v<U>>
-    requires q <= p
+    requires (q <= p)
     inline constexpr auto ends_with_v = typev<ends_with<T, U, p, q>>;
 
     template <bool B, auto lower, auto upper, typename T>

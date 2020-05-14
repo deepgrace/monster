@@ -114,6 +114,14 @@ auto  n3 = next_v<1, std::integer_sequence<int, 7, 3, -1, 2, 4>>;
 // n2 == int_<-1>
 // n3 == -1
 
+// middle element of a sequence
+using m1 = midpoint_t<std::tuple<char, double, short, float, char>>;
+using m2 = midpoint_t<std::integer_sequence<int, 7, 3, -1, 2, 4, 0>>;
+auto  m3 = midpoint_v<std::integer_sequence<int, 7, 3, -1, 2, 4, 0>>;
+// m1 == short
+// m2 == int_<-1>
+// m3 == -1
+
 // size of a type
 auto s1 = sizeof_t_v<int_<8>>;
 auto s2 = sizeof_t_v<int>;

@@ -151,6 +151,10 @@ int main(int argc, char* argv[])
     execute<element_t<2, std::integer_sequence<int, 1, -2, 7, 4>>, int_<7>>();
     execute<element_v<3, std::integer_sequence<int, 1, -2, 7, 4>>, 4>();
 
+    execute<midpoint_t<std::tuple<char, double, int>>, double>();
+    execute<midpoint_t<std::integer_sequence<int, 1, -2, 7, 4>>, int_<-2>>();
+    execute<midpoint_v<std::integer_sequence<int, 1, -2, 7, 4>>, -2>();
+
     execute<front_t<std::tuple<char, double, int>>, char>();
     execute<front_t<std::integer_sequence<int, 1, -2, 7, 4>>, int_<1>>();
     execute<front_v<std::integer_sequence<int, 1, -2, 7, 4>>, 1>();
