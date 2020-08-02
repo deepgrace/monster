@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 30
+#define MONSTER_VERSION 31
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3460,6 +3460,21 @@ namespace monster
             for_value<(B + N)...>(f);
         }
         (std::make_integer_sequence<type, E - B>());
+    }
+
+    struct universal
+    {
+        template <typename T>
+        operator T(){}
+    };
+
+    template <typename T>
+    consteval auto aggregate_arity(auto... Args)
+    {
+        if constexpr (! requires { T{ Args... }; })
+            return sizeof...(Args) - 1;
+        else
+            return aggregate_arity<T>(Args..., universal{});
     }
 
     template <template <typename... > typename S, typename T>
