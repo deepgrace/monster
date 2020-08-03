@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 31
+#define MONSTER_VERSION 32
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3476,6 +3476,9 @@ namespace monster
         else
             return aggregate_arity<T>(Args..., universal{});
     }
+
+    template <typename T>
+    constexpr auto aggregate_arity_v = aggregate_arity<T>();
 
     template <template <typename... > typename S, typename T>
     using stream_type = S<typename T::char_type, typename T::traits_type>;

@@ -638,6 +638,19 @@ int main(int argc, char* argv[])
     execute<splat_t<3, 4, std::tuple<int, char, short, int, double, char>>,
             std::tuple<int, int, int, int>>();
 
+    struct foo
+    {
+    };
+
+    struct bar
+    {
+        int x;
+        double y;
+    };
+
+    execute<aggregate_arity<foo>(), 0>();
+    execute<aggregate_arity_v<bar>, 2>();
+
     overload_sequence element_count
     {
         [](auto&&) { return 1; },

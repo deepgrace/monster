@@ -156,6 +156,22 @@ auto c3 = count_if_v<is_even, std::integer_sequence<int, 1, 2, 3, 6, 4>>;
 auto c4 = count_if_v<is_tuple, std::tuple<double, std::tuple<>, float, std::tuple<int>>>;
 // c3 == 3
 // c4 == 2
+
+// get the number of members in a struct
+struct foo
+{
+};
+
+struct bar
+{
+    int x;
+    double y;
+};
+
+auto N1 = aggregate_arity<foo>();
+auto N2 = aggregate_arity_v<bar>;
+// N1 == 0
+// N2 == 2
 ```
 
 ### Algorithms
