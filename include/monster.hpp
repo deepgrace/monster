@@ -101,6 +101,32 @@ namespace monster
     template <typename T>
     inline constexpr auto has_value_v = typev<has_value<T>>;
 
+    template <typename T, typename = std::void_t<>>
+    struct has_new : std::false_type
+    {
+    };
+
+    template <typename T>
+    struct has_new<T, std::void_t<decltype(T::operator new(0))>> : std::true_type
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto has_new_v = typev<has_new<T>>;
+
+    template <typename T, typename = std::void_t<>>
+    struct has_delete : std::false_type
+    {
+    };
+
+    template <typename T>
+    struct has_delete<T, std::void_t<decltype(T::operator delete(nullptr))>> : std::true_type
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto has_delete_v = typev<has_delete<T>>;
+
     template <typename T, typename U>
     struct pair_t
     {
