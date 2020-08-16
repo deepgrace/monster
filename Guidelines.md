@@ -1350,6 +1350,12 @@ auto i10 = is_streamable_v<std::ostream, int>;
 auto i11 = is_streamable_v<std::ostream, std::tuple<int>>;
 // i10 == true
 // i11 == false
+
+// check whether a type is defined
+auto i12 = is_type_complete_v<int>;
+auto i13 = is_type_complete_v<struct none_exist_type>;
+// i12 == true
+// i13 == false
 ```
 
 ### Range of sequences

@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 32
+#define MONSTER_VERSION 33
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -126,6 +126,19 @@ namespace monster
 
     template <typename T>
     inline constexpr auto has_delete_v = typev<has_delete<T>>;
+
+    template <typename T, typename = std::void_t<>>
+    struct is_type_complete : std::false_type
+    {
+    };
+
+    template <typename T>
+    struct is_type_complete<T, std::void_t<decltype(sizeof(T))>> : std::true_type
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto is_type_complete_v = typev<is_type_complete<T>>;
 
     template <typename T, typename U>
     struct pair_t

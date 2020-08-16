@@ -93,6 +93,9 @@ int main(int argc, char* argv[])
     execute<is_streamable_v<std::ostream, int>>();
     execute<!is_streamable_v<std::ostream, std::tuple<int>>>();
 
+    execute<is_type_complete_v<nullptr_t>>();
+    execute<!is_type_complete_v<struct none_exist_type>>();
+
     execute<!is_iterable_v<int>>();
     execute<is_iterable_v<std::vector<int>>>();
 
