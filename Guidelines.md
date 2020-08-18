@@ -1356,6 +1356,19 @@ auto i12 = is_type_complete_v<int>;
 auto i13 = is_type_complete_v<struct none_exist_type>;
 // i12 == true
 // i13 == false
+
+// check whether a type is lambda
+template <typename T, typename... Args>
+auto lambda_t = []<T v>(auto&&, Args&& ...) -> T { return T{}; };
+
+auto i14 = is_lambda_v<nullptr_t>;
+auto i15 = is_lambda_v<decltype([](){})>;
+auto i16 = is_lambda_v<decltype(lambda_t<int, bool>)>;
+auto i17 = is_lambda_v<decltype([]<typename ...>(auto ...){})>;
+// i14 == false
+// i15 == true
+// i16 == true
+// i17 == true
 ```
 
 ### Range of sequences
