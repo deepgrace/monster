@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 33
+#define MONSTER_VERSION 34
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3164,6 +3164,26 @@ namespace monster
 
     template <auto value, typename T>
     inline constexpr auto value_index_v = typev<value_index<value, T>>;
+
+    template <typename  T, typename U, bool B = false>
+    requires (has_value_v<T>)
+    consteval auto index_of()
+    {
+        using type = typeof_t<std::conditional_t<!B, std::type_identity<U>, reverse<U>>>;
+        constexpr auto index = value_index_v<typev<T>, type>;
+        constexpr auto size = sizeof_t_v<U>;
+        return size == index ? size : B ? size - index - 1 : index;
+    }
+
+    template <typename  T, typename U, bool B = false>
+    requires (! has_value_v<T>)
+    consteval auto index_of()
+    {
+        using type = typeof_t<std::conditional_t<!B, std::type_identity<U>, reverse<U>>>;
+        constexpr auto index = type_index_v<T, type>;
+        constexpr auto size = sizeof_t_v<U>;
+        return size == index ? size : B ? size - index - 1 : index;
+    }
 
     template <auto N, typename T>
     struct tuple_element_size

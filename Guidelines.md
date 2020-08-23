@@ -1587,6 +1587,36 @@ auto i7 = value_index_v<7, std::integer_sequence<int, 1, -2, 0, 3, 6, 5>>;
 // i6 == 4
 // i7 == 6, not found
 
+// for a given type, returns index of first or last occurence in a typelist
+// index_of<type, typelist, B>()
+// bool B indicates first or last
+// B == false -> first (default value)
+// B == true  -> last
+// when not found, returns size of the typelist
+// first occurence
+auto i8 = index_of<char, std::tuple<float, char, double, int, char>>();
+auto i9 = index_of<int_<6>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>();
+// i8 == 1
+// i9 == 2
+
+// last occurence
+auto i10 = index_of<char, std::tuple<float, char, double, int, char>, true>();
+auto i11 = index_of<int_<3>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>, true>();
+// i10 == 4
+// i11 == 3
+
+// first occurence, not found
+auto i12 = index_of<float, std::tuple<char, int, double, int, char>>();
+auto i13 = index_of<int_<4>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>();
+// i12 == 5
+// i13 == 6
+
+// last occurence, not found
+auto i14 = index_of<float, std::tuple<char, int, double, int, char>, true>();
+auto i15 = index_of<int_<4>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>, true>();
+// i14 == 5
+// i15 == 6
+
 // maximum element
 using m4 = max_element_t<std::tuple<short, int, char>>;
 using m5 = max_element_t<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>;

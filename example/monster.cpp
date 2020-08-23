@@ -603,6 +603,18 @@ int main(int argc, char* argv[])
     execute<value_index_v<6, std::integer_sequence<int, 1, -2, 0, 3, 6, 5>>, 4>();
     execute<value_index_v<7, std::integer_sequence<int, 1, -2, 0, 3, 6, 5>>, 6>();
 
+    execute<index_of<char, std::tuple<float, char, double, int, char>>(), 1>();
+    execute<index_of<int_<6>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>(), 2>();
+
+    execute<index_of<char, std::tuple<float, char, double, int, char>, true>(), 4>();
+    execute<index_of<int_<3>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>, true>(), 3>();
+
+    execute<index_of<float, std::tuple<char, int, double, int, char>>(), 5>();
+    execute<index_of<int_<4>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>(), 6>();
+
+    execute<index_of<float, std::tuple<char, int, double, int, char>, true>(), 5>();
+    execute<index_of<int_<4>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>, true>(), 6>();
+
     execute<tuple_element_size_v<2, std::tuple<short, int, double>>, sizeof(double)>();
 
     execute<binary_search_v<double, std::tuple<short, int, double>>>();
