@@ -532,6 +532,16 @@ int main(int argc, char* argv[])
     execute<exchange_c<4, 9, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>,
             std::integer_sequence<int, 1, 3, -2, 1, 9, 1, 4, 6>>();
 
+    execute<exchange_with_t<std::index_sequence<2, 4, 0, 1, 6>,
+            std::tuple<int, int, char, double, int, float, double>,
+            std::tuple<char, int, double, int, char, double, float, nullptr_t>>,
+            std::tuple<int, int, char, int, int, double, double, nullptr_t>>();
+
+    execute<exchange_with_t<std::index_sequence<1, 5, 3, 6, 2>,
+            std::integer_sequence<int, 7, -1, 3, 5, 9, 2, 5>,
+            std::integer_sequence<int, 4, 0, 6, -5, 7, 4, 3, 2, 11>>,
+            std::integer_sequence<int, 4, -1, 3, 5, 7, 2, 5, 2, 11>>();
+
     execute<sub_t<3, 8, range_generator_t<int, -2, 3>>, index_list<int, -2, -1, 0, 8, 2>>();
     execute<sub_t<2, 3, index_list<size_t, 3, 4, 0, 5, 2>>, index_list<size_t, 3, 4, 3, 5, 2>>();
     execute<sub_t<4, -3, std::integer_sequence<int, -1, 8, 0, 2, 4, 7>>,

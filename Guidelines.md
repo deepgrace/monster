@@ -1466,6 +1466,20 @@ using e3 = exchange_c<4, 9, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>
 // e1 == std::tuple<int, int, int, double, int, float, char>
 // e2 == std::integer_sequence<int, 1, -2, -2, 1, 7, 1, 4, 6>
 // e3 == std::integer_sequence<int, 1, 3, -2, 1, 9, 1, 4, 6>
+
+// replace elements of src with elements of dst indexed by indices
+// exchange_with<indices, dst, src>
+using ins1 = std::index_sequence<2, 4, 0, 1, 6>;
+using src1 = std::tuple<char, int, double, int, char, double, float, nullptr_t>;
+using dst1 = std::tuple<int, int, char, double, int, float, double>;
+using ext1 = exchange_with_t<ins1, src1, dst1>;
+// ext1 == std::tuple<int, int, char, int, int, double, double, nullptr_t>
+
+using ins2 = std::index_sequence<1, 5, 3, 6, 2>;
+using src2 = std::integer_sequence<int, 7, -1, 3, 5, 9, 2, 5>;
+using dst2 = std::integer_sequence<int, 4, 0, 6, -5, 7, 4, 3, 2, 11>;
+using ext2 = exchange_with_t<ins2, src2, dst2>;
+// ext2 == std::integer_sequence<int, 4, -1, 3, 5, 7, 2, 5, 2, 11>
 ```
 
 ### Reverse sequences

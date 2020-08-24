@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 34
+#define MONSTER_VERSION 35
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -2146,6 +2146,30 @@ namespace monster
     template <bool B, auto i, typename T, typename U>
     using exchange_if_t = typeof_t<exchange_if<B, i, T, U>>;
 
+    template <typename indices, typename T, typename U>
+    requires (sizeof_t_v<indices> <= sizeof_t_v<U>)
+    struct exchange_with
+    {
+        template <typename V, typename W>
+        struct impl;
+
+        template <auto n, auto... N, typename W>
+        struct impl<std::index_sequence<n, N...>, W> : impl<std::index_sequence<N...>, exchange_t<n, element_t<n, T>, W>>
+        {
+        };
+
+        template <typename W>
+        struct impl<std::index_sequence<>, W> : std::type_identity<W>
+        {
+        };
+
+        using type = typeof_t<impl<indices, U>>;
+    };
+
+    template <typename indices, typename T, typename U>
+    requires (sizeof_t_v<indices> <= sizeof_t_v<U>)
+    using exchange_with_t = typeof_t<exchange_with<indices, T, U>>;
+
     template <auto lower, auto upper, typename T>
     using range = meta_t<T, std::type_identity<expand_of<T, index_sequence_of_c<upper - lower>, lower>>>;
 
@@ -3171,7 +3195,7 @@ namespace monster
     {
         using type = typeof_t<std::conditional_t<!B, std::type_identity<U>, reverse<U>>>;
         constexpr auto index = value_index_v<typev<T>, type>;
-        constexpr auto size = sizeof_t_v<U>;
+        constexpr auto size = sizeof_t_v<type>;
         return size == index ? size : B ? size - index - 1 : index;
     }
 
@@ -3181,7 +3205,7 @@ namespace monster
     {
         using type = typeof_t<std::conditional_t<!B, std::type_identity<U>, reverse<U>>>;
         constexpr auto index = type_index_v<T, type>;
-        constexpr auto size = sizeof_t_v<U>;
+        constexpr auto size = sizeof_t_v<type>;
         return size == index ? size : B ? size - index - 1 : index;
     }
 
