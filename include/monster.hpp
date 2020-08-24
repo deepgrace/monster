@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 35
+#define MONSTER_VERSION 36
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -546,6 +546,40 @@ namespace monster
 
     template <template <typename, auto ...> typename T, typename Args>
     inline constexpr auto is_sequence_of_v = typev<is_sequence_of<T, Args>>;
+
+    template <typename T>
+    struct is_variadic_type : std::false_type
+    {
+    };
+
+    template <template <typename ...> typename T, typename... Args>
+    struct is_variadic_type<T<Args...>> : std::true_type
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto is_variadic_type_v = typev<is_variadic_type<T>>;
+
+    template <typename T>
+    struct is_variadic_value : std::false_type
+    {
+    };
+
+    template <template <typename, auto ...> typename T, typename U, auto... Args>
+    struct is_variadic_value<T<U, Args...>> : std::true_type
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto is_variadic_value_v = typev<is_variadic_value<T>>;
+
+    template <typename T>
+    struct is_variadic : std::disjunction<is_variadic_type<T>, is_variadic_value<T>>
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto is_variadic_v = typev<is_variadic<T>>;
 
     template <typename T>
     struct is_tuple : is_instance_of<std::tuple, T>
@@ -1499,6 +1533,24 @@ namespace monster
 
     template <typename... Args>
     using concat_t = typeof_t<concat<Args...>>;
+
+    template <typename T>
+    struct flat : std::type_identity<T>
+    {
+    };
+
+    template <template <typename ...> typename T>
+    struct flat<T<>> : std::type_identity<T<>>
+    {
+    };
+
+    template <template <typename ...> typename T, typename... Args>
+    struct flat<T<Args...>> : concat<type_if<is_variadic_v<Args>, flat<Args>, std::type_identity<T<Args>>>...>
+    {
+    };
+
+    template <typename T>
+    using flat_t = typeof_t<flat<T>>;
 
     template <typename T, typename U, typename V>
     struct dedup

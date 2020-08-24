@@ -420,6 +420,12 @@ auto sw = starts_with_v<std::tuple<int, char, short>, std::tuple<int, char>>;
 // ends with
 auto ew = ends_with_v<std::index_sequence<7, 4, 2>, std::index_sequence<4, 2>>;
 // ew == true
+
+// make a nested typelist flat
+using nested = std::tuple<std::tuple<char, short>, double,
+               std::tuple<char, std::tuple<char, int, double>>, short>;
+using ft = flat_t<nested>;
+// ft == std::tuple<char, short, double, char, char, int, double, short>
 ```
 
 ### Combinations

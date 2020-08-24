@@ -226,6 +226,15 @@ int main(int argc, char* argv[])
 
     execute<equal<3>::template apply<int_<3>>::value>();
 
+    execute<is_variadic_type_v<std::tuple<>>>();
+    execute<is_variadic_value_v<std::index_sequence<>>>();
+    execute<!is_variadic_type_v<nullptr_t>>();
+    execute<!is_variadic_value_v<nullptr_t>>();
+
+    execute<is_variadic_v<std::tuple<>>>();
+    execute<is_variadic_v<std::index_sequence<>>>();
+    execute<!is_variadic_v<nullptr_t>>();
+
     execute<first_of_v<is_tuple, std::tuple<int, char, std::tuple<double>, float>>, 2>();
     execute<first_not_of_v<is_tuple, std::tuple<std::tuple<int>, char, std::tuple<double>, float>>, 1>();
 
@@ -320,6 +329,11 @@ int main(int argc, char* argv[])
 
     using nested = std::tuple<std::tuple<char, short>, double,
                    std::tuple<char, std::tuple<char, int, double>>, short>;
+
+    execute<flat_t<int>, int>();
+    execute<flat_t<std::tuple<>>, std::tuple<>>();
+    execute<flat_t<nested>, std::tuple<char, short, double, char, char, int, double, short>>();
+
     using reversed = reverse_recursive_t<nested>;
     execute<reversed, reverse_t<std::tuple<reverse_t<std::tuple<char, short>>, double,
             reverse_t<std::tuple<char, reverse_t<std::tuple<char, int, double>>>>, short>>>();
