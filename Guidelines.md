@@ -212,6 +212,12 @@ using three_disks = hanoi_t<3>;
  *                                           0,     1>
  */
 
+// arrange the same elements adjacent in a sequence, keep the relative order
+using a1 = arrange_t<std::tuple<int, char, int, double, char, int, char>>;
+using a2 = arrange_t<std::index_sequence<7, 2, 0, 7, 3, 7, 0, 2, 8, 5, 3>>;
+// a1 == std::tuple<int, int, int, char, char, char, double>
+// a2 == std::index_sequence<7, 7, 7, 2, 2, 0, 0, 3, 3, 8, 5>
+
 // Knuth–Morris–Pratt (KMP) string searching algorithm for types
 using k1 = kmp_t<std::tuple<char>, std::tuple<int, float, double, int, int>>;
 using k2 = kmp_t<std::tuple<double>, std::tuple<double, int, int, double>>;
@@ -635,11 +641,11 @@ using x = drop_front_t<2, std::tuple<int, double, int, char>>;
 using y = drop_back_t<2, std::integer_sequence<int, 1, 2, -2, 4, 5>>;
 // y == std::integer_sequence<int, 1, 2, -2>
 
-// delete all duplicate elements, keep the last appearance
+// delete all duplicate elements, keep the first appearance
 using u1 = unique_t<std::tuple<int, char, int, double, float, double>>;
 using u2 = unique_t<std::integer_sequence<int, 2, 1, 2, 3, 4, 3>>;
-// u1 == std::tuple<char, int, float, double>
-// u2 == std::integer_sequence<int, 1, 2, 4, 3>
+// u1 == std::tuple<int, char, double, float>
+// u2 == std::integer_sequence<int, 2, 1, 3, 4>
 
 // delete all indices with duplicate elements, keep the last appearance
 using u3 = unique_index_t<std::tuple<int, char, int, double, float, double>>;

@@ -9,6 +9,12 @@ using namespace monster;
 
 int main(int argc, char* argv[])
 {
+    // arrange the same elements adjacent in a sequence, keep the relative order
+    using a1 = arrange_t<std::tuple<char, double, char, int, double>>;
+    using a2 = arrange_t<std::index_sequence<4, 3, 0, 3, 2, 4, 5, 3>>;
+    static_assert(std::is_same_v<a1, std::tuple<char, char, double, double, int>>);
+    static_assert(std::is_same_v<a2, std::index_sequence<4, 4, 3, 3, 3, 0, 2, 5>>);
+
     // Knuth–Morris–Pratt (KMP) algorithm searches for occurrences of a sequence within another sequence
     using k1 = kmp_t<std::tuple<int, char, int>, std::tuple<int, int, char, int, char, int, char, int>>;
     using k2 = kmp_t<std::integer_sequence<int, 7, 5>, std::integer_sequence<int, 7, 5, 4, 0, 7, 5, 9>>;
@@ -35,11 +41,11 @@ int main(int argc, char* argv[])
     static_assert(std::is_same_v<e2, int_<4>>);
     static_assert(e3 == 4);
 
-    // remove duplicate elements from a sequence
+    // remove duplicate elements from a sequence, keep the first appearance
     using u1 = unique_t<std::tuple<int, char, int, double>>;
     using u2 = unique_t<std::integer_sequence<int, 2, 2, 3, 4, 3>>;
-    static_assert(std::is_same_v<u1, std::tuple<char, int, double>>);
-    static_assert(std::is_same_v<u2, std::integer_sequence<int, 2, 4, 3>>);
+    static_assert(std::is_same_v<u1, std::tuple<int, char, double>>);
+    static_assert(std::is_same_v<u2, std::integer_sequence<int, 2, 3, 4>>);
 
     // exchanges the elements at specific index of a sequence
     using s1 = swap_t<1, 3, std::tuple<int, double, char, float>>;

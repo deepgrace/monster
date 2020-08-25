@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 36
+#define MONSTER_VERSION 37
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -789,8 +789,24 @@ namespace monster
     template <typename T>
     inline constexpr auto sum_v = typev<sum<T>>;
 
+    template <typename L, typename R>
+    struct rename;
+
+    template <template <typename ...> typename L, template <typename ...> typename R, typename... T, typename... U>
+    struct rename<L<T...>, R<U...>> : std::type_identity<R<T...>>
+    {
+    };
+
+    template <template <typename, auto ...> typename L, template <typename, auto ...> typename R, typename T, auto... t, typename U, auto... u>
+    struct rename<L<T, t...>, R<U, u...>> : std::type_identity<R<T, t...>>
+    {
+    };
+
+    template <typename L, typename R>
+    using rename_t = typeof_t<rename<L, R>>;
+
     template <auto N, typename T>
-    using element = std::conditional_t<is_tuple_v<T>, std::tuple_element<N, T>, get<N, T>>;
+    using element = std::conditional_t<is_variadic_type_v<T>, std::tuple_element<N, T>, get<N, T>>;
 
     template <auto N, typename T>
     using element_t = typeof_t<element<N, T>>;
@@ -1568,35 +1584,35 @@ namespace monster
     template <template <typename ...> typename T, typename... Args>
     struct unique<T<Args...>>
     {
-        template <typename... args>
+        template <typename U, typename... args>
         struct impl : std::type_identity<T<args...>>
         {
         };
 
-        template <typename U, typename... args>
-        struct impl<U, args...>
+        template <template <typename ...> typename U, typename... prev, typename V, typename... args>
+        struct impl<U<prev...>, V, args...>
         {
-            using type = dedup_t<contains<U, args...>, T<U>, impl<args...>>;
+            using type = dedup_t<contains<V, prev...>, U<V>, impl<U<prev..., V>, args...>>;
         };
 
-        using type = typeof_t<impl<Args...>>;
+        using type = typeof_t<impl<T<>, Args...>>;
     };
 
     template <template <typename, auto ...> typename T, typename U, auto... values>
     struct unique<T<U, values...>>
     {
-        template <auto... args>
+        template <typename V, auto... args>
         struct impl : std::type_identity<T<U, args...>>
         {
         };
 
-        template <auto value, auto... args>
-        struct impl<value, args...>
+        template <template <typename, auto ...> typename V, typename W,  auto... prev, auto value, auto... args>
+        struct impl<V<W, prev...>, value, args...>
         {
-            using type = dedup_t<comprise<value, args...>, T<U, value>, impl<args...>>;
+            using type = dedup_t<comprise<value, prev...>, V<W, value>, impl<V<W, prev..., value>, args...>>;
         };
 
-        using type = typeof_t<impl<values...>>;
+        using type = typeof_t<impl<T<U>, values...>>;
     };
 
     template <typename T>
@@ -3615,31 +3631,6 @@ namespace monster
     template <typename T>
     constexpr auto aggregate_arity_v = aggregate_arity<T>();
 
-    template <template <typename... > typename S, typename T>
-    using stream_type = S<typename T::char_type, typename T::traits_type>;
-
-    template <typename T>
-    using istream_type = stream_type<std::basic_istream, T>;
-
-    template <typename T>
-    using ostream_type = stream_type<std::basic_ostream, T>;
-
-    template <typename T, typename S>
-    requires std::is_base_of_v<istream_type<T>, T>
-    T&& operator>>(T&& os, const S& s)
-    {
-        static_cast<istream_type<T>&>(os) >> s;
-        return std::move(os);
-    }
-
-    template <typename T, typename S>
-    requires std::is_base_of_v<ostream_type<T>, T>
-    T&& operator<<(T&& os, const S& s)
-    {
-        static_cast<ostream_type<T>&>(os) << s;
-        return std::move(os);
-    }
-
     template <auto N, typename F, typename... Args>
     void loop(F&& f, Args&&... args)
     {
@@ -5153,29 +5144,6 @@ namespace monster
     template <template <typename ...> typename F, typename T, typename U>
     requires is_list_v<T, U>
     using zip_with_t = typeof_t<zip_with<F, T, U>>;
-
-    template <typename L, typename R>
-    struct swap_template;
-
-    template <template <typename ...> typename L, template <typename ...> typename R, typename... T, typename... U>
-    struct swap_template<L<T...>, R<U...>>
-    {
-        using first = L<U...>;
-        using second = R<T...>;
-    };
-
-    template <template <typename, auto ...> typename L, template <typename, auto ...> typename R, typename T, auto... t, typename U, auto... u>
-    struct swap_template<L<T, t...>, R<U, u...>>
-    {
-        using first = L<U, u...>;
-        using second = R<T, t...>;
-    };
-
-    template <typename L, typename R>
-    using swap_template_first = first_t<swap_template<L, R>>;
-
-    template <typename L, typename R>
-    using swap_template_second = second_t<swap_template<L, R>>;
 
     template <auto row, auto col, typename T>
     using matrix_element = element<col, element_t<row, T>>;
@@ -6716,6 +6684,25 @@ namespace monster
 
     template <typename P, typename T>
     using kmp_t = typeof_t<kmp<P, T>>;
+
+    template <typename T>
+    struct arrange
+    {
+        using uniq = unique_t<T>;
+        using base = base_type_t<T>;
+
+        template <auto N, typename U>
+        struct impl
+        {
+            using curr = element_t<N, U>;
+            using type = fill_t<sizeof_t_v<kmp_t<append_t<base, curr>, T>>, curr>;
+        };
+
+        using type = unpack_t<concat_t, expand_t<impl, uniq, index_sequence_of_t<uniq>>>;
+    };
+
+    template <typename T>
+    using arrange_t = typeof_t<arrange<T>>;
 
     template <int n = 3>
     struct hanoi

@@ -55,6 +55,14 @@ int main(int argc, char* argv[])
             std::integer_sequence<int, -8, 2, -1, 1, 3, 1, 3, 1, 0, -4, 1, 3, 1, 3, 1, -5>>,
             std::index_sequence<>>();
 
+    using not_adjacent_type = std::tuple<char, double, char, double, int, float, char>;
+    using adjacent_type = std::tuple<char, char, char, double, double, int, float>;
+    execute<arrange_t<not_adjacent_type>, adjacent_type>();
+
+    using not_adjacent_value = std::index_sequence<2, 1, 3, 5, 3, 5, 8, 7, 2, 5, 9, 8>;
+    using adjacent_value = std::index_sequence<2, 2, 1, 3, 3, 5, 5, 5, 8, 8, 7, 9>;
+    execute<arrange_t<not_adjacent_value>, adjacent_value>();
+
     std::cout << e<double> << std::endl; // 2.71828
     std::cout << pi<double> << std::endl; // 3.14159
 
@@ -396,8 +404,8 @@ int main(int argc, char* argv[])
     execute<concat_t<std::integer_sequence<int, 1, 2, 3>, std::integer_sequence<int, 4, 5, 6>>,
             std::integer_sequence<int, 1, 2, 3, 4, 5, 6>>();
 
-    execute<unique_t<std::tuple<int, char, int, double>>, std::tuple<char, int, double>>();
-    execute<unique_t<std::integer_sequence<int, 2, 2, 3, 4, 3>>, std::integer_sequence<int, 2, 4, 3>>();
+    execute<unique_t<std::tuple<int, char, int, double>>, std::tuple<int, char, double>>();
+    execute<unique_t<std::integer_sequence<int, 2, 2, 3, 4, 3>>, std::integer_sequence<int, 2, 3, 4>>();
 
     execute<unique_index_t<std::tuple<int, int, char, int, double>>, std::index_sequence<2, 3, 4>>();
     execute<unique_index_t<std::integer_sequence<int, 3, 1, 2, 5, 3>>, std::index_sequence<1, 2, 3, 4>>();
