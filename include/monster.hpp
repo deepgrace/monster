@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 37
+#define MONSTER_VERSION 38
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -565,6 +565,11 @@ namespace monster
     {
     };
 
+    template <template <auto ...> typename T, auto... Args>
+    struct is_variadic_value<T<Args...>> : std::true_type
+    {
+    };
+
     template <template <typename, auto ...> typename T, typename U, auto... Args>
     struct is_variadic_value<T<U, Args...>> : std::true_type
     {
@@ -741,13 +746,13 @@ namespace monster
     {
     };
 
-    template <auto value, auto... values>
-    struct get<0, homogeneous<value, values...>> : int_<value>
+    template <template <auto ...> typename T, auto value, auto... values>
+    struct get<0, T<value, values...>> : int_<value, int>
     {
     };
 
-    template <size_t N, auto value, auto... values>
-    struct get<N, homogeneous<value, values...>> : int_<typev<get<N - 1, homogeneous<values...>>>>
+    template <size_t N, template <auto ...> typename T, auto value, auto... values>
+    struct get<N, T<value, values...>> : int_<typev<get<N - 1, T<values...>>>>
     {
     };
 
@@ -773,13 +778,13 @@ namespace monster
     {
     };
 
-    template <auto value>
-    struct sum<homogeneous<value>> : int_<value>
+    template <template <auto ...> typename T, auto value>
+    struct sum<T<value>> : int_<value>
     {
     };
 
-    template <auto value, auto... values>
-    struct sum<homogeneous<value, values...>> : int_<value + typev<sum<homogeneous<values...>>>>
+    template <template <auto ...> typename T, auto value, auto... values>
+    struct sum<T<value, values...>> : int_<value + typev<sum<T<values...>>>>
     {
     };
 
@@ -805,14 +810,54 @@ namespace monster
     template <typename L, typename R>
     using rename_t = typeof_t<rename<L, R>>;
 
+    template <typename T>
+    requires (is_variadic_type_v<T>)
+    using as_tuple = rename<T, std::tuple<>>;
+
+    template <typename T>
+    requires (is_variadic_type_v<T>)
+    using as_tuple_t = typeof_t<as_tuple<T>>;
+
+    template <bool B, typename T>
+    requires (is_variadic_type_v<T>)
+    using as_tuple_if = std::conditional_t<B, as_tuple<T>, std::type_identity<T>>;
+
+    template <bool B, typename T>
+    requires (is_variadic_type_v<T>)
+    using as_tuple_if_t = typeof_t<as_tuple_if<B, T>>;
+
     template <auto N, typename T>
-    using element = std::conditional_t<is_variadic_type_v<T>, std::tuple_element<N, T>, get<N, T>>;
+    struct variadic_element
+    {
+        template <typename U, bool B>
+        struct impl : std::type_identity<std::tuple_element<N, as_tuple_t<U>>>
+        {
+        };
+
+        template <typename U>
+        struct impl<U, false> : std::type_identity<get<N, U>>
+        {
+        };
+
+        using type = typeof_t<impl<T, is_variadic_type_v<T>>>;
+    };
+
+    template <auto N, typename T>
+    using element = typeof_t<variadic_element<N, T>>;
 
     template <auto N, typename T>
     using element_t = typeof_t<element<N, T>>;
 
     template <auto N, typename T>
+    requires (is_variadic_value_v<T>)
     inline constexpr auto element_v = typev<element_t<N, T>>;
+
+    template <auto N, typename T>
+    using variadic_element_t =  element_t<N, T>;
+
+    template <auto N, typename T>
+    requires (is_variadic_value_v<T>)
+    inline constexpr auto variadic_element_v = element_v<N, T>;
 
     template <bool B, auto N, typename T, typename U>
     using element_if = std::conditional_t<!B, U, element<N, T>>;
@@ -4761,6 +4806,7 @@ namespace monster
     using mode_t = typeof_t<mode<T>>;
 
     template <typename T>
+    requires (is_variadic_value_v<T>)
     inline constexpr auto mode_v = typev<mode<T>>;
 
     template <template <typename> typename F, template <typename> typename P, typename T, typename U, auto B, auto E, bool W>
