@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 38
+#define MONSTER_VERSION 39
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3303,7 +3303,7 @@ namespace monster
     inline constexpr auto value_index_v = typev<value_index<value, T>>;
 
     template <typename  T, typename U, bool B = false>
-    requires (has_value_v<T>)
+    requires (is_variadic_value_v<U>)
     consteval auto index_of()
     {
         using type = typeof_t<std::conditional_t<!B, std::type_identity<U>, reverse<U>>>;
@@ -3313,12 +3313,12 @@ namespace monster
     }
 
     template <typename  T, typename U, bool B = false>
-    requires (! has_value_v<T>)
+    requires (is_variadic_type_v<U>)
     consteval auto index_of()
     {
         using type = typeof_t<std::conditional_t<!B, std::type_identity<U>, reverse<U>>>;
         constexpr auto index = type_index_v<T, type>;
-        constexpr auto size = sizeof_t_v<type>;
+        constexpr auto size = std::tuple_size_v<type>;
         return size == index ? size : B ? size - index - 1 : index;
     }
 
@@ -6730,6 +6730,95 @@ namespace monster
 
     template <typename P, typename T>
     using kmp_t = typeof_t<kmp<P, T>>;
+
+    template <typename T, auto N>
+    struct offset
+    {
+        static constexpr auto distance = N;
+    };
+
+    template <typename T, typename U>
+    struct find_index;
+
+    template <typename T, template <typename ...> typename U, typename... Args, auto... args>
+    struct find_index<T, U<offset<Args, args>...>>
+    {
+        static constexpr auto value = index_of<T, U<Args...>>();
+    };
+
+    template <typename T, typename U>
+    inline constexpr auto find_index_v = typev<find_index<T, U>>;
+
+    template <typename T, typename U>
+    struct shift_value
+    {
+        static constexpr auto index = find_index_v<T, U>;
+        static constexpr auto last = index == sizeof_t_v<U>;
+        using type = std::conditional_t<last, int_<index>, element<index, U>>;
+
+        template <typename V, bool B>
+        struct impl : V
+        {
+        };
+
+        template <typename V>
+        struct impl<V, false> : int_<typeof_t<V>::distance>
+        {
+        };
+
+        static constexpr auto value = typev<impl<type, last>>;
+    };
+
+    template <typename T, typename U>
+    inline constexpr auto shift_value_v = typev<shift_value<T, U>>;
+
+    template <typename P, typename T, int N = sizeof_t_v<P>>
+    struct bmh
+    {
+        template <int i, int j, int k, typename U>
+        struct table
+        {
+            using curr = element_t<i, P>;
+            static constexpr auto index = find_index_v<curr, U>;
+            static constexpr auto last = index == k;
+            using dest = offset<curr, N - i - 1>;
+            using next = type_if<last, append<U, dest>, exchange<index, dest, U>>;
+            using type = typeof_t<table<i + 1, j, k + last, next>>;
+        };
+
+        template <int j, int k, typename U>
+        struct table<j, j, k, U> : std::type_identity<U>
+        {
+        };
+
+        template <int i, int j, typename U>
+        struct impl
+        {
+            using next = std::conditional_t<j == 0, append<U, int_<i>>, impl<i, j - 1, U>>;
+            using type = type_if<is_same_v<j, i + j, P, T, 1>, next, std::type_identity<U>>;
+        };
+
+        using maps = typeof_t<table<N != 1, N - 1, 1, tuple_t<offset<element_t<0, P>, N - 1>>>>;
+
+        template <int i, int j, typename U, bool = i <= j>
+        struct search
+        {
+            using curr = typeof_t<impl<i, N - 1, U>>;
+            using dest = element_if_t<N != 1, N + i - 1, T, U>;
+            using next = std::conditional_t<N == 1, int_<1>, shift_value<dest, maps>>;
+            using type = typeof_t<search<i + (greater_v<curr, U> ? 1 : typev<next>), j, curr>>;
+        };
+
+        template <int i, int j, typename U>
+        struct search<i, j, U, false> : std::type_identity<U>
+        {
+        };
+
+        using type = typeof_t<search<0, sizeof_t_v<T> - N, std::index_sequence<>>>;
+    };
+
+    template <typename P, typename T>
+    using bmh_t = typeof_t<bmh<P, T>>;
 
     template <typename T>
     struct arrange

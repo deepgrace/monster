@@ -40,8 +40,31 @@ int main(int argc, char* argv[])
     execute<hanoi_t<2>, std::integer_sequence<int, 0, 2, 0, 1, 2, 1>>();
     execute<hanoi_t<3>, std::integer_sequence<int, 0, 1, 0, 2, 1, 2, 0, 1, 2, 0, 2, 1, 0, 1>>();
 
+    execute<bmh_t<std::tuple<char>, std::tuple<int, float, double, int, int>>, std::index_sequence<>>();
+    execute<bmh_t<std::tuple<double>, std::tuple<double, int, int, double>>, std::index_sequence<0, 3>>();
+
     execute<kmp_t<std::tuple<char>, std::tuple<int, float, double, int, int>>, std::index_sequence<>>();
     execute<kmp_t<std::tuple<double>, std::tuple<double, int, int, double>>, std::index_sequence<0, 3>>();
+
+    execute<bmh_t<std::tuple<int, double, char, float>,
+            std::tuple<int, int, double, char, float, double, char, int, double, char, float, int>>,
+            std::index_sequence<1, 7>>();
+
+    execute<bmh_t<std::tuple<int, double, int, double>,
+            std::tuple<int, int, double, int, double, double, char, int, double, int, double, int>>,
+            std::index_sequence<1, 7>>();
+
+    execute<bmh_t<std::integer_sequence<int, 1, 3, 1, 3, 1>,
+            std::integer_sequence<int, -8, 2, -1, 1, 3, 1, 3, 1, 0, -4, 1, 3, 1, 3, 1, -5>>,
+            std::index_sequence<3, 10>>();
+
+    execute<bmh_t<std::integer_sequence<int, 2, 1, 3, 1, 3, 1>,
+            std::integer_sequence<int, -8, 2, -1, 1, 3, 1, 3, 1, 0, -4, 1, 3, 1, 3, 1, -5>>,
+            std::index_sequence<>>();
+
+    execute<kmp_t<std::tuple<int, double, char, float>,
+            std::tuple<int, int, double, char, float, double, char, int, double, char, float, int>>,
+            std::index_sequence<1, 7>>();
 
     execute<kmp_t<std::tuple<int, double, int, double>,
             std::tuple<int, int, double, int, double, double, char, int, double, int, double, int>>,

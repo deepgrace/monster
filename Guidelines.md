@@ -218,6 +218,15 @@ using a2 = arrange_t<std::index_sequence<7, 2, 0, 7, 3, 7, 0, 2, 8, 5, 3>>;
 // a1 == std::tuple<int, int, int, char, char, char, double>
 // a2 == std::index_sequence<7, 7, 7, 2, 2, 0, 0, 3, 3, 8, 5>
 
+// Boyer-Moore-Horspool (BMH) string searching algorithm for types
+using b1 = bmh_t<std::tuple<char>, std::tuple<int, float, double, int, int>>;
+using b2 = bmh_t<std::tuple<double>, std::tuple<double, int, int, double>>;
+using b3 = bmh_t<std::tuple<int, double, int, double>,
+           std::tuple<int, int, double, int, double, double, char, int, double, int, double, int>>;
+// b1 == std::index_sequence<>
+// b2 == std::index_sequence<0, 3>
+// b3 == std::index_sequence<1, 7>
+
 // Knuth–Morris–Pratt (KMP) string searching algorithm for types
 using k1 = kmp_t<std::tuple<char>, std::tuple<int, float, double, int, int>>;
 using k2 = kmp_t<std::tuple<double>, std::tuple<double, int, int, double>>;

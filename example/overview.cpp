@@ -21,6 +21,12 @@ int main(int argc, char* argv[])
     static_assert(std::is_same_v<a1, std::tuple<char, char, double, double, int>>);
     static_assert(std::is_same_v<a2, std::index_sequence<4, 4, 3, 3, 3, 0, 2, 5>>);
 
+    // Boyer-Moore-Horspool (BMH) algorithm searches for occurrences of a sequence within another sequence
+    using b1 = bmh_t<std::tuple<int, char, int>, std::tuple<int, int, char, int, char, int, char, int>>;
+    using b2 = bmh_t<std::integer_sequence<int, 7, 5>, std::integer_sequence<int, 7, 5, 4, 0, 7, 5, 9>>;
+    static_assert(std::is_same_v<b1, std::index_sequence<1, 3, 5>>);
+    static_assert(std::is_same_v<b2, std::index_sequence<0, 4>>);
+
     // Knuth–Morris–Pratt (KMP) algorithm searches for occurrences of a sequence within another sequence
     using k1 = kmp_t<std::tuple<int, char, int>, std::tuple<int, int, char, int, char, int, char, int>>;
     using k2 = kmp_t<std::integer_sequence<int, 7, 5>, std::integer_sequence<int, 7, 5, 4, 0, 7, 5, 9>>;
