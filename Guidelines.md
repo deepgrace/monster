@@ -269,6 +269,14 @@ using p8 = partial_sort_t<4, 6, std::tuple<int, uint64_t, short, char, short, do
 // p7 == std::integer_sequence<int, -7, -5, -2, 0, 6, 1, 7, 3, 4, 7, 8>
 // p8 == std::tuple<short, char, short, short, int, int, double, uint64_t>
 
+// sort in the subrange [begin, end)
+using su = sort_subrange_t<3, 6, std::index_sequence<3, 1, 4, 0, 2, 5, 9, 7, 4, 8>>;
+// su == std::index_sequence<0, 1, 2, 3, 4, 4, 9, 7, 8, 5>
+
+// partition in the subrange [begin, end)
+using ps = partition_subrange_t<2, 7, std::index_sequence<4, 1, 8, 7, 0, 5, 3, 6, 2>>;
+// ps == std::index_sequence<0, 1, 3, 2, 4, 5, 6, 7, 8>
+
 // get the range and sum of maximum subarray of a sequence
 using array = std::integer_sequence<int, -2, -3, 4, -1, -2, 1, 5, -3>;
 

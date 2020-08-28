@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 40
+#define MONSTER_VERSION 41
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5864,6 +5864,25 @@ namespace monster
 
     template <size_t p, size_t q, typename T, template <typename, typename> typename comparator = less_equal_t>
     using partial_sort_t = typeof_t<partial_sort<p, q, T, comparator>>;
+
+    template <size_t p, size_t q, typename T, template <typename, typename> typename comparator = less_equal_t>
+    struct sort_subrange
+    {
+        using type = type_if<p == q, std::type_identity<T>, partial_sort<p, q, T, comparator>>;
+    };
+
+    template <size_t p, size_t q, typename T, template <typename, typename> typename comparator = less_equal_t>
+    using sort_subrange_t = typeof_t<sort_subrange<p, q, T, comparator>>;
+
+    template <size_t p, size_t q, typename T, template <typename, typename> typename comparator = less_equal_t>
+    struct partition_subrange
+    {
+        using next = type_if<p != 0, nth_element<p, T, comparator>, std::type_identity<T>>;
+        using type = type_if<q != sizeof_t_v<T>, nth_element<q, next, comparator>, std::type_identity<next>>;
+    };
+
+    template <size_t p, size_t q, typename T, template <typename, typename> typename comparator = less_equal_t>
+    using partition_subrange_t = typeof_t<partition_subrange<p, q, T, comparator>>;
 
     template <size_t n, typename T, template <typename, typename> typename comparator = less_equal_t>
     struct select

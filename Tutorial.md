@@ -1134,6 +1134,12 @@ int main(int argc, char* argv[])
     execute<partial_sort_t<4, 6, std::tuple<int, uint64_t, short, char, short, double, int, short>>,
             std::tuple<short, char, short, short, int, int, double, uint64_t>>();
 
+    execute<sort_subrange_t<3, 6, std::index_sequence<3, 1, 4, 0, 2, 5, 9, 7, 4, 8>>,
+            std::index_sequence<0, 1, 2, 3, 4, 4, 9, 7, 8, 5>>();
+
+    execute<partition_subrange_t<2, 7, std::index_sequence<4, 1, 8, 7, 0, 5, 3, 6, 2>>,
+            std::index_sequence<0, 1, 3, 2, 4, 5, 6, 7, 8>>();
+
     execute<select_t<2, std::tuple<short, int, double, int, char>>, short>();
     execute<select_t<2, std::tuple<short, int, double, int, char>, greater_equal_t>, int>();
 
