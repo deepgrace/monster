@@ -1126,11 +1126,20 @@ int main(int argc, char* argv[])
 
     execute<binomial_coeff_v<5, 2>, 10>();
 
+    execute<element_t<4, nth_element_t<5, std::tuple<int, char, short, double, char>>>, double>();
+    execute<element_v<3, nth_element_t<4, std::integer_sequence<int, -2, 1, 0, -7, 4, 3>>>, 1>();
+
+    execute<partial_sort_t<0, 4, std::integer_sequence<int, 6, -2, 8, 0, -7, 1, 7, -5, 4, 7, 3>>,
+            std::integer_sequence<int, -7, -5, -2, 0, 6, 1, 7, 3, 4, 7, 8>>();
+    execute<partial_sort_t<4, 6, std::tuple<int, uint64_t, short, char, short, double, int, short>>,
+            std::tuple<short, char, short, short, int, int, double, uint64_t>>();
+
     execute<select_t<2, std::tuple<short, int, double, int, char>>, short>();
+    execute<select_t<2, std::tuple<short, int, double, int, char>, greater_equal_t>, int>();
+
     execute<select_t<3, std::integer_sequence<int, 0, 3, 2, 1, 2, 6>>, int_<2>>();
     execute<select_v<4, std::integer_sequence<int, -2, 1, 0, -7, 4, 3>>, 1>();
 
-    execute<select_t<2, std::tuple<short, int, double, int, char>, greater_equal_t>, int>();
     execute<select_t<3, std::integer_sequence<int, 0, 3, 4, 1, -2, 6>, greater_equal_t>, int_<3>>();
     execute<select_v<4, std::integer_sequence<int, -2, 1, 0, -7, 4, 3>, greater_equal_t>, 0>();
 

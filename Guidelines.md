@@ -263,6 +263,12 @@ auto  p6 = partition_point_v<p4, is_even,  1, 6>;
 // p5 == int_<3>
 // p6 == 4
 
+// partial sort in the range [begin, end)
+using p7 = partial_sort_t<0, 4, std::integer_sequence<int, 6, -2, 8, 0, -7, 1, 7, -5, 4, 7, 3>>;
+using p8 = partial_sort_t<4, 6, std::tuple<int, uint64_t, short, char, short, double, int, short>>;
+// p7 == std::integer_sequence<int, -7, -5, -2, 0, 6, 1, 7, 3, 4, 7, 8>
+// p8 == std::tuple<short, char, short, short, int, int, double, uint64_t>
+
 // get the range and sum of maximum subarray of a sequence
 using array = std::integer_sequence<int, -2, -3, 4, -1, -2, 1, 5, -3>;
 

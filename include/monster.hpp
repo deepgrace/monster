@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 39
+#define MONSTER_VERSION 40
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5811,7 +5811,7 @@ namespace monster
     using randomized_stable_partition_t = typeof_t<randomized_stable_partition<p, r, T>>;
 
     template <size_t n, typename T, template <typename, typename> typename comparator = less_equal_t>
-    struct select
+    struct nth_pivot
     {
         template <int p, int r, size_t i, typename U>
         struct impl
@@ -5823,15 +5823,53 @@ namespace monster
             static constexpr auto k = q - p + 1;
 
             using next = std::conditional_t<i < k, impl<p, q, i, curr>, impl<q + 1, r, i - k, curr>>;
-            using type = element_if_t<i == k, q, curr, next>;
+            using type = type_if<i == k, std::type_identity<index_type<q, curr>>, next>;
         };
 
         template <int p, size_t i, typename U>
-        struct impl<p, p, i, U> : element<p, U>
+        struct impl<p, p, i, U> : std::type_identity<index_type<p, U>>
         {
         };
 
         using type = typeof_t<impl<0, sizeof_t_v<T>, n, T>>;
+    };
+
+    template <size_t n, typename T, template <typename, typename> typename comparator = less_equal_t>
+    using nth_pivot_t = typeof_t<nth_pivot<n, T, comparator>>;
+
+    template <size_t n, typename T, template <typename, typename> typename comparator = less_equal_t>
+    struct nth_element
+    {
+        using type = typeof_t<nth_pivot_t<n, T, comparator>>;
+    };
+
+    template <size_t n, typename T, template <typename, typename> typename comparator = less_equal_t>
+    using nth_element_t = typeof_t<nth_element<n, T, comparator>>;
+
+    template <size_t p, size_t q, typename T, template <typename, typename> typename comparator = less_equal_t>
+    struct partial_sort
+    {
+        template <size_t i, size_t j, typename U>
+        struct impl : impl<i + 1, j, nth_element_t<i + 1, U, comparator>>
+        {
+        };
+
+        template <size_t j, typename U>
+        struct impl<j, j, U> : std::type_identity<U>
+        {
+        };
+
+        using type = typeof_t<impl<p, q, T>>;
+    };
+
+    template <size_t p, size_t q, typename T, template <typename, typename> typename comparator = less_equal_t>
+    using partial_sort_t = typeof_t<partial_sort<p, q, T, comparator>>;
+
+    template <size_t n, typename T, template <typename, typename> typename comparator = less_equal_t>
+    struct select
+    {
+        using pivot = nth_pivot_t<n, T, comparator>;
+        using type = element_t<typev<pivot>, typeof_t<pivot>>;
     };
 
     template <size_t n, typename T, template <typename, typename> typename comparator = less_equal_t>
