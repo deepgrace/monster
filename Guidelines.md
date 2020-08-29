@@ -455,6 +455,24 @@ using nested = std::tuple<std::tuple<char, short>, double,
                std::tuple<char, std::tuple<char, int, double>>, short>;
 using ft = flat_t<nested>;
 // ft == std::tuple<char, short, double, char, char, int, double, short>
+
+// reorder elements with index sequence order
+// apply_permutation<type, indices> == apply_permutation<type, indices, false>
+// apply_permutation<type, indices, true> == apply_permutation<reverse_t<type>, reverse_t<indices>>
+using types1 = std::tuple<char, int, float, double, short>;
+using types2 = std::integer_sequence<int, 8, 3, 5, -2, 7>;
+using index1 = std::index_sequence<0, 2, 4, 1, 3>;
+using index2 = std::index_sequence<4, 0, 2, 1, 3>;
+
+using ap1 = apply_permutation_t<types1, index1>;
+using ap2 = apply_permutation_t<types2, index2>;
+// ap1 == std::tuple<char, float, short, int, double>
+// ap2 == std::integer_sequence<int, 7, 8, 5, 3, -2>
+
+using ap3 = apply_permutation_t<types1, index1, true>;
+using ap4 = apply_permutation_t<types2, index2, true>;
+// ap3 == std::tuple<int, double, char, float, short>
+// ap4 == std::integer_sequence<int, 3, -2, 5, 7, 8>
 ```
 
 ### Combinations

@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
     execute<has_duplicates_v<std::tuple<int, double, char, int, float>>>();
     execute<has_duplicates_v<std::integer_sequence<int, 1, 2, 3, 1, 4>>>();
 
-    execute<enable_if_not_t<false, int>, int>();
+    execute<disable_if_t<false, int>, int>();
 
     execute<is_streamable_v<std::ostream, int>>();
     execute<!is_streamable_v<std::ostream, std::tuple<int>>>();
@@ -500,6 +500,16 @@ int main(int argc, char* argv[])
             std::index_sequence<0, 2>>, std::tuple<int, char>>();
     execute<expand_of_t<std::integer_sequence<int, -1, 3, 7, 0, 5>,
             std::index_sequence<1, 3, 0, 4>>, std::integer_sequence<int, 3, 0, -1, 5>>();
+
+    execute<apply_permutation_t<std::tuple<char, int, float, double, short>,
+            std::index_sequence<0, 2, 4, 1, 3>>, std::tuple<char, float, short, int, double>>();
+    execute<apply_permutation_t<std::integer_sequence<int, 8, 3, 5, -2, 7>,
+            std::index_sequence<4, 0, 2, 1, 3>>, std::integer_sequence<int, 7, 8, 5, 3, -2>>();
+
+    execute<apply_permutation_t<std::tuple<char, int, float, double, short>,
+            std::index_sequence<0, 2, 4, 1, 3>, true>, std::tuple<int, double, char, float, short>>();
+    execute<apply_permutation_t<std::integer_sequence<int, 8, 3, 5, -2, 7>,
+            std::index_sequence<4, 0, 2, 1, 3>, true>, std::integer_sequence<int, 3, -2, 5, 7, 8>>();
 
     execute<to_sequence_t<std::tuple<int, double>>, std::integer_sequence<int, 4, 8>>();
     execute<to_sequence_t<std::index_sequence<4, 8>>, std::index_sequence<4, 8>>();

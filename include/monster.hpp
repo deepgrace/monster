@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 41
+#define MONSTER_VERSION 42
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -428,27 +428,18 @@ namespace monster
     template <typename T>
     inline constexpr auto is_instantiable_v = typev<is_instantiable<T>>;
 
-    template <typename T>
-    struct remove_cvref : std::remove_cv<std::remove_reference_t<T>>
-    {
-    };
-
-    template <typename T>
-    using remove_cvref_t = typeof_t<remove_cvref<T>>;
-
     template <bool B, typename T = std::void_t<>>
-    struct enable_if_not
+    struct disable_if
     {
     };
 
     template <typename T>
-    struct enable_if_not<false, T>
+    struct disable_if<false, T> : std::type_identity<T>
     {
-        using type = T;
     };
 
     template <bool B, typename T = std::void_t<>>
-    using enable_if_not_t = typeof_t<enable_if_not<B, T>>;
+    using disable_if_t = typeof_t<disable_if<B, T>>;
 
     template <typename S, typename T, typename = std::void_t<>>
     struct is_streamable : std::false_type
@@ -456,7 +447,7 @@ namespace monster
     };
 
     template <typename S, typename T>
-    struct is_streamable<S, T, std::void_t<enable_if_not_t<std::is_same_v<S, T>>,
+    struct is_streamable<S, T, std::void_t<disable_if_t<std::is_same_v<S, T>>,
     decltype(std::declval<std::add_lvalue_reference_t<S>>() << std::declval<T>())>> : std::true_type
     {
     };
@@ -2931,22 +2922,35 @@ namespace monster
     template <typename T>
     using reverse_t = typeof_t<reverse<T>>;
 
-    template <typename T, template <typename ...> typename F>
-    struct reverse_if
-    {
+    template <bool B, typename T>
+    using reverse_if = std::conditional_t<B, reverse<T>, std::type_identity<T>>;
 
+    template <bool B, typename T>
+    using reverse_if_t = typeof_t<reverse_if<B, T>>;
+
+    template <typename T, typename indices, bool B = false>
+    struct apply_permutation : expand_of<reverse_if_t<B, T>, reverse_if_t<B, indices>>
+    {
+    };
+
+    template <typename T, typename indices, bool B = false>
+    using apply_permutation_t = typeof_t<apply_permutation<T, indices, B>>;
+
+    template <typename T, template <typename ...> typename F>
+    struct reverse_with
+    {
         using call = std::conditional_t<is_tuple_v<T>, F<T>, std::type_identity<T>>;
-        using type = typeof_t<std::conditional_t<is_sequence_v<T>, reverse<T>, call>>;
+        using type = type_if<is_sequence_v<T>, reverse<T>, call>;
     };
 
     template <typename T, template <typename ...> typename F>
-    using reverse_if_t = typeof_t<reverse_if<T, F>>;
+    using reverse_with_t = typeof_t<reverse_with<T, F>>;
 
     template <typename T>
     struct reverse_recursive
     {
         template <typename U>
-        using apply = reverse_if_t<U, reverse_recursive>;
+        using apply = reverse_with_t<U, reverse_recursive>;
 
         using type = reverse_t<eval_t<currying_t, apply, T>>;
     };
@@ -3306,7 +3310,7 @@ namespace monster
     requires (is_variadic_value_v<U>)
     consteval auto index_of()
     {
-        using type = typeof_t<std::conditional_t<!B, std::type_identity<U>, reverse<U>>>;
+        using type = reverse_if_t<B, U>;
         constexpr auto index = value_index_v<typev<T>, type>;
         constexpr auto size = sizeof_t_v<type>;
         return size == index ? size : B ? size - index - 1 : index;
@@ -3316,7 +3320,7 @@ namespace monster
     requires (is_variadic_type_v<U>)
     consteval auto index_of()
     {
-        using type = typeof_t<std::conditional_t<!B, std::type_identity<U>, reverse<U>>>;
+        using type = reverse_if_t<B, U>;
         constexpr auto index = type_index_v<T, type>;
         constexpr auto size = std::tuple_size_v<type>;
         return size == index ? size : B ? size - index - 1 : index;
@@ -4426,7 +4430,7 @@ namespace monster
         template <auto N, template <typename ...> typename U, typename... Args>
         struct impl<N, U<Args...>>
         {
-            using type = typeof_t<std::conditional_t<std::is_invocable_v<F, Args...>, int_<N>, invocable<F, pop_back_t<T>>>>;
+            using type = type_if<std::is_invocable_v<F, Args...>, int_<N>, invocable<F, pop_back_t<T>>>;
         };
 
         using type = typeof_t<impl<sizeof_t_v<T>, T>>;
@@ -6797,8 +6801,8 @@ namespace monster
     template <typename T, typename U>
     struct find_index;
 
-    template <typename T, template <typename ...> typename U, typename... Args, auto... args>
-    struct find_index<T, U<offset<Args, args>...>>
+    template <typename T, template <typename ...> typename U, template <typename, auto> typename V, typename... Args, auto... args>
+    struct find_index<T, U<V<Args, args>...>>
     {
         static constexpr auto value = index_of<T, U<Args...>>();
     };
