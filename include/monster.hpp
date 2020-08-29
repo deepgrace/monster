@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 42
+#define MONSTER_VERSION 43
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -2959,7 +2959,9 @@ namespace monster
     using reverse_recursive_t = typeof_t<reverse_recursive<T>>;
 
     template <auto i, auto j, typename T>
-    using extent = reverse<range_t<i, j, T>>;
+    struct extent : reverse<range_t<i, j, T>>
+    {
+    };
 
     template <auto i, auto j, typename T>
     using extent_t = typeof_t<extent<i, j, T>>;
@@ -2971,7 +2973,9 @@ namespace monster
     using degree_t = typeof_t<degree<i, j, T>>;
 
     template <auto i, auto j, typename T>
-    using erase = concat<range_t<0, i, T>, range_t<j, sizeof_t_v<T>, T>>;
+    struct erase : concat<range_t<0, i, T>, range_t<j, sizeof_t_v<T>, T>>
+    {
+    };
 
     template <auto i, auto j, typename T>
     using erase_t = typeof_t<erase<i, j, T>>;
@@ -3143,7 +3147,9 @@ namespace monster
     using insert_range_t = typeof_t<insert_range<i, T, U, B, E>>;
 
     template <auto i, auto j, typename T, typename... Args>
-    using replace = concat<append_t<range_t<0, i, T>, Args...>, range_t<j, sizeof_t_v<T>, T>>;
+    struct replace : concat<append_t<range_t<0, i, T>, Args...>, range_t<j, sizeof_t_v<T>, T>>
+    {
+    };
 
     template <auto i, auto j, typename T, typename... Args>
     using replace_t = typeof_t<replace<i, j, T, Args...>>;
@@ -3833,7 +3839,9 @@ namespace monster
     using nth_infinite_t = typeof_t<nth_infinite<N, T>>;
 
     template <size_t N, typename T, template <typename ...> typename F>
-    using infinite_call = nth_infinite<N, infinite_t<F, T>>;
+    struct infinite_call : nth_infinite<N, infinite_t<F, T>>
+    {
+    };
 
     template <size_t N, typename T, template <typename ...> typename F>
     using infinite_call_t = typeof_t<infinite_call<N, T, F>>;
@@ -3890,9 +3898,6 @@ namespace monster
     template <auto value, auto... values>
     inline constexpr auto value_v = value;
 
-    template <auto... values>
-    inline constexpr auto void_v = value_v<0, values...>;
-
     template <typename ...>
     struct wrong : std::false_type
     {
@@ -3906,12 +3911,6 @@ namespace monster
 
     template <typename... Args>
     using void_t = type_t<void, Args...>;
-
-    template <template <typename ...> typename T, template <typename ...> typename... Args>
-    using template_t = T<>;
-
-    template <template <typename ...> typename... Args>
-    using void_template = template_t<std::void_t, Args...>;
 
     template <typename F, auto... N>
     void iterate(F&& f, std::integer_sequence<std::common_type_t<decltype(N)...>, N...>)
@@ -4974,9 +4973,12 @@ namespace monster
     template <template <typename ...> typename F, typename T>
     inline constexpr auto none_of_v = typev<for_each_t<0, F, T>>;
 
-    template <typename T, typename U, auto M = sizeof_t_v<T>, auto N = sizeof_t_v<U>>
+    template <typename T, typename U>
     struct subset
     {
+        static constexpr auto M = sizeof_t_v<T>;
+        static constexpr auto N = sizeof_t_v<U>;
+
         template <size_t i, size_t j>
         struct impl
         {
@@ -5103,9 +5105,12 @@ namespace monster
     template <typename T, typename U>
     using cartesian_product_t = typeof_t<cartesian_product<T, U>>;
 
-    template <typename T, typename U, auto M = sizeof_t_v<T>, auto N = sizeof_t_v<U>>
+    template <typename T, typename U>
     struct large_number_multiplier
     {
+        static constexpr auto M = sizeof_t_v<T>;
+        static constexpr auto N = sizeof_t_v<U>;
+
         template <int i, typename V, bool = i < sizeof_t_v<V> - 1>
         struct next
         {
@@ -5145,8 +5150,8 @@ namespace monster
         using type = typeof_t<impl<0, 0, M, N, base_type_t<T>>>;
     };
 
-    template <typename T, typename U, auto M = sizeof_t_v<T>, auto N = sizeof_t_v<U>>
-    using large_number_multiplier_t = typeof_t<large_number_multiplier<T, U, M, N>>;
+    template <typename T, typename U>
+    using large_number_multiplier_t = typeof_t<large_number_multiplier<T, U>>;
 
     template <typename T, typename... Args>
     struct prefix
@@ -5178,10 +5183,13 @@ namespace monster
     template <typename T, auto... values>
     using suffix_c = suffix_t<T, int_<values>...>;
 
-    template <typename T, typename U, auto M = sizeof_t_v<T>, auto N = sizeof_t_v<U>>
+    template <typename T, typename U>
     requires is_list_v<T, U>
     struct zip
     {
+        static constexpr auto M = sizeof_t_v<T>;
+        static constexpr auto N = sizeof_t_v<U>;
+
         template <auto i, typename V>
         using impl = store_t<element_t<i, V>, element_t<i, U>>;
 
@@ -5192,10 +5200,13 @@ namespace monster
     requires is_list_v<T, U>
     using zip_t = typeof_t<zip<T, U>>;
 
-    template <template <typename ...> typename F, typename T, typename U, auto M = sizeof_t_v<T>, auto N = sizeof_t_v<U>>
+    template <template <typename ...> typename F, typename T, typename U>
     requires is_list_v<T, U>
     struct zip_with
     {
+        static constexpr auto M = sizeof_t_v<T>;
+        static constexpr auto N = sizeof_t_v<U>;
+
         template <auto i, typename V>
         using impl = F<element_t<i, V>, element_t<i, U>>;
 
@@ -5263,9 +5274,11 @@ namespace monster
     template <template <size_t, typename ...> typename F, typename T, auto N = sizeof_t_v<T>>
     using ranged_list_t = typeof_t<ranged_list<F, T, N>>;
 
-    template <typename T, bool ASC, auto N = sizeof_t_v<T>>
+    template <typename T, bool ASC>
     struct permutation
     {
+        static constexpr auto N = sizeof_t_v<T>;
+
         template <typename U, typename V, bool B>
         using comparator = std::conditional_t<B, less_t<U, V>, greater_t<U, V>>;
 
@@ -5601,9 +5614,11 @@ namespace monster
     template <typename T, auto N = 1>
     using increase_t = typeof_t<increase<T, N>>;
 
-    template <size_t B, size_t E, typename T, bool ASC, auto N = sizeof_t_v<T>>
+    template <size_t B, size_t E, typename T, bool ASC>
     struct slide_indices
     {
+        static constexpr auto N = sizeof_t_v<T>;
+
         static constexpr auto value = get_v<0, T>;
         static constexpr auto cond = value == B && !ASC || value + N == E && ASC;
 
@@ -6761,9 +6776,12 @@ namespace monster
     template <typename T, template <typename, typename> typename comparator = less_t>
     using heap_sort_t = sort_t<heap_sort, T, comparator>;
 
-    template <typename P, typename T, auto N = sizeof_t_v<P>, auto value = is_tuple_v<P>>
+    template <typename P, typename T>
     struct kmp
     {
+        static constexpr auto N = sizeof_t_v<P>;
+        static constexpr auto value = is_tuple_v<P>;
+
         template <typename U, typename V, typename W, int k, int q>
         struct next
         {
@@ -6844,17 +6862,28 @@ namespace monster
     template <typename T, typename U>
     inline constexpr auto shift_value_v = typev<shift_value<T, U>>;
 
-    template <typename P, typename T, int N = sizeof_t_v<P>>
-    struct bmh
+    template <bool A, bool B, typename X, typename Y, typename Z>
+    using ternary_conditional = std::conditional<A, std::conditional_t<B, X, Y>, Z>;
+
+    template <bool A, bool B, typename X, typename Y, typename Z>
+    using ternary_conditional_t = typeof_t<ternary_conditional<A, B, X, Y, Z>>;
+
+    template <typename P, typename T, bool B>
+    struct boyer_moore_horspool
     {
+        static constexpr auto N = sizeof_t_v<P>;
+
         template <int i, int j, int k, typename U>
         struct table
         {
             using curr = element_t<i, P>;
+
             static constexpr auto index = find_index_v<curr, U>;
             static constexpr auto last = index == k;
+
             using dest = offset<curr, N - i - 1>;
             using next = type_if<last, append<U, dest>, exchange<index, dest, U>>;
+
             using type = typeof_t<table<i + 1, j, k + last, next>>;
         };
 
@@ -6866,8 +6895,8 @@ namespace monster
         template <int i, int j, typename U>
         struct impl
         {
-            using next = std::conditional_t<j == 0, append<U, int_<i>>, impl<i, j - 1, U>>;
-            using type = type_if<is_same_v<j, i + j, P, T, 1>, next, std::type_identity<U>>;
+            using next = ternary_conditional_t<j == 0, B, append<U, int_<i>>, erase<i, i + N, U>, impl<i, j - 1, U>>;
+            using type = type_if<is_same_v<j, i + j, P, std::conditional_t<B, T, U>, 1>, next, std::type_identity<U>>;
         };
 
         using maps = typeof_t<table<N != 1, N - 1, 1, tuple_t<offset<element_t<0, P>, N - 1>>>>;
@@ -6876,9 +6905,15 @@ namespace monster
         struct search
         {
             using curr = typeof_t<impl<i, N - 1, U>>;
-            using dest = element_if_t<N != 1, N + i - 1, T, U>;
+            using dest = element_if_t<N != 1, N + i - 1, std::conditional_t<B, T, U>, U>;
+
             using next = std::conditional_t<N == 1, int_<1>, shift_value<dest, maps>>;
-            using type = typeof_t<search<i + (greater_v<curr, U> ? 1 : typev<next>), j, curr>>;
+
+            static constexpr auto lhs = B && greater_v<curr, U>;
+            static constexpr auto rhs = !B && greater_v<U, curr>;
+
+            using cond = ternary_conditional_t<!lhs, rhs, int_<0>, next, int_<1>>;
+            using type = typeof_t<search<i + typev<cond>, j - rhs * N, curr>>;
         };
 
         template <int i, int j, typename U>
@@ -6886,11 +6921,55 @@ namespace monster
         {
         };
 
-        using type = typeof_t<search<0, sizeof_t_v<T> - N, std::index_sequence<>>>;
+        using type = typeof_t<search<0, sizeof_t_v<T> - N, std::conditional_t<!B, T, std::index_sequence<>>>>;
     };
+
+    template <typename P, typename T, bool B>
+    using boyer_moore_horspool_t = typeof_t<boyer_moore_horspool<P, T, B>>;
+
+    template <typename P, typename T>
+    using bmh = boyer_moore_horspool<P, T, true>;
 
     template <typename P, typename T>
     using bmh_t = typeof_t<bmh<P, T>>;
+
+    template <typename P, typename T>
+    using subtype_indices = bmh<P, T>;
+
+    template <typename P, typename T>
+    using subtype_indices_t = typeof_t<subtype_indices<P, T>>;
+
+    template <typename P, typename T>
+    using erase_subtype = boyer_moore_horspool<P, T, false>;
+
+    template <typename P, typename T>
+    using erase_subtype_t = typeof_t<erase_subtype<P, T>>;
+
+    template <typename P, typename T>
+    struct eliminate_subtype
+    {
+        static constexpr auto N = sizeof_t_v<P>;
+
+        template <int i, typename U, typename V>
+        struct impl;
+
+        template <int i, auto j, auto... n, typename V>
+        struct impl<i, std::index_sequence<j, n...>, V>
+        {
+            static constexpr auto k = j - i * N;
+            using type = typeof_t<impl<i + 1, std::index_sequence<n...>, erase_t<k, k + N, V>>>;
+        };
+
+        template <int i, typename U>
+        struct impl<i, std::index_sequence<>, U> : std::type_identity<U>
+        {
+        };
+
+        using type = typeof_t<impl<0, bmh_t<P, T>, T>>;
+    };
+
+    template <typename P, typename T>
+    using eliminate_subtype_t = typeof_t<eliminate_subtype<P, T>>;
 
     template <typename T>
     struct arrange

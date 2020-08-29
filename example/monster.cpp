@@ -46,6 +46,15 @@ int main(int argc, char* argv[])
     execute<kmp_t<std::tuple<char>, std::tuple<int, float, double, int, int>>, std::index_sequence<>>();
     execute<kmp_t<std::tuple<double>, std::tuple<double, int, int, double>>, std::index_sequence<0, 3>>();
 
+    execute<subtype_indices_t<std::tuple<char>, std::tuple<int, float, double, int, int>>, std::index_sequence<>>();
+    execute<subtype_indices_t<std::tuple<double>, std::tuple<double, int, int, double>>, std::index_sequence<0, 3>>();
+
+    execute<erase_subtype_t<std::tuple<char>, std::tuple<int, float, double, int, int>>, std::tuple<int, float, double, int, int>>();
+    execute<erase_subtype_t<std::tuple<double>, std::tuple<double, int, int, double>>, std::tuple<int, int>>();
+
+    execute<eliminate_subtype_t<std::tuple<char>, std::tuple<int, float, double, int, int>>, std::tuple<int, float, double, int, int>>();
+    execute<eliminate_subtype_t<std::tuple<double>, std::tuple<double, int, int, double>>, std::tuple<int, int>>();
+
     execute<bmh_t<std::tuple<int, double, char, float>,
             std::tuple<int, int, double, char, float, double, char, int, double, char, float, int>>,
             std::index_sequence<1, 7>>();
@@ -77,6 +86,38 @@ int main(int argc, char* argv[])
     execute<kmp_t<std::integer_sequence<int, 2, 1, 3, 1, 3, 1>,
             std::integer_sequence<int, -8, 2, -1, 1, 3, 1, 3, 1, 0, -4, 1, 3, 1, 3, 1, -5>>,
             std::index_sequence<>>();
+
+    execute<erase_subtype_t<std::tuple<int, double, char, float>,
+            std::tuple<int, int, double, char, float, double, char, int, double, char, float, int>>,
+            std::tuple<int, double, char, int>>();
+
+    execute<erase_subtype_t<std::tuple<int, double, int, double>,
+            std::tuple<int, int, double, int, double, double, char, int, double, int, double, int>>,
+            std::tuple<int, double, char, int>>();
+
+    execute<erase_subtype_t<std::integer_sequence<int, 1, 3, 1, 3, 1>,
+            std::integer_sequence<int, -8, 2, -1, 1, 3, 1, 3, 1, 0, -4, 1, 3, 1, 3, 1, -5>>,
+            std::integer_sequence<int, -8, 2, -1, 0, -4, -5>>();
+
+    execute<erase_subtype_t<std::integer_sequence<int, 2, 1, 3, 1, 3, 1>,
+            std::integer_sequence<int, -8, 2, -1, 1, 3, 1, 3, 1, 0, -4, 1, 3, 1, 3, 1, -5>>,
+            std::integer_sequence<int, -8, 2, -1, 1, 3, 1, 3, 1, 0, -4, 1, 3, 1, 3, 1, -5>>();
+
+    execute<eliminate_subtype_t<std::tuple<int, double, char, float>,
+            std::tuple<int, int, double, char, float, double, char, int, double, char, float, int>>,
+            std::tuple<int, double, char, int>>();
+
+    execute<eliminate_subtype_t<std::tuple<int, double, int, double>,
+            std::tuple<int, int, double, int, double, double, char, int, double, int, double, int>>,
+            std::tuple<int, double, char, int>>();
+
+    execute<eliminate_subtype_t<std::integer_sequence<int, 1, 3, 1, 3, 1>,
+            std::integer_sequence<int, -8, 2, -1, 1, 3, 1, 3, 1, 0, -4, 1, 3, 1, 3, 1, -5>>,
+            std::integer_sequence<int, -8, 2, -1, 0, -4, -5>>();
+
+    execute<eliminate_subtype_t<std::integer_sequence<int, 2, 1, 3, 1, 3, 1>,
+            std::integer_sequence<int, -8, 2, -1, 1, 3, 1, 3, 1, 0, -4, 1, 3, 1, 3, 1, -5>>,
+            std::integer_sequence<int, -8, 2, -1, 1, 3, 1, 3, 1, 0, -4, 1, 3, 1, 3, 1, -5>>();
 
     using not_adjacent_type = std::tuple<char, double, char, double, int, float, char>;
     using adjacent_type = std::tuple<char, char, char, double, double, int, float>;

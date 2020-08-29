@@ -674,6 +674,18 @@ using d9 = erase_t<0, 6, std::integer_sequence<int, 1, 2, -2, 4, 3, 5>>;
 // d8 == std::integer_sequence<int, 1, 3, 5>
 // d9 == std::integer_sequence<int>
 
+// delete subtype of a sequence
+using tpl = std::tuple<int, double, char, int, double, double, char, int>;
+using tp2 = std::index_sequence<2, 0, 3, 5, 4, 4, 7, 3, 5, 4, 4, 3, 5, 4>;
+using es1 = erase_subtype_t<std::tuple<int, double>, tpl>;
+using es2 = erase_subtype_t<std::index_sequence<3, 5, 4>, tp2>;
+using es3 = eliminate_subtype_t<std::tuple<double, char>, tpl>;
+using es4 = eliminate_subtype_t<std::index_sequence<5, 4, 4>, tp2>;
+// es1 == std::tuple<char, double, char, int>
+// es2 == std::index_sequence<2, 0, 4, 7, 4>
+// es3 == std::tuple<int, int, double, int>
+// es4 == std::index_sequence<2, 0, 3, 7, 3, 3, 5, 4>
+
 // delete the first two elements
 using x = drop_front_t<2, std::tuple<int, double, int, char>>;
 // x == std::tuple<int, char>
