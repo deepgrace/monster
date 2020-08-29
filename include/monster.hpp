@@ -4791,6 +4791,17 @@ namespace monster
     template <template <typename ...> typename F, typename T>
     inline constexpr auto count_if_v = typev<count_if_t<F, T>>;
 
+    template <template <typename ...> typename F, typename T>
+    struct count_if_not : count_if<negaf<F>::template apply, T>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T>
+    using count_if_not_t = typeof_t<count_if_not<F, T>>;
+
+    template <template <typename ...> typename F, typename T>
+    inline constexpr auto count_if_not_v = typev<count_if_not_t<F, T>>;
+
     template <typename T>
     struct mode
     {
@@ -5844,7 +5855,7 @@ namespace monster
     template <size_t n, typename T, template <typename, typename> typename comparator = less_equal_t>
     struct nth_element
     {
-        using type = typeof_t<nth_pivot_t<n, T, comparator>>;
+        using type = typeof_t<nth_pivot_t<n + 1, T, comparator>>;
     };
 
     template <size_t n, typename T, template <typename, typename> typename comparator = less_equal_t>
@@ -5854,7 +5865,7 @@ namespace monster
     struct partial_sort
     {
         template <size_t i, size_t j, typename U>
-        struct impl : impl<i + 1, j, nth_element_t<i + 1, U, comparator>>
+        struct impl : impl<i + 1, j, nth_element_t<i, U, comparator>>
         {
         };
 

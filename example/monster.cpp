@@ -919,8 +919,17 @@ int main(int argc, char* argv[])
     execute<count_v<int_<1>, std::integer_sequence<int, 1, 2, 3, 1>>, 2>();
     execute<count_v<char, std::tuple<char, double, char, int, float, char, int, double>>, 3>();
 
+    execute<count_if_t<is_even, std::integer_sequence<int, 1, 2, 3, 1, 4>>, int_<2>>();
+    execute<count_if_t<is_tuple, std::tuple<double, std::tuple<>, float, std::tuple<int>, double>>, int_<2>>();
+
     execute<count_if_v<is_even, std::integer_sequence<int, 1, 2, 3, 1, 4>>, 2>();
     execute<count_if_v<is_tuple, std::tuple<double, std::tuple<>, float, std::tuple<int>, double>>, 2>();
+
+    execute<count_if_not_t<is_even, std::integer_sequence<int, 1, 2, 3, 1, 4>>, int_<3>>();
+    execute<count_if_not_t<is_tuple, std::tuple<double, std::tuple<>, float, std::tuple<int>, double>>, int_<3>>();
+
+    execute<count_if_not_v<is_even, std::integer_sequence<int, 1, 2, 3, 1, 4>>, 3>();
+    execute<count_if_not_v<is_tuple, std::tuple<double, std::tuple<>, float, std::tuple<int>, double>>, 3>();
 
     execute<mode_v<std::integer_sequence<int, 1, 2, 3, 1>>, 1>();
     execute<monster::mode_t<std::integer_sequence<int, 1, 2, 3, 1>>, int_<1>>();
@@ -1145,8 +1154,8 @@ int main(int argc, char* argv[])
 
     execute<binomial_coeff_v<5, 2>, 10>();
 
-    execute<element_t<4, nth_element_t<5, std::tuple<int, char, short, double, char>>>, double>();
-    execute<element_v<3, nth_element_t<4, std::integer_sequence<int, -2, 1, 0, -7, 4, 3>>>, 1>();
+    execute<element_t<4, nth_element_t<4, std::tuple<int, char, short, double, char>>>, double>();
+    execute<element_v<3, nth_element_t<3, std::integer_sequence<int, -2, 1, 0, -7, 4, 3>>>, 1>();
 
     execute<partial_sort_t<0, 4, std::integer_sequence<int, 6, -2, 8, 0, -7, 1, 7, -5, 4, 7, 3>>,
             std::integer_sequence<int, -7, -5, -2, 0, 6, 1, 7, 3, 4, 7, 8>>();
@@ -1156,7 +1165,7 @@ int main(int argc, char* argv[])
     execute<sort_subrange_t<3, 6, std::index_sequence<3, 1, 4, 0, 2, 5, 9, 7, 4, 8>>,
             std::index_sequence<0, 1, 2, 3, 4, 4, 9, 7, 8, 5>>();
 
-    execute<partition_subrange_t<2, 7, std::index_sequence<4, 1, 8, 7, 0, 5, 3, 6, 2>>,
+    execute<partition_subrange_t<1, 6, std::index_sequence<4, 1, 8, 7, 0, 5, 3, 6, 2>>,
             std::index_sequence<0, 1, 3, 2, 4, 5, 6, 7, 8>>();
 
     execute<select_t<2, std::tuple<short, int, double, int, char>>, short>();
