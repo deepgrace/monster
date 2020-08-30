@@ -142,6 +142,9 @@ int main(int argc, char* argv[])
             std::integer_sequence<int, -8, 2, -1, 1, 3, 1, 3, 1, 0, -4, 1, 3, 1, 3, 1, -5>>,
             std::integer_sequence<int, -8, 2, -1, 1, 3, 1, 3, 1, 0, -4, 1, 3, 1, 3, 1, -5>>();
 
+    execute<number_of_v<std::tuple<int, double>, std::tuple<short, int, double, int, int, double>>, 2>();
+    execute<number_of_v<std::index_sequence<2, 7>, std::index_sequence<1, 5, 2, 7, 4, 2, 7, 2, 7>>, 3>();
+
     using not_adjacent_type = std::tuple<char, double, char, double, int, float, char>;
     using adjacent_type = std::tuple<char, char, char, double, double, int, float>;
     execute<arrange_t<not_adjacent_type>, adjacent_type>();

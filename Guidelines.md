@@ -151,6 +151,16 @@ auto c2 = count_v<char, std::tuple<char, char, int, float, char, int>>;
 // c1 == 2
 // c2 == 3
 
+// count the subtype of a sequence
+auto n1 = number_of_v<std::tuple<nullptr_t>, std::tuple<short, int, double, int, int, double>>;
+auto n2 = number_of_v<std::tuple<int, double>, std::tuple<short, int, double, int, int, double>>;
+auto n3 = number_of_v<std::index_sequence<3, 6>, std::index_sequence<1, 5, 2, 7, 4, 2, 7, 2, 7>>;
+auto n4 = number_of_v<std::index_sequence<2, 7>, std::index_sequence<1, 5, 2, 7, 4, 2, 7, 2, 7>>;
+// n1 == 0
+// n2 == 2
+// n3 == 0
+// n4 == 3
+
 // count the number of elements satisfying specific criteria
 auto c3 = count_if_v<is_even, std::integer_sequence<int, 1, 2, 3, 6, 4>>;
 auto c4 = count_if_v<is_tuple, std::tuple<double, std::tuple<>, float, std::tuple<int>>>;

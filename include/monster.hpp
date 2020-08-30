@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 44
+#define MONSTER_VERSION 45
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3318,6 +3318,7 @@ namespace monster
     {
         using type = reverse_if_t<B, U>;
         constexpr auto index = value_index_v<typev<T>, type>;
+
         constexpr auto size = sizeof_t_v<type>;
         return size == index ? size : B ? size - index - 1 : index;
     }
@@ -3328,6 +3329,7 @@ namespace monster
     {
         using type = reverse_if_t<B, U>;
         constexpr auto index = type_index_v<T, type>;
+
         constexpr auto size = std::tuple_size_v<type>;
         return size == index ? size : B ? size - index - 1 : index;
     }
@@ -4132,7 +4134,9 @@ namespace monster
     using integer_sequence_t = value_sequence_t<T, N, B, D>;
 
     template <typename T, auto B, auto N>
-    using parity = expand_of<T, integer_sequence_t<size_t, (sizeof_t_v<T> + N) / 2, B, 2>>;
+    struct parity : expand_of<T, integer_sequence_t<size_t, (sizeof_t_v<T> + N) / 2, B, 2>>
+    {
+    };
 
     template <typename T, auto B, auto N>
     using parity_t = typeof_t<parity<T, B, N>>;
@@ -4479,11 +4483,11 @@ namespace monster
         {
             static constexpr auto curr = get_v<i, U> + 1;
             static constexpr int last = get_v<i, limit>;
+
             static constexpr auto cond = (ASC && curr >= last || !ASC && curr <= 1);
-
             static constexpr auto value = i + 1 >= depth;
-            static constexpr auto j = cond ? i - 1 : i + !value;
 
+            static constexpr auto j = cond ? i - 1 : i + !value;
             static constexpr auto end = !cond && value;
 
             using indices = sub_t<i, cond ? (ASC ? -1 : last) : curr - 2 * !ASC, U>;
@@ -4683,10 +4687,9 @@ namespace monster
         };
 
         static constexpr auto min = min_element_v<T>;
-
         using left = typeof_t<impl<0, min, 0, mid, low - 1, -1>>;
-        using right = typeof_t<impl<0, min, 0, mid + 1, high + 1, 1>>;
 
+        using right = typeof_t<impl<0, min, 0, mid + 1, high + 1, 1>>;
         using type = std::integer_sequence<int, first_v<left>, first_v<right>, second_v<left> + second_v<right>>;
     };
 
@@ -5044,7 +5047,9 @@ namespace monster
     using cycle_c = cycle_t<N, int_<values>...>;
 
     template <template <typename ...> typename F, typename T, typename U>
-    using filter = std::conditional<typev<F<T>>, U, store_t<T>>;
+    struct filter : std::conditional<typev<F<T>>, U, store_t<T>>
+    {
+    };
 
     template <template <typename ...> typename F, typename T, typename U>
     using filter_t = typeof_t<filter<F, T, U>>;
@@ -5218,7 +5223,9 @@ namespace monster
     using zip_with_t = typeof_t<zip_with<F, T, U>>;
 
     template <auto row, auto col, typename T>
-    using matrix_element = element<col, element_t<row, T>>;
+    struct matrix_element : element<col, element_t<row, T>>
+    {
+    };
 
     template <auto row, auto col, typename T>
     using matrix_element_t = typeof_t<matrix_element<row, col, T>>;
@@ -5618,10 +5625,9 @@ namespace monster
     struct slide_indices
     {
         static constexpr auto N = sizeof_t_v<T>;
-
         static constexpr auto value = get_v<0, T>;
-        static constexpr auto cond = value == B && !ASC || value + N == E && ASC;
 
+        static constexpr auto cond = value == B && !ASC || value + N == E && ASC;
         using type = index_type<!cond, type_if<cond, std::type_identity<T>, increase<T, 2 * ASC - 1>>>;
     };
 
@@ -6844,6 +6850,7 @@ namespace monster
     {
         static constexpr auto index = find_index_v<T, U>;
         static constexpr auto last = index == sizeof_t_v<U>;
+
         using type = std::conditional_t<last, int_<index>, element<index, U>>;
 
         template <typename V, bool B>
@@ -7000,6 +7007,15 @@ namespace monster
     template <typename P, typename U, typename T>
     using replace_subtype_t = typeof_t<replace_subtype<P, U, T>>;
 
+    template <typename P, typename T, template <typename, typename> typename searcher = bmh>
+    struct number_of
+    {
+        static constexpr auto value = sizeof_t_v<typeof_t<searcher<P, T>>>;
+    };
+
+    template <typename P, typename T, template <typename, typename> typename searcher = bmh>
+    inline constexpr auto number_of_v = typev<number_of<P, T, searcher>>;
+
     template <typename T>
     struct arrange
     {
@@ -7010,7 +7026,7 @@ namespace monster
         struct impl
         {
             using curr = element_t<N, U>;
-            using type = fill_t<sizeof_t_v<kmp_t<append_t<base, curr>, T>>, curr>;
+            using type = fill_t<number_of_v<append_t<base, curr>, T>, curr>;
         };
 
         using type = unpack_t<concat_t, expand_t<impl, uniq, index_sequence_of_t<uniq>>>;
