@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 43
+#define MONSTER_VERSION 44
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6970,6 +6970,35 @@ namespace monster
 
     template <typename P, typename T>
     using eliminate_subtype_t = typeof_t<eliminate_subtype<P, T>>;
+
+    template <typename P, typename U, typename T>
+    struct replace_subtype
+    {
+        static constexpr auto M = sizeof_t_v<P>;
+        static constexpr auto N = sizeof_t_v<U>;
+
+        template <int i, typename V, typename W>
+        struct impl;
+
+        template <int i, auto j, auto... n, typename W>
+        struct impl<i, std::index_sequence<j, n...>, W>
+        {
+            static constexpr auto k = j + i * (N - M);
+
+            using next = insert_range_t<k, erase_t<k, k + M, W>, U>;
+            using type = typeof_t<impl<i + 1, std::index_sequence<n...>, next>>;
+        };
+
+        template <int i, typename W>
+        struct impl<i, std::index_sequence<>, W> : std::type_identity<W>
+        {
+        };
+
+        using type = typeof_t<impl<0, bmh_t<P, T>, T>>;
+    };
+
+    template <typename P, typename U, typename T>
+    using replace_subtype_t = typeof_t<replace_subtype<P, U, T>>;
 
     template <typename T>
     struct arrange

@@ -1534,6 +1534,7 @@ using e3 = exchange_c<4, 9, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>
 
 // replace elements of src with elements of dst indexed by indices
 // exchange_with<indices, dst, src>
+// element_t<i, src> == element_t<i, dst> for i in indices
 using ins1 = std::index_sequence<2, 4, 0, 1, 6>;
 using src1 = std::tuple<char, int, double, int, char, double, float, nullptr_t>;
 using dst1 = std::tuple<int, int, char, double, int, float, double>;
@@ -1545,6 +1546,15 @@ using src2 = std::integer_sequence<int, 7, -1, 3, 5, 9, 2, 5>;
 using dst2 = std::integer_sequence<int, 4, 0, 6, -5, 7, 4, 3, 2, 11>;
 using ext2 = exchange_with_t<ins2, src2, dst2>;
 // ext2 == std::integer_sequence<int, 4, -1, 3, 5, 7, 2, 5, 2, 11>
+
+// replace subtype of a sequence with another sequence
+// replace_subtype<subtype, dst, src>
+using tp1 = std::tuple<short, int, char, double, int, int, char, double, int>;
+using tp2 = std::index_sequence<7, 0, 2, 6, 4, 6, 4, 5, 2, 6, 4, 8, 2, 6, 3>;
+using rs1 = replace_subtype_t<std::tuple<char, double>, std::tuple<float, nullptr_t>, tp1>;
+using rs2 = replace_subtype_t<std::index_sequence<2, 6, 4>, std::index_sequence<9, 1>, tp2>;
+// rs1 == std::tuple<short, int, float, nullptr_t, int, int, float, nullptr_t, int>
+// rs2 == std::index_sequence<7,  0, 9, 1, 6, 4, 5, 9, 1, 8, 2, 6, 3>
 ```
 
 ### Reverse sequences

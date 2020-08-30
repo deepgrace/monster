@@ -49,11 +49,18 @@ int main(int argc, char* argv[])
     execute<subtype_indices_t<std::tuple<char>, std::tuple<int, float, double, int, int>>, std::index_sequence<>>();
     execute<subtype_indices_t<std::tuple<double>, std::tuple<double, int, int, double>>, std::index_sequence<0, 3>>();
 
-    execute<erase_subtype_t<std::tuple<char>, std::tuple<int, float, double, int, int>>, std::tuple<int, float, double, int, int>>();
+    execute<erase_subtype_t<std::tuple<char>, std::tuple<int, float, double, int, int>>,
+            std::tuple<int, float, double, int, int>>();
     execute<erase_subtype_t<std::tuple<double>, std::tuple<double, int, int, double>>, std::tuple<int, int>>();
 
-    execute<eliminate_subtype_t<std::tuple<char>, std::tuple<int, float, double, int, int>>, std::tuple<int, float, double, int, int>>();
+    execute<eliminate_subtype_t<std::tuple<char>, std::tuple<int, float, double, int, int>>,
+            std::tuple<int, float, double, int, int>>();
     execute<eliminate_subtype_t<std::tuple<double>, std::tuple<double, int, int, double>>, std::tuple<int, int>>();
+
+    execute<replace_subtype_t<std::tuple<char>, std::tuple<short, int>, std::tuple<int, float, double, int, int>>,
+            std::tuple<int, float, double, int, int>>();
+    execute<replace_subtype_t<std::tuple<double>, std::tuple<char, short>, std::tuple<double, int, int, double>>,
+            std::tuple<char ,short, int, int, char, short>>();
 
     execute<bmh_t<std::tuple<int, double, char, float>,
             std::tuple<int, int, double, char, float, double, char, int, double, char, float, int>>,
@@ -116,6 +123,22 @@ int main(int argc, char* argv[])
             std::integer_sequence<int, -8, 2, -1, 0, -4, -5>>();
 
     execute<eliminate_subtype_t<std::integer_sequence<int, 2, 1, 3, 1, 3, 1>,
+            std::integer_sequence<int, -8, 2, -1, 1, 3, 1, 3, 1, 0, -4, 1, 3, 1, 3, 1, -5>>,
+            std::integer_sequence<int, -8, 2, -1, 1, 3, 1, 3, 1, 0, -4, 1, 3, 1, 3, 1, -5>>();
+
+    execute<replace_subtype_t<std::tuple<int, double, char, float>, std::tuple<float, short>,
+            std::tuple<int, int, double, char, float, double, char, int, double, char, float, int>>,
+            std::tuple<int, float, short, double, char, float, short, int>>();
+
+    execute<replace_subtype_t<std::tuple<int, double, int, double>, std::tuple<char, int, char>,
+            std::tuple<int, int, double, int, double, double, char, int, double, int, double, int>>,
+            std::tuple<int, char, int, char, double, char, char, int, char, int>>(); 
+
+    execute<replace_subtype_t<std::integer_sequence<int, 1, 3, 1, 3, 1>, std::integer_sequence<int, 7, 9>,
+            std::integer_sequence<int, -8, 2, -1, 1, 3, 1, 3, 1, 0, -4, 1, 3, 1, 3, 1, -5>>,
+            std::integer_sequence<int, -8, 2, -1, 7, 9, 0, -4, 7, 9, -5>>();
+
+    execute<replace_subtype_t<std::integer_sequence<int, 2, 1, 3, 1, 3, 1>, std::integer_sequence<int, 3>,
             std::integer_sequence<int, -8, 2, -1, 1, 3, 1, 3, 1, 0, -4, 1, 3, 1, 3, 1, -5>>,
             std::integer_sequence<int, -8, 2, -1, 1, 3, 1, 3, 1, 0, -4, 1, 3, 1, 3, 1, -5>>();
 
