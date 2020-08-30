@@ -83,6 +83,9 @@ namespace monster
     template <bool B, typename T, typename U>
     inline constexpr auto value_if = typev<std::conditional_t<B, T, U>>;
 
+    template <typename T, typename U, typename V>
+    using conditional_of = std::conditional_t<typev<T>, U, V>;
+
     template <typename T, typename = std::void_t<>>
     struct has_value : std::false_type
     {
@@ -269,7 +272,7 @@ namespace monster
     };
 
     template <typename B, typename T, typename... Args>
-    struct exists_type<B, T, Args...> : std::conditional_t<negav<contains<T, Args...>>, exists_type<B, Args...>, std::negation<B>>
+    struct exists_type<B, T, Args...> : std::conditional_t<contains_v<T, Args...>, std::negation<B>, exists_type<B, Args...>>
     {
     };
 
@@ -286,7 +289,7 @@ namespace monster
     inline constexpr auto is_unique_type_v = std::true_type{};
 
     template <typename T, typename... Args>
-    inline constexpr auto is_unique_type_v<T, Args...> = negav<contains<T, Args...>> && is_unique_type_v<Args...>;
+    inline constexpr auto is_unique_type_v<T, Args...> = !contains_v<T, Args...> && is_unique_type_v<Args...>;
 
     template <typename... Args>
     using has_duplicates_type = exists_type<std::false_type, Args...>;
@@ -295,7 +298,7 @@ namespace monster
     inline constexpr auto has_duplicates_type_v = std::false_type{};
 
     template <typename T, typename... Args>
-    inline constexpr auto has_duplicates_type_v<T, Args...> = typev<contains<T, Args...>> || has_duplicates_type_v<Args...>;
+    inline constexpr auto has_duplicates_type_v<T, Args...> = contains_v<T, Args...> || has_duplicates_type_v<Args...>;
 
     template <typename B, auto ...>
     struct exists_value : B
@@ -303,7 +306,7 @@ namespace monster
     };
 
     template <typename B, auto value, auto... values>
-    struct exists_value<B, value, values...> : std::conditional_t<negav<comprise<value, values...>>, exists_value<B, values...>, std::negation<B>>
+    struct exists_value<B, value, values...> : std::conditional_t<comprise_v<value, values...>, std::negation<B>, exists_value<B, values...>>
     {
     };
 
@@ -381,6 +384,12 @@ namespace monster
 
     template <typename T>
     inline constexpr auto has_duplicates_v = typev<has_duplicates_t<T>>;
+
+    template <bool A, bool B, typename X, typename Y, typename Z>
+    using ternary_conditional = std::conditional<A, std::conditional_t<B, X, Y>, Z>;
+
+    template <bool A, bool B, typename X, typename Y, typename Z>
+    using ternary_conditional_t = typeof_t<ternary_conditional<A, B, X, Y, Z>>;
 
     template <typename T>
     struct member_type;
@@ -539,6 +548,22 @@ namespace monster
     inline constexpr auto is_sequence_of_v = typev<is_sequence_of<T, Args>>;
 
     template <typename T>
+    struct is_tuple : is_instance_of<std::tuple, T>
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto is_tuple_v = typev<is_tuple<T>>;
+
+    template <typename T>
+    struct is_sequence : is_sequence_of<std::integer_sequence, T>
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto is_sequence_v = typev<is_sequence<T>>;
+
+    template <typename T>
     struct is_variadic_type : std::false_type
     {
     };
@@ -577,32 +602,13 @@ namespace monster
     template <typename T>
     inline constexpr auto is_variadic_v = typev<is_variadic<T>>;
 
-    template <typename T>
-    struct is_tuple : is_instance_of<std::tuple, T>
-    {
-    };
-
-    template <typename T>
-    inline constexpr auto is_tuple_v = typev<is_tuple<T>>;
-
-    template <typename T>
-    struct is_sequence : is_sequence_of<std::integer_sequence, T>
-    {
-    };
-
-    template <typename T>
-    inline constexpr auto is_sequence_v = typev<is_sequence<T>>;
-
     template <typename... Args>
-    struct is_list : std::disjunction<std::conjunction<is_tuple<Args>...>, std::conjunction<is_sequence<Args>...>>
+    struct is_variadic_pack : std::conjunction<is_variadic<Args>...>
     {
     };
 
     template <typename... Args>
-    inline constexpr auto is_list_v = typev<is_list<Args...>>;
-
-    template <typename T, typename U>
-    using meta_t = type_if<is_list_v<T>, U, std::type_identity<T>>;
+    inline constexpr auto is_variadic_pack_v = typev<is_variadic_pack<Args...>>;
 
     template <typename... Args>
     inline constexpr auto sizeof_v = sizeof...(Args);
@@ -802,19 +808,19 @@ namespace monster
     using rename_t = typeof_t<rename<L, R>>;
 
     template <typename T>
-    requires (is_variadic_type_v<T>)
+    requires is_variadic_type_v<T>
     using as_tuple = rename<T, std::tuple<>>;
 
     template <typename T>
-    requires (is_variadic_type_v<T>)
+    requires is_variadic_type_v<T>
     using as_tuple_t = typeof_t<as_tuple<T>>;
 
     template <bool B, typename T>
-    requires (is_variadic_type_v<T>)
+    requires is_variadic_type_v<T>
     using as_tuple_if = std::conditional_t<B, as_tuple<T>, std::type_identity<T>>;
 
     template <bool B, typename T>
-    requires (is_variadic_type_v<T>)
+    requires is_variadic_type_v<T>
     using as_tuple_if_t = typeof_t<as_tuple_if<B, T>>;
 
     template <auto N, typename T>
@@ -840,14 +846,14 @@ namespace monster
     using element_t = typeof_t<element<N, T>>;
 
     template <auto N, typename T>
-    requires (is_variadic_value_v<T>)
+    requires is_variadic_value_v<T>
     inline constexpr auto element_v = typev<element_t<N, T>>;
 
     template <auto N, typename T>
     using variadic_element_t =  element_t<N, T>;
 
     template <auto N, typename T>
-    requires (is_variadic_value_v<T>)
+    requires is_variadic_value_v<T>
     inline constexpr auto variadic_element_v = element_v<N, T>;
 
     template <bool B, auto N, typename T, typename U>
@@ -1338,7 +1344,7 @@ namespace monster
     struct any_of
     {
         template <size_t i, size_t j>
-        struct impl : std::conditional_t<typev<F<element_t<i, T>>>, std::true_type, impl<i + 1, j>>
+        struct impl : conditional_of<F<element_t<i, T>>, std::true_type, impl<i + 1, j>>
         {
         };
 
@@ -1597,7 +1603,7 @@ namespace monster
     };
 
     template <template <typename ...> typename T, typename... Args>
-    struct flat<T<Args...>> : concat<type_if<is_variadic_v<Args>, flat<Args>, std::type_identity<T<Args>>>...>
+    struct flat<T<Args...>> : concat<type_if<is_variadic_pack_v<Args>, flat<Args>, std::type_identity<T<Args>>>...>
     {
     };
 
@@ -1701,7 +1707,7 @@ namespace monster
     inline constexpr auto max_v = p > q ? p : q;
 
     template <typename T, typename U>
-    struct min : std::conditional<sizeof_t_v<T> < sizeof_t_v<U>, T, U>
+    struct min : std::conditional<less_v<T, U>, T, U>
     {
     };
 
@@ -1709,7 +1715,7 @@ namespace monster
     using min_t = typeof_t<min<T, U>>;
 
     template <typename T, typename U>
-    struct max : std::conditional<sizeof_t_v<T> < sizeof_t_v<U>, U, T>
+    struct max : std::conditional<less_v<T, U>, U, T>
     {
     };
 
@@ -2117,13 +2123,16 @@ namespace monster
         return swap_v<i, j, N>;
     };
 
+    template <typename T, typename U>
+    using invoke_of = type_if<is_variadic_pack_v<T>, U, std::type_identity<T>>;
+
     template <auto i, auto j, typename T>
     struct swap
     {
         template <auto N, typename U>
         using impl = element<swap_v<i, j, N>, U>;
 
-        using type = meta_t<T, expand<impl, T, index_sequence_of_t<T>>>;
+        using type = invoke_of<T, expand<impl, T, index_sequence_of_t<T>>>;
     };
 
     template <auto i, auto j, typename T>
@@ -2158,7 +2167,7 @@ namespace monster
     struct gsub
     {
         template <auto N, typename W, typename X = element<N, W>>
-        using cond = std::conditional_t<typev<F<T, typeof_t<X>>>, U, X>;
+        using cond = conditional_of<F<T, typeof_t<X>>, U, X>;
 
         template <auto N, typename W>
         using impl = element_if_t<!within_v<N, i, j>, N, W, cond<N, W>>;
@@ -2197,7 +2206,7 @@ namespace monster
     struct adjust
     {
         template <auto N, typename W, typename X = element<N, W>, typename Y = typeof_t<X>>
-        using cond = std::conditional_t<typev<G<T, Y>>, F<Y>, X>;
+        using cond = conditional_of<G<T, Y>, F<Y>, X>;
 
         template <auto N, typename W>
         using impl = element_if_t<!within_v<N, i, j>, N, W, cond<N, W>>;
@@ -2251,7 +2260,7 @@ namespace monster
     using exchange_if_t = typeof_t<exchange_if<B, i, T, U>>;
 
     template <typename indices, typename T, typename U>
-    requires (sizeof_t_v<indices> <= sizeof_t_v<U>)
+    requires less_equal_v<indices, U>
     struct exchange_with
     {
         template <typename V, typename W>
@@ -2271,11 +2280,11 @@ namespace monster
     };
 
     template <typename indices, typename T, typename U>
-    requires (sizeof_t_v<indices> <= sizeof_t_v<U>)
+    requires less_equal_v<indices, U>
     using exchange_with_t = typeof_t<exchange_with<indices, T, U>>;
 
     template <auto lower, auto upper, typename T>
-    using range = meta_t<T, std::type_identity<expand_of<T, index_sequence_of_c<upper - lower>, lower>>>;
+    using range = invoke_of<T, std::type_identity<expand_of<T, index_sequence_of_c<upper - lower>, lower>>>;
 
     template <auto lower, auto upper, typename T>
     using range_t = typeof_t<range<lower, upper, T>>;
@@ -2361,7 +2370,7 @@ namespace monster
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     struct set_difference
     {
         template <int i, int j, int p, int q, typename V>
@@ -2396,12 +2405,12 @@ namespace monster
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     using set_difference_t = typeof_t<set_difference<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     struct set_symmetric_difference
     {
         template <int i, int j, int p, int q, typename V>
@@ -2437,12 +2446,12 @@ namespace monster
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     using set_symmetric_difference_t = typeof_t<set_symmetric_difference<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     struct set_intersection
     {
         template <int i, int j, int p, int q, typename V>
@@ -2478,12 +2487,12 @@ namespace monster
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     using set_intersection_t = typeof_t<set_intersection<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     struct set_union
     {
         template <int i, int j, int p, int q, typename V>
@@ -2519,12 +2528,12 @@ namespace monster
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     using set_union_t = typeof_t<set_union<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     struct mismatch
     {
         template <int i, int j, int p, int q>
@@ -2560,22 +2569,22 @@ namespace monster
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     using mismatch_t = typeof_t<mismatch<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     inline constexpr auto mismatch_first = first_v<mismatch_t<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     inline constexpr auto mismatch_second = second_v<mismatch_t<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     struct includes
     {
         template <int i, int j, int p, int q>
@@ -2600,17 +2609,17 @@ namespace monster
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     using includes_t = typeof_t<includes<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     inline constexpr auto includes_v = typev<includes_t<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     struct search
     {
         template <int i>
@@ -2643,12 +2652,12 @@ namespace monster
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     using search_t = typeof_t<search<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     inline constexpr auto search_v = typev<search_t<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, int N, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
@@ -2693,7 +2702,7 @@ namespace monster
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     struct find_end
     {
         template <int i, int j>
@@ -2708,12 +2717,12 @@ namespace monster
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     using find_end_t = typeof_t<find_end<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     inline constexpr auto find_end_v = typev<find_end_t<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename> typename F, typename T>
@@ -2803,7 +2812,7 @@ namespace monster
     using transform_exclusive_scan_t = typeof_t<transform_exclusive_scan<F, T, U, init, B, E>>;
 
     template <template <typename, typename> typename F, typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     struct transmute
     {
         template <int i, int j, int k, typename W>
@@ -2825,12 +2834,12 @@ namespace monster
     };
 
     template <template <typename, typename> typename F, typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     using transmute_t = typeof_t<transmute<F, T, U, B1, E1, B2>>;
 
     template <template <typename, typename> typename F1, template <typename, typename> typename F2,
     typename T, typename U, typename V, auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     struct inner_product
     {
         template <int i, int j, int k, typename W>
@@ -2855,12 +2864,12 @@ namespace monster
 
     template <template <typename, typename> typename F1, template <typename, typename> typename F2,
     typename T, typename U, typename V, auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     using inner_product_t = typeof_t<inner_product<F1, F2, T, U, V, B1, E1, B2>>;
 
     template <template <typename, typename> typename F1, template <typename, typename> typename F2,
     typename T, typename U, typename V, auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     inline constexpr auto inner_product_v = typev<inner_product_t<F1, F2, T, U, V, B1, E1, B2>>;
 
     template <template <typename, typename> typename F, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
@@ -2916,7 +2925,7 @@ namespace monster
         template <auto i, typename U>
         using impl = element<N - i - 1,  U>;
 
-        using type = meta_t<T, expand<impl, T, index_sequence_of_c<N>>>;
+        using type = invoke_of<T, expand<impl, T, index_sequence_of_c<N>>>;
     };
 
     template <typename T>
@@ -3110,7 +3119,7 @@ namespace monster
     using insert_c = insert_t<i, T, int_<values>...>;
 
     template <auto i, auto j, template <typename ...> typename F, typename T, typename U>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     struct extract
     {
         template <typename V, bool>
@@ -3129,11 +3138,11 @@ namespace monster
     };
 
     template <auto i, auto j, template <typename ...> typename F, typename T, typename U>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     using extract_t = typeof_t<extract<i, j, F, T, U>>;
 
     template <auto i, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     struct insert_range
     {
         template <typename V, typename... Args>
@@ -3143,7 +3152,7 @@ namespace monster
     };
 
     template <auto i, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     using insert_range_t = typeof_t<insert_range<i, T, U, B, E>>;
 
     template <auto i, auto j, typename T, typename... Args>
@@ -3158,7 +3167,7 @@ namespace monster
     using replace_c = replace_t<i, j, T, int_<values>...>;
 
     template <auto i, auto j, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     struct replace_range
     {
         template <typename V, typename... Args>
@@ -3168,7 +3177,7 @@ namespace monster
     };
 
     template <auto i, auto j, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     using replace_range_t = typeof_t<replace_range<i, j, T, U, B, E>>;
 
     template <auto i, auto j, typename T>
@@ -3194,7 +3203,7 @@ namespace monster
         };
 
         static constexpr auto N = sizeof_t_v<T>;
-        using type = meta_t<T, impl<N, i == 0, j == N>>;
+        using type = invoke_of<T, impl<N, i == 0, j == N>>;
     };
 
     template <auto i, auto j, typename T>
@@ -3313,7 +3322,7 @@ namespace monster
     inline constexpr auto value_index_v = typev<value_index<value, T>>;
 
     template <typename  T, typename U, bool B = false>
-    requires (is_variadic_value_v<U>)
+    requires is_variadic_value_v<U>
     consteval auto index_of()
     {
         using type = reverse_if_t<B, U>;
@@ -3324,7 +3333,7 @@ namespace monster
     }
 
     template <typename  T, typename U, bool B = false>
-    requires (is_variadic_type_v<U>)
+    requires is_variadic_type_v<U>
     consteval auto index_of()
     {
         using type = reverse_if_t<B, U>;
@@ -3579,7 +3588,7 @@ namespace monster
         template <auto n, typename V>
         using impl = int_<dot_v<n, V, U>>;
 
-        using type = expand_t<impl, T, index_sequence_of_c<min_v<sizeof_t_v<T>, sizeof_t_v<U>>>>;
+        using type = expand_t<impl, T, index_sequence_of_c<sizeof_t_v<min_t<T, U>>>>;
     };
 
     template <typename T, typename U>
@@ -4616,7 +4625,7 @@ namespace monster
     using extreme = std::conditional_t<!sizeof_v<Args...>, std::type_identity<T>, comp<tuple_t<T, Args...>, b>>;
 
     template <typename T, typename U, bool B>
-    using evaluate = std::conditional_t<less_v<std::conditional_t<B, T, U>, std::conditional_t<B, U, T>>, T, U>;
+    using evaluate = std::conditional_t<B && less_v<T, U> || !B && less_v<U, T>, T, U>;
 
     template <auto p, auto q, bool B>
     using minmax_t = int_<B ? min_v<p, q> : max_v<p, q>>;
@@ -4729,7 +4738,7 @@ namespace monster
             using right_t = std::integer_sequence<int, right_low, right_high, right_sum>;
             using cross_t = std::integer_sequence<int, cross_low, cross_high, cross_sum>;
 
-            using type = std::conditional_t<B1, left_t, std::conditional_t<B2, right_t, cross_t>>;
+            using type = ternary_conditional_t<!B1, B2, right_t, cross_t, left_t>;
         };
 
         template <int low>
@@ -4823,7 +4832,7 @@ namespace monster
     using mode_t = typeof_t<mode<T>>;
 
     template <typename T>
-    requires (is_variadic_value_v<T>)
+    requires is_variadic_value_v<T>
     inline constexpr auto mode_v = typev<mode<T>>;
 
     template <template <typename> typename F, template <typename> typename P, typename T, typename U, auto B, auto E, bool W>
@@ -4916,7 +4925,7 @@ namespace monster
     };
 
     template <typename T, typename... Args>
-    struct logical_or<T, Args...> : std::conditional_t<typev<T>, std::true_type, logical_or<Args...>>
+    struct logical_or<T, Args...> : conditional_of<T, std::true_type, logical_or<Args...>>
     {
     };
 
@@ -4929,7 +4938,7 @@ namespace monster
     };
 
     template <typename T, typename... Args>
-    struct logical_and<T, Args...> : std::conditional_t<typev<T>, logical_and<Args...>, std::false_type>
+    struct logical_and<T, Args...> : conditional_of<T, logical_and<Args...>, std::false_type>
     {
     };
 
@@ -5189,7 +5198,7 @@ namespace monster
     using suffix_c = suffix_t<T, int_<values>...>;
 
     template <typename T, typename U>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     struct zip
     {
         static constexpr auto M = sizeof_t_v<T>;
@@ -5202,11 +5211,11 @@ namespace monster
     };
 
     template <typename T, typename U>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     using zip_t = typeof_t<zip<T, U>>;
 
     template <template <typename ...> typename F, typename T, typename U>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     struct zip_with
     {
         static constexpr auto M = sizeof_t_v<T>;
@@ -5219,7 +5228,7 @@ namespace monster
     };
 
     template <template <typename ...> typename F, typename T, typename U>
-    requires is_list_v<T, U>
+    requires is_variadic_pack_v<T, U>
     using zip_with_t = typeof_t<zip_with<F, T, U>>;
 
     template <auto row, auto col, typename T>
@@ -5511,7 +5520,7 @@ namespace monster
         struct next
         {
             using curr = index_t<i>;
-            static constexpr auto cont = typev<std::conditional_t<i != B, get<i - 1, T>, curr>> == 0;
+            static constexpr auto cont = value_if<i != B, get<i - 1, T>, curr> == 0;
 
             using type = std::conditional_t<cont, next<i - 1>, index_t<i - 1>>;
             static constexpr auto value = value_if<i != B, type, curr>;
@@ -5541,12 +5550,12 @@ namespace monster
         template <size_t N>
         struct impl
         {
-            using cond = std::conditional_t<ASC, index_t<N == B>, std::conditional_t<N == B, get<N, T>, index_t<1>>>;
+            using cond = ternary_conditional_t<!ASC, N == B, get<N, T>, index_t<1>, index_t<N == B>>;
             static constexpr auto value = value_if<ASC, cond, index_t<N == E - 1 || negav<cond>>>;
         };
 
         static constexpr auto value = typev<next<E - !ASC>>;
-        using curr = std::conditional_t<typev<impl<value>>, exch, calc<value, ASC>>;
+        using curr = conditional_of<impl<value>, exch, calc<value, ASC>>;
 
         using type = type_if<B == E, index_upper<0, T>, curr>;
     };
@@ -6794,7 +6803,7 @@ namespace monster
             using nega = std::negation<is_same<k, q, U, V, value>>;
             using cond = std::conditional_t<0 < k, nega, std::false_type>;
 
-            using curr = std::conditional_t<typev<cond>, get<k, W>, int_<k>>;
+            using curr = conditional_of<cond, get<k, W>, int_<k>>;
             using type = type_if<typev<cond>, next<U, V, W, typev<curr>, q>, int_<k>>;
         };
 
@@ -6868,12 +6877,6 @@ namespace monster
 
     template <typename T, typename U>
     inline constexpr auto shift_value_v = typev<shift_value<T, U>>;
-
-    template <bool A, bool B, typename X, typename Y, typename Z>
-    using ternary_conditional = std::conditional<A, std::conditional_t<B, X, Y>, Z>;
-
-    template <bool A, bool B, typename X, typename Y, typename Z>
-    using ternary_conditional_t = typeof_t<ternary_conditional<A, B, X, Y, Z>>;
 
     template <typename P, typename T, bool B>
     struct boyer_moore_horspool
