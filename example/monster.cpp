@@ -497,6 +497,12 @@ int main(int argc, char* argv[])
     execute<unique_t<std::tuple<int, char, int, double>>, std::tuple<int, char, double>>();
     execute<unique_t<std::integer_sequence<int, 2, 2, 3, 4, 3>>, std::integer_sequence<int, 2, 3, 4>>();
 
+    execute<unique_elements_t<std::tuple<short, int, char, int, double, char>>, std::tuple<short, double>>();
+    execute<unique_elements_t<std::index_sequence<5, 7, 0, 5, 3, 2, 7>>, std::index_sequence<0, 3, 2>>();
+
+    execute<duplicate_elements_t<std::tuple<short, int, char, int, double, char>>, std::tuple<int, char>>();
+    execute<duplicate_elements_t<std::index_sequence<5, 7, 0, 5, 3, 2, 7>>, std::index_sequence<5, 7>>();
+
     execute<unique_index_t<std::tuple<int, int, char, int, double>>, std::index_sequence<2, 3, 4>>();
     execute<unique_index_t<std::integer_sequence<int, 3, 1, 2, 5, 3>>, std::index_sequence<1, 2, 3, 4>>();
 

@@ -710,6 +710,18 @@ using u2 = unique_t<std::integer_sequence<int, 2, 1, 2, 3, 4, 3>>;
 // u1 == std::tuple<int, char, double, float>
 // u2 == std::integer_sequence<int, 2, 1, 3, 4>
 
+// keep unique elements
+using ue1 = unique_elements_t<std::tuple<short, int, char, int, double, char>>;
+using ue2 = unique_elements_t<std::index_sequence<5, 7, 0, 5, 3, 2, 7>>;
+// ue1 == std::tuple<short, double>
+// ue2 == std::index_sequence<0, 3, 2>
+
+// keep duplicate elements
+using de1 = duplicate_elements_t<std::tuple<short, int, char, int, double, char>>;
+using de2 = duplicate_elements_t<std::index_sequence<5, 7, 0, 5, 3, 2, 7>>;
+// de1 == std::tuple<int, char>
+// de2 == std::index_sequence<5, 7>
+
 // delete all indices with duplicate elements, keep the last appearance
 using u3 = unique_index_t<std::tuple<int, char, int, double, float, double>>;
 using u4 = unique_index_t<std::integer_sequence<int, 2, 1, 2, 3, 4, 3>>;

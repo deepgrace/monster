@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 45
+#define MONSTER_VERSION 46
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -7037,6 +7037,36 @@ namespace monster
 
     template <typename T>
     using arrange_t = typeof_t<arrange<T>>;
+
+    template <typename T, bool B = true>
+    struct unique_elements
+    {
+        using uniq = unique_t<T>;
+        using base = base_type_t<T>;
+
+        template <auto N, typename U>
+        struct impl
+        {
+            using curr = element_t<N, U>;
+            using next = append_t<base, curr>;
+
+            static constexpr auto only = number_of_v<next, T> == 1;
+            using type = std::conditional_t<only == B, next, base>;
+        };
+
+        using type = unpack_t<concat_t, expand_t<impl, uniq, index_sequence_of_t<uniq>>>;
+    };
+
+    template <typename T, bool B = true>
+    using unique_elements_t = typeof_t<unique_elements<T, B>>;
+
+    template <typename T>
+    struct duplicate_elements : unique_elements<T, false>
+    {
+    };
+
+    template <typename T>
+    using duplicate_elements_t = typeof_t<duplicate_elements<T>>;
 
     template <int n = 3>
     struct hanoi
