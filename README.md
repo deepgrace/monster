@@ -10,8 +10,8 @@ using namespace monster;
 int main(int argc, char* argv[])
 {
     // arrange the same elements adjacent in a sequence, keep the relative order
-    using a1 = arrange_t<std::tuple<char, double, char, int, double>>;
-    using a2 = arrange_t<std::index_sequence<4, 3, 0, 3, 2, 4, 5, 3>>;
+    using a1 = adjacent_t<std::tuple<char, double, char, int, double>>;
+    using a2 = adjacent_t<std::index_sequence<4, 3, 0, 3, 2, 4, 5, 3>>;
     static_assert(std::is_same_v<a1, std::tuple<char, char, double, double, int>>);
     static_assert(std::is_same_v<a2, std::index_sequence<4, 4, 3, 3, 3, 0, 2, 5>>);
 

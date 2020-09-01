@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 46
+#define MONSTER_VERSION 47
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4074,6 +4074,14 @@ namespace monster
     template <auto n, auto v>
     using fill_c = typeof_t<fill<n, int_<v>>>;
 
+    template <bool B, auto n, typename T>
+    struct fill_if : std::conditional<B, fill_t<n, T>, T>
+    {
+    };
+
+    template <bool B, auto n, typename T>
+    using fill_if_t = typeof_t<fill_if<B, n, T>>;
+
     template <auto i, auto j, auto k, typename T>
     struct rotate
     {
@@ -7019,30 +7027,22 @@ namespace monster
     template <typename P, typename T, template <typename, typename> typename searcher = bmh>
     inline constexpr auto number_of_v = typev<number_of<P, T, searcher>>;
 
-    template <typename T>
+    template <typename T, bool B1, bool B2>
     struct arrange
     {
         using uniq = unique_t<T>;
         using base = base_type_t<T>;
 
-        template <auto N, typename U>
-        struct impl
+        template <bool B, auto size, typename U, typename V>
+        struct call
         {
-            using curr = element_t<N, U>;
-            using type = fill_t<number_of_v<append_t<base, curr>, T>, curr>;
+            using type = type_if<B2 && size == 1, U, V>;
         };
 
-        using type = unpack_t<concat_t, expand_t<impl, uniq, index_sequence_of_t<uniq>>>;
-    };
-
-    template <typename T>
-    using arrange_t = typeof_t<arrange<T>>;
-
-    template <typename T, bool B = true>
-    struct unique_elements
-    {
-        using uniq = unique_t<T>;
-        using base = base_type_t<T>;
+        template <auto size, typename U, typename V>
+        struct call<false, size, U, V> : std::conditional<(size == 1) == !B2, U, V>
+        {
+        };
 
         template <auto N, typename U>
         struct impl
@@ -7050,18 +7050,46 @@ namespace monster
             using curr = element_t<N, U>;
             using next = append_t<base, curr>;
 
-            static constexpr auto only = number_of_v<next, T> == 1;
-            using type = std::conditional_t<only == B, next, base>;
+            static constexpr auto size = number_of_v<next, T>;
+
+            using lhs = std::conditional_t<B1, std::type_identity<base>, next>;
+            using rhs = std::conditional_t<B1, fill<size, curr>, base>;
+
+            using type = typeof_t<call<B1, size, lhs, rhs>>;
         };
 
         using type = unpack_t<concat_t, expand_t<impl, uniq, index_sequence_of_t<uniq>>>;
     };
 
-    template <typename T, bool B = true>
-    using unique_elements_t = typeof_t<unique_elements<T, B>>;
+    template <typename T, bool B1, bool B2>
+    using arrange_t = typeof_t<arrange<T, B1, B2>>;
 
     template <typename T>
-    struct duplicate_elements : unique_elements<T, false>
+    struct adjacent : arrange<T, true, false>
+    {
+    };
+
+    template <typename T>
+    using adjacent_t = typeof_t<adjacent<T>>;
+
+    template <typename T>
+    struct remove_unique : arrange<T, true, true>
+    {
+    };
+
+    template <typename T>
+    using remove_unique_t = typeof_t<remove_unique<T>>;
+
+    template <typename T>
+    struct unique_elements : arrange<T, false, false>
+    {
+    };
+
+    template <typename T>
+    using unique_elements_t = typeof_t<unique_elements<T>>;
+
+    template <typename T>
+    struct duplicate_elements : arrange<T, false, true>
     {
     };
 

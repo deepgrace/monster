@@ -223,8 +223,8 @@ using three_disks = hanoi_t<3>;
  */
 
 // arrange the same elements adjacent in a sequence, keep the relative order
-using a1 = arrange_t<std::tuple<int, char, int, double, char, int, char>>;
-using a2 = arrange_t<std::index_sequence<7, 2, 0, 7, 3, 7, 0, 2, 8, 5, 3>>;
+using a1 = adjacent_t<std::tuple<int, char, int, double, char, int, char>>;
+using a2 = adjacent_t<std::index_sequence<7, 2, 0, 7, 3, 7, 0, 2, 8, 5, 3>>;
 // a1 == std::tuple<int, int, int, char, char, char, double>
 // a2 == std::index_sequence<7, 7, 7, 2, 2, 0, 0, 3, 3, 8, 5>
 
@@ -721,6 +721,12 @@ using de1 = duplicate_elements_t<std::tuple<short, int, char, int, double, char>
 using de2 = duplicate_elements_t<std::index_sequence<5, 7, 0, 5, 3, 2, 7>>;
 // de1 == std::tuple<int, char>
 // de2 == std::index_sequence<5, 7>
+
+// remove unique elements, keep the relative order
+using ru1 = remove_unique_t<std::tuple<short, int, double, int, double, int, char, int>>;
+using ru2 = remove_unique_t<std::index_sequence<8, 4, 2, 0, 7, 0, 7, 0, 2, 8, 9, 6>>;
+// ru1 == std::tuple<int, int, int, int, double, double>
+// ru2 == std::index_sequence<8, 8, 2, 2, 0, 0, 0, 7, 7>
 
 // delete all indices with duplicate elements, keep the last appearance
 using u3 = unique_index_t<std::tuple<int, char, int, double, float, double>>;
