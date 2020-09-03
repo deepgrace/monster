@@ -390,6 +390,16 @@ auto s7 = search_n_v<std::is_same, 2, int, std::tuple<int, char, int, int, doubl
 // s6 == 3
 // s7 == 2
 
+// least common ancestor (lca) of two sequences, if not found, returns the first one
+using lca1 = lca_t<std::tuple<int, char, short>, std::tuple<double, nullptr_t, int, char, short>>;
+using lca2 = lca_t<std::tuple<short, double, int, char, short>, std::tuple<float, int, char, short>>;
+using lca3 = lca_t<std::index_sequence<9, 4, 5>, std::index_sequence<1, 3, 7, 9, 4, 5>>;
+auto  lca4 = lca_v<std::index_sequence<2, 3, 9, 4, 5>, std::index_sequence<0, 9, 4, 5>>;
+// lca1 == int
+// lca2 == int
+// lca3 == index_t<9> (std::integral_constant<size_t, 9>)
+// lca4 == 9
+
 // inclusive_scan
 using seq = std::integer_sequence<int, 1, 2, 3, 4>;
 

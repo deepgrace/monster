@@ -423,6 +423,22 @@ int main(int argc, char* argv[])
     execute<transform_exclusive_scan_t<multiplies_t, std::integer_sequence<int, 1, 2, 3, 4>, succ, int_<2>>,
             std::integer_sequence<int, 2, 4, 12, 48>>();
 
+    execute<lca_t<std::tuple<int, char, short>, std::tuple<double, nullptr_t, int, char, short>>, int>();
+    execute<lca_t<std::tuple<short, double, int, char, short>, std::tuple<float, int, char, short>>, int>();
+
+    execute<lca_t<std::index_sequence<9, 4, 5>, std::index_sequence<1, 3, 7, 9, 4, 5>>, index_t<9>>();
+    execute<lca_v<std::index_sequence<2, 3, 9, 4, 5>, std::index_sequence<0, 9, 4, 5>>, 9>();
+
+    execute<lca_t<std::tuple<short, double, int, char, short>, std::tuple<int, char, short, float>>,
+                  std::tuple<short, double, int, char, short>>();
+    execute<lca_t<std::tuple<>, std::tuple<int, char, short, float>>,
+                  std::tuple<>>();
+
+    execute<lca_t<std::index_sequence<1, 2, 8, 5, 7>, std::index_sequence<4, 2, 7, 3>>,
+                  std::index_sequence<1, 2, 8, 5, 7>>();
+    execute<lca_t<std::index_sequence<>, std::index_sequence<1, 2, 8, 5, 7>>,
+                  std::index_sequence<>>();
+
     execute<transmute_t<plus_t, std::integer_sequence<int, 1, 3, 0, 2>,
             std::integer_sequence<int, 1, 5, 4, 2>>, std::integer_sequence<int, 2, 8, 4, 4>>();
 

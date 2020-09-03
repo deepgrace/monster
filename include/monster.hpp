@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 47
+#define MONSTER_VERSION 48
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1701,6 +1701,9 @@ namespace monster
     using unique_index_t = typeof_t<unique_index<T>>;
 
     template <auto p, auto q>
+    inline constexpr auto abs_v = p > q ? p - q : q - p;
+
+    template <auto p, auto q>
     inline constexpr auto min_v = p < q ? p : q;
 
     template <auto p, auto q>
@@ -2724,6 +2727,39 @@ namespace monster
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
     requires is_variadic_pack_v<T, U>
     inline constexpr auto find_end_v = typev<find_end_t<F, T, U, B1, E1, B2, E2>>;
+
+    template <typename T, typename U>
+    struct lca
+    {
+        static constexpr auto M = sizeof_t_v<T>;
+        static constexpr auto N = sizeof_t_v<U>;
+
+        template <int i, int j, int k, int l, typename V, typename W>
+        struct impl
+        {
+            using lhs = element_t<i, V>;
+            using rhs = element_t<j, W>;
+
+            using next = impl<i + 1, j + 1, k, l, V, W>;
+            using type = type_if<std::is_same_v<lhs, rhs>, std::type_identity<lhs>, next>;
+        };
+
+        template <int k, int l, typename V, typename W>
+        struct impl<k, l, k, l, V, W> : std::type_identity<V>
+        {
+        };
+
+        static constexpr auto val = M > N;
+        static constexpr auto len = abs_v<M, N>;
+
+        using type = typeof_t<impl<val * len, !val * len, M, N, T, U>>;
+    };
+
+    template <typename T, typename U>
+    using lca_t = typeof_t<lca<T, U>>;
+
+    template <typename T, typename U>
+    inline constexpr auto lca_v = typev<lca_t<T, U>>;
 
     template <template <typename> typename F, typename T>
     struct transform;
@@ -7033,14 +7069,14 @@ namespace monster
         using uniq = unique_t<T>;
         using base = base_type_t<T>;
 
-        template <bool B, auto size, typename U, typename V>
+        template <bool B, bool only, typename U, typename V>
         struct call
         {
-            using type = type_if<B2 && size == 1, U, V>;
+            using type = type_if<B2 && only, U, V>;
         };
 
-        template <auto size, typename U, typename V>
-        struct call<false, size, U, V> : std::conditional<(size == 1) == !B2, U, V>
+        template <bool only, typename U, typename V>
+        struct call<false, only, U, V> : std::conditional<only == !B2, U, V>
         {
         };
 
@@ -7055,7 +7091,7 @@ namespace monster
             using lhs = std::conditional_t<B1, std::type_identity<base>, next>;
             using rhs = std::conditional_t<B1, fill<size, curr>, base>;
 
-            using type = typeof_t<call<B1, size, lhs, rhs>>;
+            using type = typeof_t<call<B1, size == 1, lhs, rhs>>;
         };
 
         using type = unpack_t<concat_t, expand_t<impl, uniq, index_sequence_of_t<uniq>>>;
