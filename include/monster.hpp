@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 50
+#define MONSTER_VERSION 51
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1266,40 +1266,40 @@ namespace monster
     inline constexpr auto prev_index_if_v = typev<prev_index_if<F, T, B, E>>;
 
     template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
-    using first_of = applyf<next_index_if, F, T, B, E>;
+    using find_if = applyf<next_index_if, F, T, B, E>;
 
     template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
-    using first_of_t = typeof_t<first_of<F, T, B, E>>;
+    using find_if_t = typeof_t<find_if<F, T, B, E>>;
 
     template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
-    inline constexpr auto first_of_v = typev<first_of_t<F, T, B, E>>;
+    inline constexpr auto find_if_v = typev<find_if_t<F, T, B, E>>;
 
     template <template <typename ...> typename F, typename T, int B = sizeof_t_v<T> - 1, int E = -1>
-    using last_of = applyf<prev_index_if, F, T, B, E>;
+    using find_if_backward = applyf<prev_index_if, F, T, B, E>;
 
     template <template <typename ...> typename F, typename T, int B = sizeof_t_v<T> - 1, int E = -1>
-    using last_of_t = typeof_t<last_of<F, T, B, E>>;
+    using find_if_backward_t = typeof_t<find_if_backward<F, T, B, E>>;
 
     template <template <typename ...> typename F, typename T, int B = sizeof_t_v<T> - 1, int E = -1>
-    inline constexpr auto last_of_v = typev<last_of_t<F, T, B, E>>;
+    inline constexpr auto find_if_backward_v = typev<find_if_backward_t<F, T, B, E>>;
 
     template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
-    using first_not_of = applyf<next_index_if, F, T, B, E, true>;
+    using find_if_not = applyf<next_index_if, F, T, B, E, true>;
 
     template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
-    using first_not_of_t = applyf_t<next_index_if, F, T, B, E, true>;
+    using find_if_not_t = applyf_t<next_index_if, F, T, B, E, true>;
 
     template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
-    inline constexpr auto first_not_of_v = typev<first_not_of_t<F, T, B, E>>;
+    inline constexpr auto find_if_not_v = typev<find_if_not_t<F, T, B, E>>;
 
     template <template <typename ...> typename F, typename T, int B = sizeof_t_v<T> - 1, int E = -1>
-    using last_not_of = applyf<prev_index_if, F, T, B, E, true>;
+    using find_if_not_backward = applyf<prev_index_if, F, T, B, E, true>;
 
     template <template <typename ...> typename F, typename T, int B = sizeof_t_v<T> - 1, int E = -1>
-    using last_not_of_t = applyf_t<prev_index_if, F, T, B, E, true>;
+    using find_if_not_backward_t = applyf_t<prev_index_if, F, T, B, E, true>;
 
     template <template <typename ...> typename F, typename T, int B = sizeof_t_v<T> - 1, int E = -1>
-    inline constexpr auto last_not_of_v = typev<last_not_of_t<F, T, B, E>>;
+    inline constexpr auto find_if_not_backward_v = typev<find_if_not_backward_t<F, T, B, E>>;
 
     template <typename T, typename U, bool D = true, int B = 0, int E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
     struct bound
@@ -3116,7 +3116,7 @@ namespace monster
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     struct remove_if
     {
-        static constexpr auto N = first_of_v<F, T, B, E>;
+        static constexpr auto N = find_if_v<F, T, B, E>;
 
         template <int i, int j, typename U, bool>
         struct impl
@@ -3177,12 +3177,12 @@ namespace monster
     using copy_if_t = typeof_t<copy_if<F, T, B, E>>;
 
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
-    struct copy_not : copy<F, T, B, E, false>
+    struct copy_if_not : copy<F, T, B, E, false>
     {
     };
 
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
-    using copy_not_t = typeof_t<copy_not<F, T, B, E>>;
+    using copy_if_not_t = typeof_t<copy_if_not<F, T, B, E>>;
 
     template <typename T, typename indices>
     struct exclude : expand_of<T, set_difference_t<less_t, index_sequence_of_t<T>, indices>>
@@ -3397,6 +3397,33 @@ namespace monster
     template <typename T, typename U>
     inline constexpr auto type_index_v = typev<type_index<T, U>>;
 
+    template <typename T, typename U>
+    struct type_index_not;
+
+    template <typename T, template <typename ...> typename U>
+    struct type_index_not<T, U<>> : index_t<0>
+    {
+    };
+
+    template <typename T, template <typename ...> typename U, typename V, typename... Args>
+    struct type_index_not<T, U<V, Args...>> : index_t<0>
+    {
+    };
+
+    template <typename T, template <typename ...> typename U, typename... Args>
+    struct type_index_not<T, U<T, Args...>> : index_t<typev<type_index_not<T, U<Args...>>> + 1>
+    {
+    };
+
+    template <typename T, typename U>
+    inline constexpr auto type_index_not_v = typev<type_index_not<T, U>>;
+
+    template <bool neg, typename T, typename U>
+    using type_index_if = std::conditional_t<!neg, type_index<T, U>, type_index_not<T, U>>;
+
+    template <bool neg, typename T, typename U>
+    inline constexpr auto type_index_if_v = typev<type_index_if<neg, T, U>>;
+
     template <auto value, typename T>
     struct value_index;
 
@@ -3418,27 +3445,90 @@ namespace monster
     template <auto value, typename T>
     inline constexpr auto value_index_v = typev<value_index<value, T>>;
 
-    template <typename  T, typename U, bool B = false>
+    template <auto value, typename T>
+    struct value_index_not;
+
+    template <auto value, template <typename, auto ...> typename T, typename U>
+    struct value_index_not<value, T<U>> : index_t<0>
+    {
+    };
+
+    template <auto value, template <typename, auto ...> typename T, typename U, auto V, auto... values>
+    struct value_index_not<value, T<U, V, values...>> : index_t<0>
+    {
+    };
+
+    template <auto value, template <typename, auto ...> typename T, typename U, auto... values>
+    struct value_index_not<value, T<U, value, values...>> : index_t<typev<value_index_not<value, T<U, values...>>> + 1>
+    {
+    };
+
+    template <auto value, typename T>
+    inline constexpr auto value_index_not_v = typev<value_index_not<value, T>>;
+
+    template <bool neg, auto value, typename T>
+    using value_index_if = std::conditional_t<!neg, value_index<value, T>, value_index_not<value, T>>;
+
+    template <bool neg, auto value, typename T>
+    inline constexpr auto value_index_if_v = typev<value_index_if<neg, value, T>>;
+
+    template <typename  T, typename U, bool B = false, bool neg = false>
     requires is_variadic_value_v<U>
     consteval auto index_of()
     {
         using type = reverse_if_t<B, U>;
-        constexpr auto index = value_index_v<typev<T>, type>;
+        constexpr auto index = value_index_if_v<neg, typev<T>, type>;
 
         constexpr auto size = sizeof_t_v<type>;
         return size == index ? size : B ? size - index - 1 : index;
     }
 
-    template <typename  T, typename U, bool B = false>
+    template <typename  T, typename U, bool B = false, bool neg = false>
     requires is_variadic_type_v<U>
     consteval auto index_of()
     {
         using type = reverse_if_t<B, U>;
-        constexpr auto index = type_index_v<T, type>;
+        constexpr auto index = type_index_if_v<neg, T, type>;
 
         constexpr auto size = std::tuple_size_v<type>;
         return size == index ? size : B ? size - index - 1 : index;
     }
+
+    template <typename  T, typename U>
+    struct find
+    {
+        static constexpr auto value = index_of<T, U, false, false>();
+    };
+
+    template <typename  T, typename U>
+    inline constexpr auto find_v = typev<find<T, U>>;
+
+    template <typename  T, typename U>
+    struct find_backward
+    {
+        static constexpr auto value = index_of<T, U, true, false>();
+    };
+
+    template <typename  T, typename U>
+    inline constexpr auto find_backward_v = typev<find_backward<T, U>>;
+
+    template <typename  T, typename U>
+    struct find_not
+    {
+        static constexpr auto value = index_of<T, U, false, true>();
+    };
+
+    template <typename  T, typename U>
+    inline constexpr auto find_not_v = typev<find_not<T, U>>;
+
+    template <typename  T, typename U>
+    struct find_not_backward
+    {
+        static constexpr auto value = index_of<T, U, true, true>();
+    };
+
+    template <typename  T, typename U>
+    inline constexpr auto find_not_backward_v = typev<find_not_backward<T, U>>;
 
     template <auto N, typename T>
     struct tuple_element_size
@@ -5420,7 +5510,7 @@ namespace monster
             {
             };
 
-            using type = index_type<1, reverse_range_t<n + 1, N, swap_t<last_of_v<comp, T>, n, T>>>;
+            using type = index_type<1, reverse_range_t<n + 1, N, swap_t<find_if_backward_v<comp, T>, n, T>>>;
         };
 
         template <bool b>
@@ -5895,7 +5985,7 @@ namespace monster
             using left_partition = typeof_t<left_split>;
 
             static constexpr auto half = len - len / 2;
-            static constexpr auto index = first_not_of_v<comparator, left_partition, m, m + half>;
+            static constexpr auto index = find_if_not_v<comparator, left_partition, m, m + half>;
 
             using right_partition = partition_adaptive<index, r, half, size, left_partition, comparator>;
             using right_split = type_if<half, right_partition, index_upper<index, left_partition>>;
@@ -5928,7 +6018,7 @@ namespace monster
     template <int p, int r, typename T, template <typename ...> typename comparator>
     struct stable_partition
     {
-        static constexpr auto N = first_not_of_v<comparator, T, p, r>;
+        static constexpr auto N = find_if_not_v<comparator, T, p, r>;
 
         using part = partition_adaptive<N, r, r - N, (r - N) / 2, T, comparator>;
         using impl = type_if<N == r, index_upper<r, T>, part>;
@@ -6953,7 +7043,7 @@ namespace monster
     template <typename T, template <typename ...> typename U, template <typename, auto> typename V, typename... Args, auto... args>
     struct find_index<T, U<V<Args, args>...>>
     {
-        static constexpr auto value = index_of<T, U<Args...>>();
+        static constexpr auto value = find_v<T, U<Args...>>;
     };
 
     template <typename T, typename U>

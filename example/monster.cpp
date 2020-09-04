@@ -344,11 +344,17 @@ int main(int argc, char* argv[])
     execute<is_variadic_v<std::index_sequence<>>>();
     execute<!is_variadic_v<nullptr_t>>();
 
-    execute<first_of_v<is_tuple, std::tuple<int, char, std::tuple<double>, float>>, 2>();
-    execute<first_not_of_v<is_tuple, std::tuple<std::tuple<int>, char, std::tuple<double>, float>>, 1>();
+    execute<find_if_v<is_tuple, std::tuple<int, char, std::tuple<double>, float>>, 2>();
+    execute<find_if_v<is_even, std::index_sequence<7, 3, 5, 4, 9, 0, 2, 5>>, 3>();
 
-    execute<last_of_v<equal<2>::template apply, std::integer_sequence<int, 1, 2, 3, 2, 4, 1, 2>>, 6>();
-    execute<last_not_of_v<equal<2>::template apply, std::integer_sequence<int, 1, 2, 3, 2, 4, 1, 2>>, 5>();
+    execute<find_if_not_v<is_tuple, std::tuple<std::tuple<int>, char, std::tuple<double>, float>>, 1>();
+    execute<find_if_not_v<is_even, std::index_sequence<7, 3, 5, 4, 9, 0, 2, 5>>, 0>();
+
+    execute<find_if_backward_v<equal<2>::template apply, std::integer_sequence<int, 1, 2, 3, 2, 4, 1, 2>>, 6>();
+    execute<find_if_backward_v<is_even, std::index_sequence<7, 3, 5, 4, 9, 0, 2, 5>>, 6>();
+
+    execute<find_if_not_backward_v<equal<2>::template apply, std::integer_sequence<int, 1, 2, 3, 2, 4, 1, 2>>, 5>();
+    execute<find_if_not_backward_v<is_even, std::index_sequence<7, 3, 5, 4, 9, 0, 2, 5>>, 7>();
 
     using lists = std::integer_sequence<int, 1, 1, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6>;
     using equal_range = equal_range_t<int_<4>, lists>;
@@ -543,8 +549,8 @@ int main(int argc, char* argv[])
     execute<copy_if_t<is_even, value>, std::integer_sequence<int, 4, 0, 6, 4>>();
     execute<copy_if_t<is_tuple, type>, std::tuple<std::tuple<char>, std::tuple<double>>>();
 
-    execute<copy_not_t<is_even, value>, std::integer_sequence<int, 5, 1, 9, 21>>();
-    execute<copy_not_t<is_tuple, type>, std::tuple<int, char, double, float, char>>();
+    execute<copy_if_not_t<is_even, value>, std::integer_sequence<int, 5, 1, 9, 21>>();
+    execute<copy_if_not_t<is_tuple, type>, std::tuple<int, char, double, float, char>>();
 
     execute<exclude_t<std::index_sequence<1, 2, 3, 4, 5, 7>, std::index_sequence<1, 3, 4>>,
             std::index_sequence<1, 3, 7>>();
@@ -765,17 +771,29 @@ int main(int argc, char* argv[])
     execute<value_index_v<6, std::integer_sequence<int, 1, -2, 0, 3, 6, 5>>, 4>();
     execute<value_index_v<7, std::integer_sequence<int, 1, -2, 0, 3, 6, 5>>, 6>();
 
-    execute<index_of<char, std::tuple<float, char, double, int, char>>(), 1>();
-    execute<index_of<int_<6>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>(), 2>();
+    execute<find_v<char, std::tuple<float, char, double, int, char>>, 1>();
+    execute<find_v<int_<6>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>, 2>();
 
-    execute<index_of<char, std::tuple<float, char, double, int, char>, true>(), 4>();
-    execute<index_of<int_<3>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>, true>(), 3>();
+    execute<find_backward_v<char, std::tuple<float, char, double, int, char>>, 4>();
+    execute<find_backward_v<int_<3>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>, 3>();
 
-    execute<index_of<float, std::tuple<char, int, double, int, char>>(), 5>();
-    execute<index_of<int_<4>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>(), 6>();
+    execute<find_not_v<char, std::tuple<float, char, double, int, char>>, 0>();
+    execute<find_not_v<int_<3>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>, 1>();
 
-    execute<index_of<float, std::tuple<char, int, double, int, char>, true>(), 5>();
-    execute<index_of<int_<4>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>, true>(), 6>();
+    execute<find_not_backward_v<char, std::tuple<float, char, double, int, char>>, 3>();
+    execute<find_not_backward_v<int_<3>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>, 5>();
+
+    execute<find_v<float, std::tuple<char, int, double, int, char>>, 5>();
+    execute<find_v<int_<4>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>, 6>();
+
+    execute<find_backward_v<float, std::tuple<char, int, double, int, char>>, 5>();
+    execute<find_backward_v<int_<4>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>, 6>();
+
+    execute<find_not_v<float, std::tuple<char, int, double, int, char>>, 0>();
+    execute<find_not_v<int_<4>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>, 0>();
+
+    execute<find_not_backward_v<float, std::tuple<char, int, double, int, char>>, 4>();
+    execute<find_not_backward_v<int_<4>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>, 5>();
 
     execute<tuple_element_size_v<2, std::tuple<short, int, double>>, sizeof(double)>();
 

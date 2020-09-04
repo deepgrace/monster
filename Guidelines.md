@@ -333,19 +333,53 @@ using s4 = set_union_t<less_t, std::integer_sequence<int, 1, 2, 3, 4, 5, 5, 5>,
 // s3 == std::integer_sequence<int, 5, 7>
 // s4 == std::integer_sequence<int, 1, 2, 3, 4, 5, 5, 5, 6, 7>
 
-// first of
-auto f1 = first_of_v<is_tuple, std::tuple<int, char, std::tuple<double>, float>>;
+// find
+auto f0 = find_v<char, std::tuple<float, char, double, int, char>>;
+auto f1 = find_v<int_<6>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>;
+// f0 == 1
 // f1 == 2
 
-// first not of
-auto f2 = first_not_of_v<is_tuple, std::tuple<std::tuple<int>, char, std::tuple<double>, float>>;
-// f2 == 1
+// find backward
+auto f2 = find_backward_v<char, std::tuple<float, char, double, int, char>>;
+auto f3 = find_backward_v<int_<3>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>;
+// f2 == 4
+// f3 == 3
 
-// last of
-auto l1 = last_of_v<equal<2>::template apply, std::integer_sequence<int, 1, 2, 3, 2, 4, 1, 2>>;
-auto l2 = last_not_of_v<equal<2>::template apply, std::integer_sequence<int, 1, 2, 3, 2, 4, 1, 2>>;
-// l1 == 6
-// l2 == 5
+// find not
+auto f4 = find_not_v<float, std::tuple<char, int, double, int, char>>;
+auto f5 = find_not_v<int_<4>, std::integer_sequence<int, 4, 3, -2, 6, 3, 6>>;
+// f4 == 0
+// f5 == 1
+
+// find not backward
+auto f6 = find_not_backward_v<float, std::tuple<char, int, double, int, float>>;
+auto f7 = find_not_backward_v<int_<4>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>;
+// f6 == 3
+// f7 == 5
+
+// find if
+auto f8 = find_if_v<is_tuple, std::tuple<int, char, std::tuple<double>, float>>;
+auto f9 = find_if_v<is_even, std::index_sequence<7, 3, 5, 4, 9, 0, 2, 5>>;
+// f8 == 2
+// f9 == 3
+
+// find if backward
+auto f10 = find_if_backward_v<equal<2>::template apply, std::integer_sequence<int, 1, 2, 3, 2, 4, 1, 2>>;
+auto f11 = find_if_backward_v<is_even, std::index_sequence<7, 3, 5, 4, 9, 0, 2, 5>>;
+// f10 == 6
+// f11 == 6
+
+// find if not
+auto f12 = find_if_not_v<is_tuple, std::tuple<std::tuple<int>, char, std::tuple<double>, float>>;
+auto f13 = find_if_not_v<is_even, std::index_sequence<7, 3, 5, 4, 9, 0, 2, 5>>;
+// f12 == 1
+// f13 == 0
+
+// find if not backward
+auto f14 = find_if_not_backward_v<equal<2>::template apply, std::integer_sequence<int, 1, 2, 3, 2, 4, 1, 2>>;
+auto f15 = find_if_not_backward_v<is_even, std::index_sequence<7, 3, 5, 4, 9, 0, 2, 5>>;
+// f14 == 5
+// f15 == 7
 
 // any_of: apply an unary predicate to the sequence in the range [begin, end)
 auto a1 = any_of_v<is_odd, std::integer_sequence<int, 1, 3, 2, 7, 8, 0, 1, -2, 4, 5>, 0, 10>;
@@ -1722,36 +1756,6 @@ auto i7 = value_index_v<7, std::integer_sequence<int, 1, -2, 0, 3, 6, 5>>;
 // i5 == 5, not found
 // i6 == 4
 // i7 == 6, not found
-
-// for a given type, returns index of first or last occurence in a typelist
-// index_of<type, typelist, B>()
-// bool B indicates first or last
-// B == false -> first (default value)
-// B == true  -> last
-// when not found, returns size of the typelist
-// first occurence
-auto i8 = index_of<char, std::tuple<float, char, double, int, char>>();
-auto i9 = index_of<int_<6>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>();
-// i8 == 1
-// i9 == 2
-
-// last occurence
-auto i10 = index_of<char, std::tuple<float, char, double, int, char>, true>();
-auto i11 = index_of<int_<3>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>, true>();
-// i10 == 4
-// i11 == 3
-
-// first occurence, not found
-auto i12 = index_of<float, std::tuple<char, int, double, int, char>>();
-auto i13 = index_of<int_<4>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>();
-// i12 == 5
-// i13 == 6
-
-// last occurence, not found
-auto i14 = index_of<float, std::tuple<char, int, double, int, char>, true>();
-auto i15 = index_of<int_<4>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>, true>();
-// i14 == 5
-// i15 == 6
 
 // maximum element
 using m4 = max_element_t<std::tuple<short, int, char>>;
