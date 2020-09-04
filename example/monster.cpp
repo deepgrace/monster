@@ -543,6 +543,9 @@ int main(int argc, char* argv[])
     execute<copy_if_t<is_even, value>, std::integer_sequence<int, 4, 0, 6, 4>>();
     execute<copy_if_t<is_tuple, type>, std::tuple<std::tuple<char>, std::tuple<double>>>();
 
+    execute<copy_not_t<is_even, value>, std::integer_sequence<int, 5, 1, 9, 21>>();
+    execute<copy_not_t<is_tuple, type>, std::tuple<int, char, double, float, char>>();
+
     execute<exclude_t<std::index_sequence<1, 2, 3, 4, 5, 7>, std::index_sequence<1, 3, 4>>,
             std::index_sequence<1, 3, 7>>();
     execute<exclude_t<std::tuple<char, int, double, int, short>, std::index_sequence<0, 2, 3>>,

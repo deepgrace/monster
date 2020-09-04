@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 49
+#define MONSTER_VERSION 50
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3147,12 +3147,14 @@ namespace monster
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using remove_if_t = typeof_t<remove_if<F, T, B, E>>;
 
-    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
-    struct copy_if
+    template <template <typename ...> typename F, typename T, auto B, auto E, bool value>
+    struct copy
     {
         template <int i, int j, typename U>
-        struct impl : impl<i + 1, j, append_when_t<F, U, element_t<i, T>>>
+        struct impl
         {
+            using curr = element_t<i, T>;
+            using type = typeof_t<impl<i + 1, j, append_if_t<value == typev<F<curr>>, U, curr>>>;
         };
 
         template <int j, typename U>
@@ -3163,8 +3165,24 @@ namespace monster
         using type = typeof_t<impl<B, E, base_type_t<T>>>;
     };
 
+    template <template <typename ...> typename F, typename T, auto B, auto E, bool value>
+    using copy_t = typeof_t<copy<F, T, B, E, value>>;
+
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    struct copy_if : copy<F, T, B, E, true>
+    {
+    };
+
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using copy_if_t = typeof_t<copy_if<F, T, B, E>>;
+
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    struct copy_not : copy<F, T, B, E, false>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    using copy_not_t = typeof_t<copy_not<F, T, B, E>>;
 
     template <typename T, typename indices>
     struct exclude : expand_of<T, set_difference_t<less_t, index_sequence_of_t<T>, indices>>
