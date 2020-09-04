@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 48
+#define MONSTER_VERSION 49
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -421,13 +421,31 @@ namespace monster
     template <typename T>
     using member_args_t = typeof_t<member_args<T>>;
 
+    template <typename... Args>
+    struct inherit : Args...
+    {
+    };
+
+    template <typename T, typename U = std::void_t<>>
+    struct is_inheritable : std::false_type
+    {
+    };
+
     template <typename T>
-    struct is_inheritable : std::conjunction<std::is_class<T>, std::negation<std::is_final<T>>>
+    struct is_inheritable<T, std::void_t<inherit<T>>> : std::true_type
     {
     };
 
     template <typename T>
     inline constexpr auto is_inheritable_v = typev<is_inheritable<T>>;
+
+    template <typename... Args>
+    struct is_inheritable_pack : std::conjunction<is_inheritable<Args>...>
+    {
+    };
+
+    template <typename... Args>
+    inline constexpr auto is_inheritable_pack_v = typev<is_inheritable_pack<Args...>>;
 
     template <typename T>
     struct is_instantiable : std::negation<std::is_abstract<T>>
@@ -1785,6 +1803,12 @@ namespace monster
     template <bool B, typename T, typename... Args>
     using append_if_t = typeof_t<append_if<B, T, Args...>>;
 
+    template <template <typename ...> typename F, typename T, typename... Args>
+    using append_when = append_if<typev<F<Args...>>, T, Args...>;
+
+    template <template <typename ...> typename F, typename T, typename... Args>
+    using append_when_t = typeof_t<append_when<F, T, Args...>>;
+
     template <template <typename, typename> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     struct adjacent_difference
     {
@@ -3122,6 +3146,25 @@ namespace monster
 
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using remove_if_t = typeof_t<remove_if<F, T, B, E>>;
+
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    struct copy_if
+    {
+        template <int i, int j, typename U>
+        struct impl : impl<i + 1, j, append_when_t<F, U, element_t<i, T>>>
+        {
+        };
+
+        template <int j, typename U>
+        struct impl<j, j, U> : std::type_identity<U>
+        {
+        };
+
+        using type = typeof_t<impl<B, E, base_type_t<T>>>;
+    };
+
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    using copy_if_t = typeof_t<copy_if<F, T, B, E>>;
 
     template <typename T, typename indices>
     struct exclude : expand_of<T, set_difference_t<less_t, index_sequence_of_t<T>, indices>>

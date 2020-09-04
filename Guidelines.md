@@ -772,6 +772,15 @@ using r8 == remove_if_t<negaf<is_tuple>::template apply, type, 1, 5>;
 // r5 == std::integer_sequence<int, 4, 0, 6, 4, 9, 21>
 // r6 == std::integer_sequence<int, 4, 5, 1, 9, 21>
 
+// copy the elements in the range [begin, end) for which the predicate F returns true
+// copy_if<F, T> == copy_if<F, T, 0, sizeof_t_v<T>>
+using type1 = std::integer_sequence<int, 4, 0, 5, 6, 4, 1, 9, 21>;
+using type2 = std::tuple<int, std::tuple<char>, double, std::tuple<double>, float, char>;
+using ci1 = copy_if_t<is_even, type1>;
+using ci2 = copy_if_t<is_tuple, type2>;
+// ci1 == std::integer_sequence<int, 4, 0, 6, 4>
+// ci2 == std::tuple<std::tuple<char>, std::tuple<double>>
+
 // delete elements at specific sorted index sequence
 using indices = std::index_sequence<0, 1, 3, 4>;
 using e1 = exclude_t<std::tuple<int, double, int, char, char, int>, indices>;
