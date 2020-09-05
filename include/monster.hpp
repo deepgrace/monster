@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 52
+#define MONSTER_VERSION 53
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -79,6 +79,9 @@ namespace monster
 
     template <bool B, typename T, typename U>
     using type_if = typeof_t<std::conditional_t<B, T, U>>;
+
+    template <bool B, typename T, typename U>
+    inline constexpr auto type_if_v = typev<type_if<B, T, U>>;
 
     template <bool B, typename T, typename U>
     inline constexpr auto value_if = typev<std::conditional_t<B, T, U>>;
@@ -5223,6 +5226,18 @@ namespace monster
     template <template <typename ...> typename F, typename T>
     inline constexpr auto none_of_v = typev<for_each_t<0, F, T>>;
 
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    struct one_of
+    {
+        static constexpr auto i = find_if_v<F, T, B, E>;
+        static constexpr auto j = type_if_v<i != E, find_if<F, T, i + 1, E>, int_<E>>;
+
+        static constexpr auto value = i != E && j == E;
+    };
+
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    inline constexpr auto one_of_v = typev<one_of<F, T, B, E>>;
+
     template <typename T, typename U>
     struct subset
     {
@@ -5242,7 +5257,7 @@ namespace monster
             using type = std::is_same<T, range_t<j, j + M, U>>;
         };
 
-        static constexpr auto value = typev<type_if<N < M, std::false_type, impl<0, N - M + 1>>>;
+        static constexpr auto value = type_if_v<N < M, std::false_type, impl<0, N - M + 1>>;
     };
 
     template <typename T, typename U>
@@ -5766,8 +5781,8 @@ namespace monster
 
         struct exch
         {
-            using cond = std::conditional_t<ASC, get<B, T>, index_t<B != E - 1>>;
-            using type = index_type<0, swap_if_t<typev<cond> != 0, B, E - 1, T>>;
+            static constexpr auto cond = value_if<ASC, get<B, T>, index_t<B != E - 1>>;
+            using type = index_type<0, swap_if_t<cond != 0, B, E - 1, T>>;
         };
 
         template <size_t i, bool b>
@@ -6467,7 +6482,7 @@ namespace monster
                 using type = sub_t<k, 1 + min_v<value, get_v<k - n - 1, W>>, W>;
             };
 
-            using type = typeof_t<impl<V, typev<is_same<i - 1, j - 1, T, U, B>>>>;
+            using type = typeof_t<impl<V, is_same_v<i - 1, j - 1, T, U, B>>>;
         };
 
         template <size_t i, size_t j, size_t k, typename V>
@@ -7052,13 +7067,12 @@ namespace monster
             using rhs = std::conditional_t<B, V, T>;
 
             static constexpr auto m = typev<typeof_t<next<lhs, rhs, W, k, q>>>;
-            static constexpr int n = m + typev<is_same<m, q, lhs, rhs, value>>;
+            static constexpr int n = m + is_same_v<m, q, lhs, rhs, value>;
 
             using curr = append_if_t<!B && n == N, U, int_<q - N + 1>>;
-            using cond = std::conditional_t<!B && n == N, get<n - 1, W>, int_<n>>;
-
             using dest = type_if<B, sub<q, n, W>, std::type_identity<W>>;
-            using type = typeof_t<impl<B, curr, V, dest, typev<cond>, q + 1, p>>;
+
+            using type = typeof_t<impl<B, curr, V, dest, value_if<!B && n == N, get<n - 1, W>, int_<n>>, q + 1, p>>;
         };
 
         template <bool B, typename U, typename V, typename W, int k, int p>

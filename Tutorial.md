@@ -356,6 +356,12 @@ int main(int argc, char* argv[])
     using equal_range = equal_range_t<int_<4>, lists>;
     execute<range_t<equal_range::first, equal_range::second, lists>, std::integer_sequence<int, 4, 4, 4>>();
 
+    execute<all_of_v<is_odd, std::integer_sequence<int, 1, 3, 7, 5, 11, 9, 5>>>();
+    execute<!all_of_v<is_odd, std::integer_sequence<int, 1, 2, 7, 5, 11, 9, 5>>>();
+
+    execute<none_of_v<is_even, std::integer_sequence<int, 1, 3, 7, 5, 11, 9, 5>>>();
+    execute<one_of_v<is_even, std::integer_sequence<int, 1, 2, 7, 5, 11, 9, 5>>>();
+
     execute<any_of_v<is_odd, std::integer_sequence<int, 1, 3, 2, 7, 8, 0, 1, -2, 4, 5>, 0, 10>>();
     execute<any_of_v<is_tuple, std::tuple<int, char, std::tuple<char>, double,
             std::tuple<uint64_t>, int, std::tuple<float>>, 0, 7>>();
