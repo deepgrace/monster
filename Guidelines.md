@@ -527,6 +527,12 @@ using ap3 = apply_permutation_t<types1, index1, true>;
 using ap4 = apply_permutation_t<types2, index2, true>;
 // ap3 == std::tuple<int, double, char, float, short>
 // ap4 == std::integer_sequence<int, 3, -2, 5, 7, 8>
+
+// divides a sequence into several parts according to given criteria
+using sp1 = split_t<is_tuple, std::tuple<int, char, std::tuple<double>, float, std::tuple<>>>;
+using sp2 = split_t<is_even, std::index_sequence<7, 3, 5, 4, 9, 0, 2, 8, 5>>;
+// sp1 == std::tuple<std::tuple<int, char>, std::tuple<float>>
+// sp2 == std::tuple<std::index_sequence<7, 3, 5>, std::index_sequence<9>, std::index_sequence<5>>
 ```
 
 ### Combinations

@@ -347,6 +347,11 @@ int main(int argc, char* argv[])
     execute<find_if_not_backward_v<equal<2>::template apply, std::integer_sequence<int, 1, 2, 3, 2, 4, 1, 2>>, 5>();
     execute<find_if_not_backward_v<is_even, std::index_sequence<7, 3, 5, 4, 9, 0, 2, 5>>, 7>();
 
+    execute<split_t<is_tuple, std::tuple<int, char, std::tuple<double>, float, std::tuple<>>>,
+            std::tuple<std::tuple<int, char>, std::tuple<float>>>();
+    execute<split_t<is_even, std::index_sequence<7, 3, 5, 4, 9, 0, 2, 8, 5>>,
+            std::tuple<std::index_sequence<7, 3, 5>, std::index_sequence<9>, std::index_sequence<5>>>();
+
     using lists = std::integer_sequence<int, 1, 1, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6>;
     using equal_range = equal_range_t<int_<4>, lists>;
     execute<range_t<equal_range::first, equal_range::second, lists>, std::integer_sequence<int, 4, 4, 4>>();
@@ -959,6 +964,12 @@ int main(int argc, char* argv[])
             std::tuple<float, double, int, float, char>>();
     execute<append_t<std::integer_sequence<int, 1, 2, -2>, int_<4>, int_<3>>,
             std::integer_sequence<int, 1, 2, -2, 4, 3>>();
+
+    execute<append_range_t<std::tuple<float, double, int>, std::tuple<float, char>>,
+            std::tuple<float, double, int, float, char>>();
+    execute<append_range_t<std::integer_sequence<int, 1, 2, -2>, std::integer_sequence<int, 4, 3>>,
+            std::integer_sequence<int, 1, 2, -2, 4, 3>>();
+
     execute<append_c<std::integer_sequence<int, 1, 2, -2>, 4, 3>,
             std::integer_sequence<int, 1, 2, -2, 4, 3>>();
 

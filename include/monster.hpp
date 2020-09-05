@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 51
+#define MONSTER_VERSION 52
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -2316,6 +2316,12 @@ namespace monster
     template <auto lower, auto upper, typename T>
     using range_t = typeof_t<range<lower, upper, T>>;
 
+    template <bool B, auto lower, auto upper, typename T>
+    using range_if = std::conditional_t<B, range<lower, upper, T>, std::type_identity<T>>;
+
+    template <bool B, auto lower, auto upper, typename T>
+    using range_if_t = typeof_t<range_if<B, lower, upper, T>>;
+
     template <auto N, typename T>
     struct pivot : concat<range_t<N, sizeof_t_v<T>, T>, range_t<0, N, T>>
     {
@@ -3251,6 +3257,20 @@ namespace monster
     template <auto i, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     requires is_variadic_pack_v<T, U>
     using insert_range_t = typeof_t<insert_range<i, T, U, B, E>>;
+
+    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    struct append_range : insert_range<sizeof_t_v<T>, T, U, B, E>
+    {
+    };
+
+    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    using append_range_t = typeof_t<append_range<T, U, B, E>>;
+
+    template <bool B, typename T, typename U, int i = 0, int j = sizeof_t_v<U>>
+    using append_range_if = type_if<B, append_range<T, U, i, j>, std::type_identity<T>>;
+
+    template <bool B, typename T, typename U, int i = 0, int j = sizeof_t_v<U>>
+    using append_range_if_t = typeof_t<append_range_if<B, T, U, i, j>>;
 
     template <auto i, auto j, typename T, typename... Args>
     struct replace : concat<append_t<range_t<0, i, T>, Args...>, range_t<j, sizeof_t_v<T>, T>>
@@ -4871,6 +4891,29 @@ namespace monster
     struct minmax_element : pair_t<min_element_t<T>, max_element_t<T>>
     {
     };
+
+    template <template <typename ...> typename F, typename T>
+    struct split
+    {
+        template <int i, int j, typename U>
+        struct impl
+        {
+            static constexpr auto k = find_if_v<F, T, i, j>;
+
+            using next = append_if_t<i != k, U, range_if_t<i != k, i, k, T>>;
+            using type = typeof_t<impl<k != j ? k + 1 : j, j, next>>;
+        };
+
+        template <int j, typename U>
+        struct impl<j, j, U> : std::type_identity<U>
+        {
+        };
+
+        using type = typeof_t<impl<0, sizeof_t_v<T>, tuple_t<>>>;
+    };
+
+    template <template <typename ...> typename F, typename T>
+    using split_t = typeof_t<split<F, T>>;
 
     template <int low, int mid, int high, typename T>
     struct find_max_crossing_subarray
