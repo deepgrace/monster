@@ -366,6 +366,9 @@ int main(int argc, char* argv[])
     execute<any_of_v<is_tuple, std::tuple<int, char, std::tuple<char>, double,
             std::tuple<uint64_t>, int, std::tuple<float>>, 0, 7>>();
 
+    execute<is_sorted_v<std::index_sequence<2, 3, 4, 4, 4, 5, 6, 8, 9, 9>>>();
+    execute<is_partitioned_v<is_even, std::integer_sequence<int, 2, 8, 6, 4, 0, 5, 7, 3, 1>>>();
+
     execute<adjacent_difference_t<minus_t, std::integer_sequence<int, 2, 4, 6, 8>>,
             std::integer_sequence<int, 2, 2, 2, 2>>();
 

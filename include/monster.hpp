@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 53
+#define MONSTER_VERSION 54
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5237,6 +5237,59 @@ namespace monster
 
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     inline constexpr auto one_of_v = typev<one_of<F, T, B, E>>;
+
+    template <typename T, template <typename, typename> typename comparator = less_t>
+    struct is_sorted_until
+    {
+        static constexpr auto N = sizeof_t_v<T>;
+
+        template <size_t i, size_t j>
+        struct impl : std::conditional_t<typev<comparator<element_t<i, T>, element_t<i - 1, T>>>, int_<i>, impl<i + 1, j>>
+        {
+        };
+
+        template <size_t j>
+        struct impl<j, j> : int_<j>
+        {
+        };
+
+        static constexpr auto value = type_if_v<N <= 1, int_<N>, impl<1, N>>;
+    };
+
+    template <typename T, template <typename, typename> typename comparator = less_t>
+    inline constexpr auto is_sorted_until_v = typev<is_sorted_until<T, comparator>>;
+
+    template <typename T, template <typename, typename> typename comparator = less_t>
+    struct is_sorted : std::bool_constant<is_sorted_until_v<T, comparator> == sizeof_t_v<T>>
+    {
+    };
+
+    template <typename T, template <typename, typename> typename comparator = less_t>
+    inline constexpr auto is_sorted_v = typev<is_sorted<T, comparator>>;
+
+    template <template <typename ...> typename F, typename T>
+    struct is_partitioned
+    {
+        static constexpr auto N = sizeof_t_v<T>;
+
+        template <bool B, size_t i, size_t j>
+        struct impl : std::conditional_t<typev<F<element_t<i, T>>> == B, impl<B, i + 1, j>, int_<i + 1>>
+        {
+        };
+
+        template <bool B, size_t j>
+        struct impl<B, j, j> : int_<j>
+        {
+        };
+
+        static constexpr auto l = typev<impl<1, 0, N>>;
+        static constexpr auto r = typev<impl<0, l, N>>;
+
+        static constexpr auto value = l == N || r == N;
+    };
+
+    template <template <typename ...> typename F, typename T>
+    inline constexpr auto is_partitioned_v = typev<is_partitioned<F, T>>;
 
     template <typename T, typename U>
     struct subset
