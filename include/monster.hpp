@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 54
+#define MONSTER_VERSION 55
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1669,7 +1669,7 @@ namespace monster
         {
         };
 
-        template <template <typename, auto ...> typename V, typename W,  auto... prev, auto value, auto... args>
+        template <template <typename, auto ...> typename V, typename W, auto... prev, auto value, auto... args>
         struct impl<V<W, prev...>, value, args...>
         {
             using type = dedup_t<comprise<value, prev...>, V<W, value>, impl<V<W, prev..., value>, args...>>;
@@ -3495,7 +3495,7 @@ namespace monster
     template <bool neg, auto value, typename T>
     inline constexpr auto value_index_if_v = typev<value_index_if<neg, value, T>>;
 
-    template <typename  T, typename U, bool B = false, bool neg = false>
+    template <typename T, typename U, bool B = false, bool neg = false>
     requires is_variadic_value_v<U>
     consteval auto index_of()
     {
@@ -3506,7 +3506,7 @@ namespace monster
         return size == index ? size : B ? size - index - 1 : index;
     }
 
-    template <typename  T, typename U, bool B = false, bool neg = false>
+    template <typename T, typename U, bool B = false, bool neg = false>
     requires is_variadic_type_v<U>
     consteval auto index_of()
     {
@@ -3517,41 +3517,47 @@ namespace monster
         return size == index ? size : B ? size - index - 1 : index;
     }
 
-    template <typename  T, typename U>
+    template <typename T, typename U, int B, int E, bool B1, bool B2>
+    consteval auto find_of()
+    {
+        return B + index_of<T, range_t<B, E, U>, B1, B2>();
+    }
+
+    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
     struct find
     {
-        static constexpr auto value = index_of<T, U, false, false>();
+        static constexpr auto value = find_of<T, U, B, E, false, false>();
     };
 
-    template <typename  T, typename U>
-    inline constexpr auto find_v = typev<find<T, U>>;
+    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    inline constexpr auto find_v = typev<find<T, U, B, E>>;
 
-    template <typename  T, typename U>
+    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
     struct find_backward
     {
-        static constexpr auto value = index_of<T, U, true, false>();
+        static constexpr auto value = find_of<T, U, B, E, true, false>();
     };
 
-    template <typename  T, typename U>
-    inline constexpr auto find_backward_v = typev<find_backward<T, U>>;
+    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    inline constexpr auto find_backward_v = typev<find_backward<T, U, B, E>>;
 
-    template <typename  T, typename U>
+    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
     struct find_not
     {
-        static constexpr auto value = index_of<T, U, false, true>();
+        static constexpr auto value = find_of<T, U, B, E, false, true>();
     };
 
-    template <typename  T, typename U>
-    inline constexpr auto find_not_v = typev<find_not<T, U>>;
+    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    inline constexpr auto find_not_v = typev<find_not<T, U, B, E>>;
 
-    template <typename  T, typename U>
+    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
     struct find_not_backward
     {
-        static constexpr auto value = index_of<T, U, true, true>();
+        static constexpr auto value = find_of<T, U, B, E, true, true>();
     };
 
-    template <typename  T, typename U>
-    inline constexpr auto find_not_backward_v = typev<find_not_backward<T, U>>;
+    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    inline constexpr auto find_not_backward_v = typev<find_not_backward<T, U, B, E>>;
 
     template <auto N, typename T>
     struct tuple_element_size
@@ -5009,7 +5015,7 @@ namespace monster
     template <typename T>
     inline constexpr auto kadane_v = typev<kadane_t<T>>;
 
-    template <typename T, typename U>
+    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
     struct count
     {
         template <typename V, typename W, typename X = typeof_t<V>>
@@ -5017,16 +5023,16 @@ namespace monster
         {
         };
 
-        using type = eval_t<folded_t, comp, to_tuple_t<U>, index_type<0, T>>;
+        using type = eval_t<folded_t, comp, to_tuple_t<range_t<B, E, U>>, index_type<0, T>>;
     };
 
-    template <typename T, typename U>
-    using count_t = typeof_t<count<T, U>>;
+    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    using count_t = typeof_t<count<T, U, B, E>>;
 
-    template <typename T, typename U>
-    inline constexpr auto count_v = typev<count_t<T, U>>;
+    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    inline constexpr auto count_v = typev<count_t<T, U, B, E>>;
 
-    template <template <typename ...> typename F, typename T>
+    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
     struct count_if
     {
         template <typename V, typename W>
@@ -5034,25 +5040,25 @@ namespace monster
         {
         };
 
-        using type = eval_t<folded_t, comp, to_tuple_t<T>, int_<0>>;
+        using type = eval_t<folded_t, comp, to_tuple_t<range_t<B, E, T>>, int_<0>>;
     };
 
-    template <template <typename ...> typename F, typename T>
-    using count_if_t = typeof_t<count_if<F, T>>;
+    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    using count_if_t = typeof_t<count_if<F, T, B, E>>;
 
-    template <template <typename ...> typename F, typename T>
-    inline constexpr auto count_if_v = typev<count_if_t<F, T>>;
+    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    inline constexpr auto count_if_v = typev<count_if_t<F, T, B, E>>;
 
-    template <template <typename ...> typename F, typename T>
-    struct count_if_not : count_if<negaf<F>::template apply, T>
+    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    struct count_if_not : count_if<negaf<F>::template apply, T, B, E>
     {
     };
 
-    template <template <typename ...> typename F, typename T>
-    using count_if_not_t = typeof_t<count_if_not<F, T>>;
+    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    using count_if_not_t = typeof_t<count_if_not<F, T, B, E>>;
 
-    template <template <typename ...> typename F, typename T>
-    inline constexpr auto count_if_not_v = typev<count_if_not_t<F, T>>;
+    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    inline constexpr auto count_if_not_v = typev<count_if_not_t<F, T, B, E>>;
 
     template <typename T>
     struct mode
@@ -5062,8 +5068,15 @@ namespace monster
         {
         };
 
+        template <typename Args>
+        struct impl
+        {
+            template <typename args>
+            using apply = count<args, Args>;
+        };
+
         template <typename U>
-        using unique = eval_t<currying_t, bind_back<count, U>::template apply, to_tuple_t<unique_t<U>>>;
+        using unique = eval_t<currying_t, impl<U>::template apply, to_tuple_t<unique_t<U>>>;
 
         using type = typeof_t<eval_t<folded_t, comp, unique<T>>>;
         static constexpr auto value = value_if<is_tuple_v<T>, std::false_type, type>;
@@ -5290,6 +5303,42 @@ namespace monster
 
     template <template <typename ...> typename F, typename T>
     inline constexpr auto is_partitioned_v = typev<is_partitioned<F, T>>;
+
+    template <typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
+    struct is_permutation
+    {
+        using p = mismatch_t<equal_t, T, U, B1, E1, B2, E2>;
+        static constexpr auto q = first_v<p>;
+
+        static constexpr auto l = second_v<p>;
+        static constexpr auto r = l + E1 - q;
+
+        template <size_t i, typename V, typename W>
+        struct next
+        {
+            static constexpr size_t m = count_v<V, U, l, r>;
+            static constexpr size_t n = type_if_v<m == 0, std::false_type, count<V, T, i, E1>>;
+
+            using type = type_if<m != 0 && n == m, W, std::false_type>;
+        };
+
+        template <size_t i, size_t j>
+        struct impl
+        {
+            using curr = element_t<i, T>;
+            using type = type_if<find_v<curr, T, q, i> != i, impl<i + 1, j>, next<i, curr, impl<i + 1, j>>>;
+        };
+
+        template <size_t j>
+        struct impl<j, j> : std::true_type
+        {
+        };
+
+        static constexpr auto value = type_if_v<q == E1, std::true_type, impl<q, E1>>;
+    };
+
+    template <typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
+    inline constexpr auto is_permutation_v = typev<is_permutation<T, U, B1, E1, B2, E2>>;
 
     template <typename T, typename U>
     struct subset
@@ -7153,7 +7202,7 @@ namespace monster
     template <typename T, template <typename ...> typename U, template <typename, auto> typename V, typename... Args, auto... args>
     struct find_index<T, U<V<Args, args>...>>
     {
-        static constexpr auto value = find_v<T, U<Args...>>;
+        static constexpr auto value = index_of<T, U<Args...>>();
     };
 
     template <typename T, typename U>

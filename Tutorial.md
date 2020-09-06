@@ -369,6 +369,9 @@ int main(int argc, char* argv[])
     execute<is_sorted_v<std::index_sequence<2, 3, 4, 4, 4, 5, 6, 8, 9, 9>>>();
     execute<is_partitioned_v<is_even, std::integer_sequence<int, 2, 8, 6, 4, 0, 5, 7, 3, 1>>>();
 
+    execute<is_permutation_v<std::index_sequence<1, 2, 3, 4, 5>, std::index_sequence<3, 5, 4, 1, 2>>>();
+    execute<!is_permutation_v<std::index_sequence<1, 2, 3, 4, 5>, std::index_sequence<3, 5, 4, 1, 1>>>();
+
     execute<adjacent_difference_t<minus_t, std::integer_sequence<int, 2, 4, 6, 8>>,
             std::integer_sequence<int, 2, 2, 2, 2>>();
 
