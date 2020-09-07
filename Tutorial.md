@@ -1309,18 +1309,21 @@ int main(int argc, char* argv[])
     execute<select_t<3, std::integer_sequence<int, 0, 3, 4, 1, -2, 6>, greater_equal_t>, int_<3>>();
     execute<select_v<4, std::integer_sequence<int, -2, 1, 0, -7, 4, 3>, greater_equal_t>, 0>();
 
-    execute<stable_partition_t<0, 2, std::tuple<int, std::tuple<int>>, is_tuple>,
+    execute<typeof_t<stable_partition_t<0, 2, std::tuple<int, std::tuple<int>>, is_tuple>>,
             std::tuple<std::tuple<int>, int>>();
 
-    execute<stable_partition_t<1, 6, std::tuple<int, char, std::tuple<char>, double,
-            std::tuple<uint64_t>, int, std::tuple<float>>, is_tuple>, std::tuple<int, std::tuple<char>,
+    execute<typeof_t<stable_partition_t<1, 6, std::tuple<int, char, std::tuple<char>, double,
+            std::tuple<uint64_t>, int, std::tuple<float>>, is_tuple>>, std::tuple<int, std::tuple<char>,
             std::tuple<uint64_t>, char, double, int, std::tuple<float>>>();
 
-    execute<stable_partition_t<1, 7, std::integer_sequence<int, 1, 3, 2, 7, 8, 0, 1, -2, 4, 5>, is_odd>,
+    execute<typeof_t<stable_partition_t<1, 7, std::integer_sequence<int, 1, 3, 2, 7, 8, 0, 1, -2, 4, 5>, is_odd>>,
             std::integer_sequence<int, 1, 3, 7, 1, 2, 8, 0, -2, 4, 5>>();
 
-    execute<stable_partition_t<1, 6, std::integer_sequence<int, 1, 3, 2, 7, 8, 0, 1, -2, 4, 5>, is_even>,
+    execute<typeof_t<stable_partition_t<1, 6, std::integer_sequence<int, 1, 3, 2, 7, 8, 0, 1, -2, 4, 5>, is_even>>,
             std::integer_sequence<int, 1, 2, 8, 0, 3, 7, 1, -2, 4, 5>>();
+
+    using gath = gather_t<0, 10, 4, std::index_sequence<0, 1, 2, 3, 4, 5, 6, 7, 8, 9>, is_even>;
+    execute<gath, triple<2, 7, std::index_sequence<1, 3, 0, 2, 4, 6, 8, 5, 7, 9>>>();
 
     execute<partition_point_t<std::integer_sequence<int, 1, 2, 8, 0, 3, 7, 1, -2, 4, 5>,
             is_even, 1, 6>, int_<4>>();

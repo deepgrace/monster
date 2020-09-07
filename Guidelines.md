@@ -255,15 +255,15 @@ using k5 = kmp_t<std::integer_sequence<int, 2, 1, 3, 1, 3, 1>,
 // k5 == std::index_sequence<>
 
 // stable partition in the range [begin, end)
-using p1 = stable_partition_t<0, 2, std::tuple<int, std::tuple<int>>, is_tuple>;
-using p2 = stable_partition_t<1, 6, std::tuple<int, char, std::tuple<char>, double,
-           std::tuple<uint64_t>, int, std::tuple<float>>, is_tuple>;
+using p1 = typeof_t<stable_partition_t<0, 2, std::tuple<int, std::tuple<int>>, is_tuple>>;
+using p2 = typeof_t<stable_partition_t<1, 6, std::tuple<int, char, std::tuple<char>, double,
+           std::tuple<uint64_t>, int, std::tuple<float>>, is_tuple>>;
 // p1 == std::tuple<std::tuple<int>, int>
 // p2 == std::tuple<int, std::tuple<char>, std::tuple<uint64_t>,
          char, double, int, std::tuple<float>>
 
-using p3 = stable_partition_t<1, 7, std::integer_sequence<int, 1, 3, 2, 7, 8, 0, 1, -2, 4, 5>, is_odd>;
-using p4 = stable_partition_t<1, 6, std::integer_sequence<int, 1, 3, 2, 7, 8, 0, 1, -2, 4, 5>, is_even>;
+using p3 = typeof_t<stable_partition_t<1, 7, std::integer_sequence<int, 1, 3, 2, 7, 8, 0, 1, -2, 4, 5>, is_odd>>;
+using p4 = typeof_t<stable_partition_t<1, 6, std::integer_sequence<int, 1, 3, 2, 7, 8, 0, 1, -2, 4, 5>, is_even>>;
 // p3 == std::integer_sequence<int, 1, 3, 7, 1, 2, 8, 0, -2, 4, 5>
 // p4 == std::integer_sequence<int, 1, 2, 8, 0, 3, 7, 1, -2, 4, 5>
 

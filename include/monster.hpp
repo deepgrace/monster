@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 57
+#define MONSTER_VERSION 58
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -171,6 +171,13 @@ namespace monster
 
     template <typename T>
     inline constexpr auto second_v = T::second;
+
+    template <auto p, auto q, typename T>
+    struct triple : std::type_identity<T>
+    {
+        static constexpr auto first = p;
+        static constexpr auto second = q;
+    };
 
     template <int N, typename T>
     struct identity
@@ -6214,10 +6221,7 @@ namespace monster
         static constexpr auto N = find_if_not_v<comparator, T, p, r>;
 
         using part = partition_adaptive<N, r, r - N, (r - N) / 2, T, comparator>;
-        using impl = type_if<N == r, index_upper<r, T>, part>;
-
-        using type = typeof_t<impl>;
-        static constexpr auto value = typev<impl>;
+        using type = type_if<N == r, index_upper<r, T>, part>;
     };
 
     template <int p, int r, typename T, template <typename ...> typename comparator>
@@ -6234,14 +6238,23 @@ namespace monster
         {
         };
 
-        using impl = typename stable_partition<p, r, prng, comp>::impl;
-
-        using type = typeof_t<impl>;
-        static constexpr auto value = typev<impl>;
+        using type = stable_partition_t<p, r, prng, comp>;
     };
 
     template <int p, int r, typename T, template <typename, typename> typename comparator = less_equal_t>
     using randomized_stable_partition_t = typeof_t<randomized_stable_partition<p, r, T>>;
+
+    template <int b, int e, int p, typename T, template <typename ...> typename F>
+    struct gather
+    {
+        using prev = stable_partition_t<b, p, T, negaf<F>::template apply>;
+        using next = stable_partition_t<p, e, typeof_t<prev>, F>;
+
+        using type = triple<typev<prev>, typev<next>, typeof_t<next>>;
+    };
+
+    template <int b, int e, int p, typename T, template <typename ...> typename F>
+    using gather_t = typeof_t<gather<b, e, p, T, F>>;
 
     template <size_t n, typename T, template <typename, typename> typename comparator = less_equal_t>
     struct nth_pivot
@@ -6932,7 +6945,7 @@ namespace monster
         template <int p, int r, typename U, bool = (p < r)>
         struct sort
         {
-            using pivot = typename randomized_stable_partition<p, r, U, comparator>::impl;
+            using pivot = randomized_stable_partition_t<p, r, U, comparator>;
             using left = typeof_t<sort<p, typev<pivot> - 1, typeof_t<pivot>>>;
 
             using type = typeof_t<sort<typev<pivot>, r, left>>;
