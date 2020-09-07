@@ -378,6 +378,9 @@ int main(int argc, char* argv[])
     execute<is_sorted_v<std::index_sequence<2, 3, 4, 4, 4, 5, 6, 8, 9, 9>>>();
     execute<is_partitioned_v<is_even, std::integer_sequence<int, 2, 8, 6, 4, 0, 5, 7, 3, 1>>>();
 
+    execute<is_partitioned_until_v<is_even, std::integer_sequence<int, 2, 8, 6, 4, 5, 7, 3, 8, 6>>, 7>();
+    execute<is_partitioned_until_v<is_even, std::integer_sequence<int, 1, 0, 8, 4, 5, 7, 3, 8, 6>>, 1>();
+
     execute<is_permutation_v<std::index_sequence<1, 2, 3, 4, 5>, std::index_sequence<3, 5, 4, 1, 2>>>();
     execute<!is_permutation_v<std::index_sequence<1, 2, 3, 4, 5>, std::index_sequence<3, 5, 4, 1, 1>>>();
 
@@ -1084,10 +1087,10 @@ int main(int argc, char* argv[])
     execute<transform_while_t<succ, is_even, std::integer_sequence<int>,
             std::integer_sequence<int, 0, 2, 4, 2, 1, 8, 4>>, std::integer_sequence<int, 1, 3, 5, 3>>();
 
-    execute<is_palindromic_v<std::tuple<int, double, int, int, double, int>>>();
-    execute<is_palindromic_v<std::integer_sequence<int, 3, 0, 2, 1, 2, 0, 3>>>();
-    execute<!is_palindromic_v<std::tuple<int, double, char, int, int, double, int>>>();
-    execute<!is_palindromic_v<std::integer_sequence<int, 0, 2, 1, 2, 0, 3>>>();
+    execute<is_palindrome_v<std::tuple<int, double, int, int, double, int>>>();
+    execute<is_palindrome_v<std::integer_sequence<int, 3, 0, 2, 1, 2, 0, 3>>>();
+    execute<!is_palindrome_v<std::tuple<int, double, char, int, int, double, int>>>();
+    execute<!is_palindrome_v<std::integer_sequence<int, 0, 2, 1, 2, 0, 3>>>();
 
     execute<subset_v<std::integer_sequence<int, 4>, std::integer_sequence<int, 4>>>();
     execute<!subset_v<std::integer_sequence<int, 4, 5, 6>, std::integer_sequence<int, 4>>>();

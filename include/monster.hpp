@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 55
+#define MONSTER_VERSION 56
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5206,7 +5206,7 @@ namespace monster
     inline constexpr auto and_v = typev<and_t<T>>;
 
     template <typename T, auto N = sizeof_t_v<T>>
-    struct is_palindromic
+    struct is_palindrome
     {
         template <auto i, typename U>
         using impl = is_same<i, N - i - 1, T, U, is_tuple_v<T>>;
@@ -5215,7 +5215,7 @@ namespace monster
     };
 
     template <typename T>
-    inline constexpr auto is_palindromic_v = std::is_same_v<T, reverse_t<T>>;
+    inline constexpr auto is_palindrome_v = std::is_same_v<T, reverse_t<T>>;
 
     template <bool B, template <typename ...> typename F, typename T>
     struct for_each
@@ -5280,13 +5280,13 @@ namespace monster
     template <typename T, template <typename, typename> typename comparator = less_t>
     inline constexpr auto is_sorted_v = typev<is_sorted<T, comparator>>;
 
-    template <template <typename ...> typename F, typename T>
+    template <template <typename ...> typename F, typename T, bool P = false>
     struct is_partitioned
     {
         static constexpr auto N = sizeof_t_v<T>;
 
         template <bool B, size_t i, size_t j>
-        struct impl : std::conditional_t<typev<F<element_t<i, T>>> == B, impl<B, i + 1, j>, int_<i + 1>>
+        struct impl : std::conditional_t<typev<F<element_t<i, T>>> == B, impl<B, i + 1, j>, int_<i>>
         {
         };
 
@@ -5298,11 +5298,19 @@ namespace monster
         static constexpr auto l = typev<impl<1, 0, N>>;
         static constexpr auto r = typev<impl<0, l, N>>;
 
-        static constexpr auto value = l == N || r == N;
+        static constexpr auto value = type_if_v<P, int_<l == N ? l : r>, std::bool_constant<l == N || r == N>>;
+    };
+
+    template <template <typename ...> typename F, typename T, bool P = false>
+    inline constexpr auto is_partitioned_v = typev<is_partitioned<F, T, P>>;
+
+    template <template <typename ...> typename F, typename T>
+    struct is_partitioned_until : is_partitioned<F, T, true>
+    {
     };
 
     template <template <typename ...> typename F, typename T>
-    inline constexpr auto is_partitioned_v = typev<is_partitioned<F, T>>;
+    inline constexpr auto is_partitioned_until_v = typev<is_partitioned_until<F, T>>;
 
     template <typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
     struct is_permutation

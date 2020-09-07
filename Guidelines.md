@@ -1450,10 +1450,10 @@ auto h4 = has_duplicates_v<std::integer_sequence<int, 1, 2, 3, 1, 4>>;
 // h4 == true
 
 // determine whether a type is palindrome
-auto b3 = is_palindromic_v<std::tuple<int, double, int, int, double, int>>;
-auto b4 = is_palindromic_v<std::integer_sequence<int, 3, 0, 2, 1, 2, 0, 3>>;
-auto b5 = is_palindromic_v<std::tuple<int, double, char, int, int, double, int>>;
-auto b6 = is_palindromic_v<std::integer_sequence<int, 4, 2, -1, 2, 0, 3, -2, 4>>;
+auto b3 = is_palindrome_v<std::tuple<int, double, int, int, double, int>>;
+auto b4 = is_palindrome_v<std::integer_sequence<int, 3, 0, 2, 1, 2, 0, 3>>;
+auto b5 = is_palindrome_v<std::tuple<int, double, char, int, int, double, int>>;
+auto b6 = is_palindrome_v<std::integer_sequence<int, 4, 2, -1, 2, 0, 3, -2, 4>>;
 // b3 == true
 // b4 == true
 // b5 == false
