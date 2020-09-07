@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 56
+#define MONSTER_VERSION 57
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6090,6 +6090,31 @@ namespace monster
 
     template <typename T, template <typename> typename F, int B = 0, int E = sizeof_t_v<T>>
     inline constexpr auto partition_point_v = typev<partition_point_t<T, F, B, E>>;
+
+    template <template <typename ...> typename F, typename T>
+    struct partition_copy
+    {
+        using base = base_type_t<T>;
+
+        template <size_t i, size_t j, typename U, typename V>
+        struct impl
+        {
+            using curr = element_t<i, T>;
+            static constexpr auto B = typev<F<curr>>;
+
+            using type = typeof_t<impl<i + 1, j, append_if_t<B, U, curr>, append_if_t<!B, V, curr>>>;
+        };
+
+        template <size_t j, typename U, typename V>
+        struct impl<j, j, U, V> : std::type_identity<pair_t<U, V>>
+        {
+        };
+
+        using type = typeof_t<impl<0, sizeof_t_v<T>, base, base>>;
+    };
+
+    template <template <typename ...> typename F, typename T>
+    using partition_copy_t = typeof_t<partition_copy<F, T>>;
 
     template <int p, int r, typename T, template <typename, typename> typename comparator = less_equal_t>
     struct partition

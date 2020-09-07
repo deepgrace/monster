@@ -1327,6 +1327,10 @@ int main(int argc, char* argv[])
 
     execute<partition_point_v<std::tuple<std::tuple<int>, std::tuple<int>, char, int>, is_tuple>, 2>();
 
+    using part = partition_copy_t<is_even, std::index_sequence<5, 8, 0, 3, 2, 4, 7, 1, 6, 9>>;
+    execute<first_t<part>, std::index_sequence<8, 0, 2, 4, 6>>();
+    execute<second_t<part>, std::index_sequence<5, 3, 7, 1, 9>>();
+
     execute<stable_sort_t<std::tuple<double, uint64_t, double, float, int, char, float, char, double>>,
             std::tuple<char, char, float, int, float, double, uint64_t, double, double>>();
 
