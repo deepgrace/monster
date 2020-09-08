@@ -933,7 +933,7 @@ int main(int argc, char* argv[])
     }, 1, 2.3, "[]<typename ...>(){}();");
 
     auto tuple = std::make_tuple(1, 2, 3.0, 2, 4);
-    std::cout << "tuple_apply " << tuple_apply([](auto... args){ return (args + ...); }, tuple) << std::endl;
+    std::cout << "tuple_apply " << tuple_apply(tuple, [](auto... args){ return (args + ...); }) << std::endl;
     std::cout << "tuple_reverse " << std::get<0>(tuple_reverse(tuple)) << std::endl;
     std::cout << "tuple_prepend " << std::get<0>(tuple_prepend(tuple, 0)) << std::endl;
     std::cout << "tuple_append " << std::get<5>(tuple_append(tuple, 8)) << std::endl;
@@ -953,7 +953,8 @@ int main(int argc, char* argv[])
     std::cout << "tuple_take_back " << std::get<2>(tuple_take_back<3>(tuple)) << std::endl;
     std::cout << "tuple_drop_front " << std::get<0>(tuple_drop_front<3>(tuple)) << std::endl;
     std::cout << "tuple_drop_back " << std::get<1>(tuple_drop_back<3>(tuple)) << std::endl;
-    std::cout << "tuple_zip " << std::get<1>(tuple_zip(tuple, std::make_tuple(7, 5))) << std::endl;
+    auto trans = tuple_transpose(std::make_tuple(tuple, std::make_tuple(7, 5)));
+    std::cout << "tuple_transpose " << std::get<0>(std::get<1>(trans)) << std::endl;
     tuple_fill<3>(tuple, 3, 5);
     std::cout << "tuple_fill " << std::get<4>(tuple) << std::endl;
     std::cout << "tuple_splat " << std::get<2>(tuple_splat<2, 5>(tuple)) << std::endl;

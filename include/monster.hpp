@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 60
+#define MONSTER_VERSION 61
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4413,7 +4413,7 @@ namespace monster
     inline constexpr auto is_even_v = typev<is_even<T>>;
 
     template <typename F, typename... Args>
-    decltype(auto) tuple_apply(F&& f, const std::tuple<Args...>& t)
+    decltype(auto) tuple_apply(const std::tuple<Args...>& t, F&& f)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -4845,16 +4845,6 @@ namespace monster
                apply(std::forward<T>(t), std::forward<U>(u));
     }
 
-    template <typename... Args, typename... args>
-    auto tuple_zip(const std::tuple<Args...>& lhs, const std::tuple<args...>& rhs)
-    {
-        return [&]<size_t... N>(const std::index_sequence<N...>&)
-        {
-            return std::tuple_cat(std::make_tuple(std::get<N>(lhs), std::get<N>(rhs))...);
-        }
-        (index_sequence_of_c<min_v<sizeof_v<Args...>, sizeof_v<args...>>>());
-    }
-
     template <typename T, template <typename, bool> typename comp, bool b, typename... Args>
     using extreme = std::conditional_t<!sizeof_v<Args...>, std::type_identity<T>, comp<tuple_t<T, Args...>, b>>;
 
@@ -4896,6 +4886,24 @@ namespace monster
 
     template <typename T>
     inline constexpr auto min_element_v = typev<min_element_t<T>>;
+
+    template <typename... Args>
+    decltype(auto) tuple_zip(Args&&... args)
+    {
+        auto row = [&]<size_t n>(){ return std::make_tuple(std::get<n>(args)...); };
+        using indices = std::index_sequence<std::tuple_size_v<std::remove_cvref_t<Args>>...>;
+
+        return [&]<size_t... N>(const std::index_sequence<N...>&)
+        {
+            return std::make_tuple(row.template operator()<N>()...);
+        }(index_sequence_of_c<min_element_v<indices>>());
+    }
+
+    template <typename... Args>
+    decltype(auto) tuple_transpose(const std::tuple<Args...>& t)
+    {
+        return tuple_apply(t, [](auto&&... args) { return tuple_zip(args...); });
+    }
 
     template <typename T>
     using max_element = minmax<T, false>;
