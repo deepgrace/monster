@@ -381,6 +381,12 @@ auto f15 = find_if_not_backward_v<is_even, std::index_sequence<7, 3, 5, 4, 9, 0,
 // f14 == 5
 // f15 == 7
 
+// find first of
+auto f16 = find_first_of_v<std::tuple<int, char, short, double>, std::tuple<float, nullptr_t, char>>;
+auto f17 = find_first_of_v<std::index_sequence<4, 0, 3, 7, 5>, std::index_sequence<9, 8, 3, 6>>;
+// f16 == 1
+// f17 == 2
+
 // any_of: apply an unary predicate to the sequence in the range [begin, end)
 auto a1 = any_of_v<is_odd, std::integer_sequence<int, 1, 3, 2, 7, 8, 0, 1, -2, 4, 5>, 0, 10>;
 auto a2 = any_of_v<is_tuple, std::tuple<int, char, std::tuple<char>, double,

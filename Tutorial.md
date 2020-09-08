@@ -1334,6 +1334,9 @@ int main(int argc, char* argv[])
     execute<first_t<part>, std::index_sequence<8, 0, 2, 4, 6>>();
     execute<second_t<part>, std::index_sequence<5, 3, 7, 1, 9>>();
 
+    execute<find_first_of_v<std::tuple<int, char, short, double>, std::tuple<float, nullptr_t, char>>, 1>();
+    execute<find_first_of_v<std::index_sequence<4, 0, 3, 7, 5>, std::index_sequence<9, 8, 3, 6>>, 2>();
+
     execute<stable_sort_t<std::tuple<double, uint64_t, double, float, int, char, float, char, double>>,
             std::tuple<char, char, float, int, float, double, uint64_t, double, double>>();
 

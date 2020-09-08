@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 58
+#define MONSTER_VERSION 59
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -75,7 +75,7 @@ namespace monster
     using typeof_t = typename typeof<T>::type;
 
     template <typename T>
-    inline constexpr auto typeof_v = typev<typeof<T>>;
+    inline constexpr auto typeof_v = typev<typeof_t<T>>;
 
     template <bool B, typename T, typename U>
     using type_if = typeof_t<std::conditional_t<B, T, U>>;
@@ -5354,6 +5354,39 @@ namespace monster
 
     template <typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
     inline constexpr auto is_permutation_v = typev<is_permutation<T, U, B1, E1, B2, E2>>;
+
+    template <typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>,
+    auto B2 = 0, auto E2 = sizeof_t_v<U>, template <typename ...> typename F = std::is_same>
+    struct find_first_of
+    {
+        template <int i, int j, int k>
+        struct inner : std::conditional_t<typev<F<element_t<k, T>, element_t<i, U>>>, index_upper<1, int_<k>>, inner<i + 1, j, k>>
+        {
+        };
+
+        template <int j, int k>
+        struct inner<j, j, k> : index_upper<0, int_<j>>
+        {
+        };
+
+        template <int i, int j>
+        struct outer
+        {
+            using curr = typeof_t<inner<B2, E2, i>>;
+            using type = type_if<typev<curr>, curr, outer<i + 1, j>>;
+        };
+
+        template <int j>
+        struct outer<j, j> : int_<j>
+        {
+        };
+
+        static constexpr auto value = typeof_v<outer<B1, E1>>;
+    };
+
+    template <typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>,
+    auto B2 = 0, auto E2 = sizeof_t_v<U>, template <typename ...> typename F = std::is_same>
+    inline constexpr auto find_first_of_v = typev<find_first_of<T, U, B1, E1, B2, E2, F>>;
 
     template <typename T, typename U>
     struct subset
