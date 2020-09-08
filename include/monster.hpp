@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 59
+#define MONSTER_VERSION 60
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -828,7 +828,7 @@ namespace monster
     };
 
     template <template <typename, auto ...> typename L, template <typename, auto ...> typename R, typename T, auto... t, typename U, auto... u>
-    struct rename<L<T, t...>, R<U, u...>> : std::type_identity<R<T, t...>>
+    struct rename<L<T, t...>, R<U, u...>> : std::type_identity<R<U, t...>>
     {
     };
 
@@ -2056,7 +2056,7 @@ namespace monster
             using type = std::integer_sequence<U, typev<F<N + V, W>>...>;
         };
 
-        using type = type_if<is_bool_v<head>, next<args, false>,  impl<args, sizeof...(values) != 1 || value>>;
+        using type = type_if<is_bool_v<head>, next<args, false>, impl<args, sizeof...(values) != 1 || value>>;
     };
 
     template <template <auto, typename> typename F, template <typename, auto ...> typename T, typename U, auto... values, auto... N>
@@ -2752,7 +2752,7 @@ namespace monster
         struct impl
         {
             static constexpr auto value = search_v<F, T, U, i, E1, B2, E2>;
-            using type = type_if<value == E1, int_<j>,  impl<value + 1, value>>;
+            using type = type_if<value == E1, int_<j>, impl<value + 1, value>>;
         };
 
         using type = type_if<B2 == E2, int_<E1>, impl<B1, E1>>;
@@ -2999,7 +2999,7 @@ namespace monster
         static constexpr auto N = sizeof_t_v<T>;
 
         template <auto i, typename U>
-        using impl = element<N - i - 1,  U>;
+        using impl = element<N - i - 1, U>;
 
         using type = invoke_of<T, expand<impl, T, index_sequence_of_c<N>>>;
     };
@@ -4296,6 +4296,9 @@ namespace monster
 
     template <auto n, auto v>
     using fill_c = typeof_t<fill<n, int_<v>>>;
+
+    template <auto n, auto v>
+    using index_sequence_c = rename_t<fill_c<n, v>, std::index_sequence<>>;
 
     template <bool B, auto n, typename T>
     struct fill_if : std::conditional<B, fill_t<n, T>, T>
@@ -7553,6 +7556,65 @@ namespace monster
 
     template <int n = 3>
     using hanoi_t = typeof_t<hanoi<n>>;
+
+    template <typename T, int B = 0, int E = sizeof_t_v<T>>
+    struct lis
+    {
+        template <int i, int j, int k, typename U, bool = i <= j>
+        struct search
+        {
+            static constexpr auto mid = (i + j) / 2;
+            static constexpr auto value = less_v<element_t<B + element_v<mid, U>, T>, element_t<B + k, T>>;
+
+            using type = type_if<value, search<mid + 1, j, k, U>, search<i, mid - 1, k, U>>;
+        };
+
+        template <int i, int j, int k, typename U>
+        struct search<i, j, k, U, false> : int_<i>
+        {
+        };
+
+        template <int i, int j, typename U, bool>
+        struct update : exchange<j, int_<i>, U>
+        {
+        };
+
+        template <int i, int j, typename U>
+        struct update<i, j, U, false>
+        {
+            using type = exchange_if_t<less_v<element_t<B + i, T>, element_t<B + element_v<j, U>, T>>, j, int_<i>, U>;
+        };
+
+        template <int i, int j, int k, typename U, typename V>
+        struct impl
+        {
+            static constexpr auto l = typeof_v<search<1, k, i, V>>;
+            using type = typeof_t<impl<i + 1, j, max_v<l, k>, exchange_c<i, element_v<l - 1, V>, U>, typeof_t<update<i, l, V, k < l>>>>; 
+        };
+
+        template <int j, int k, typename U, typename V>
+        struct impl<j, j, k, U, V> : std::type_identity<triple<k, element_v<k, V>, U>>
+        {
+        };
+
+        using call = typeof_t<impl<B, E, 0, fill_c<E, 0>, fill_c<E + 1, 0>>>;
+
+        template <int i, int j, typename U>
+        struct reconstruct : reconstruct<i - 1, element_v<j, typeof_t<call>>, exchange_t<i, int_<B + j>, U>>
+        {
+        };
+
+        template <int j, typename U>
+        struct reconstruct<0, j, U> : exchange<0, int_<B + j>, U>
+        {
+        };
+
+        static constexpr auto l = first_v<call>;
+        using type = typeof_t<reconstruct<l - 1, second_v<call>, index_sequence_c<l, 0>>>;
+    };
+
+    template <typename T, int B = 0, int E = sizeof_t_v<T>>
+    using lis_t = typeof_t<lis<T, B, E>>;
 }
 
 #endif
