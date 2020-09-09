@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 61
+#define MONSTER_VERSION 62
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3902,6 +3902,26 @@ namespace monster
         (std::make_integer_sequence<type, E - B>());
     }
 
+    template <typename... Args, typename F>
+    requires is_variadic_pack_v<Args...>
+    constexpr void for_pack(F&& f)
+    {
+        [&]<auto... N>(const std::index_sequence<N...>&)
+        {
+            if constexpr ((is_variadic_type_v<Args> && ...))
+                ([&]<auto n, template <typename ...> typename T, typename... args>(const T<args...>&)
+                {
+                    for_type<args...>(f);
+                }.template operator()<N>(Args()), ...);
+            else
+                ([&]<auto n, template <typename, auto ...> typename T, typename U, auto... args>(const T<U, args...>&)
+                {
+                    for_value<args...>(f);
+                }.template operator()<N>(Args()), ...);
+        }
+        (std::index_sequence_for<Args...>());
+    }
+
     struct universal
     {
         template <typename T>
@@ -4411,6 +4431,12 @@ namespace monster
 
     template <typename T>
     inline constexpr auto is_even_v = typev<is_even<T>>;
+
+    template <typename T>
+    consteval auto index_value(T&& t)
+    {
+        return std::remove_cvref_t<decltype(t)>::value;
+    }
 
     template <typename F, typename... Args>
     decltype(auto) tuple_apply(const std::tuple<Args...>& t, F&& f)

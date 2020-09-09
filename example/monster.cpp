@@ -896,12 +896,22 @@ int main(int argc, char* argv[])
         std::cout<< N << std::endl;
     });
 
+    for_pack<std::index_sequence<5, 4, 7>, std::integer_sequence<int, 1, -2, 3>>([]<auto N>()
+    {
+        std::cout<< N << std::endl;
+    });
+
     for_range<4, 7>([]<auto N>()
     {
         std::cout<< N << std::endl;
     });
 
     for_type<double, int, char>([]<auto N, typename T>()
+    {
+        std::cout << N << " " << typeid(T).name() << std::endl;
+    });
+
+    for_pack<std::tuple<double, int, char>, std::tuple<short, float>>([]<auto N, typename T>()
     {
         std::cout << N << " " << typeid(T).name() << std::endl;
     });
