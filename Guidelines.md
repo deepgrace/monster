@@ -922,8 +922,10 @@ using matrix = std::tuple<std::tuple<char,   int,    double>,
                           std::tuple<double, char,   int>,
                           std::tuple<double, int,    char>>;
 
-using m = matrix_element_t<3, 1, matrix>;
+using m = get_matrix_element_t<3, 1, matrix>;
+using n = set_matrix_element_t<3, 1, nullptr_t, matrix>;
 // m == double
+// get_matrix_element_t<3, 1, n> == nullptr_t
 
 using t = transpose_t<matrix>;
 // t == std::tuple<std::tuple<char,   char,   int,    int,    double, double>,
@@ -1466,10 +1468,10 @@ auto b6 = is_palindrome_v<std::integer_sequence<int, 4, 2, -1, 2, 0, 3, -2, 4>>;
 // b6 == false
 
 // subset check
-auto s1 = subset_v<std::integer_sequence<int, 4>, std::integer_sequence<int, 4>>;
-auto s2 = subset_v<std::integer_sequence<int, 4, 5, 6>, std::integer_sequence<int, 4>>;
-auto s3 = subset_v<std::integer_sequence<int, 4, 5, 6>, std::integer_sequence<int, 1, 3, 4, 5, 6, 7>>;
-auto s4 = subset_v<std::tuple<float, char, double>, std::tuple<double, char, float, char, double, int>>;
+auto s1 = is_subset_v<std::integer_sequence<int, 4>, std::integer_sequence<int, 4>>;
+auto s2 = is_subset_v<std::integer_sequence<int, 4, 5, 6>, std::integer_sequence<int, 4>>;
+auto s3 = is_subset_v<std::integer_sequence<int, 4, 5, 6>, std::integer_sequence<int, 1, 3, 4, 5, 6, 7>>;
+auto s4 = is_subset_v<std::tuple<float, char, double>, std::tuple<double, char, float, char, double, int>>;
 // s1 == true
 // s2 == false
 // s3 == true

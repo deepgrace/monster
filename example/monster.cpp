@@ -163,9 +163,9 @@ int main(int argc, char* argv[])
 
     execute<value_t<std::true_type>, bool>();
 
-    execute<!has_value_v<int>>();
-    execute<negav<has_value<double>>>();
-    execute<has_value_v<std::true_type>>();
+    execute<!has_value_type_v<int>>();
+    execute<negav<has_value_type<double>>>();
+    execute<has_value_type_v<std::true_type>>();
 
     execute<first_t<pair_t<int, char>>, int>();
     execute<second_t<pair_t<float, double>>, double>();
@@ -739,6 +739,10 @@ int main(int argc, char* argv[])
     execute<range_t<1, 4, std::integer_sequence<int, 1, 2, -2, 4, 3, 5>>,
             std::integer_sequence<int, 2, -2, 4>>();
 
+    execute<subset_t<1, 3, std::tuple<int, char, float, double, int>>, std::tuple<char, float, double>>();
+    execute<subset_t<1, 3, std::integer_sequence<int, 1, 2, -2, 4, 3, 5>>,
+            std::integer_sequence<int, 2, -2, 4>>();
+
     execute<pivot_t<3, std::tuple<int, char, char, int, int>>, std::tuple<int, int, int, char, char>>();
     execute<pivot_t<3, std::index_sequence<0, 1, 2, 3, 4, 5>>, std::index_sequence<3, 4, 5, 0, 1, 2>>();
 
@@ -1103,11 +1107,11 @@ int main(int argc, char* argv[])
     execute<!is_palindrome_v<std::tuple<int, double, char, int, int, double, int>>>();
     execute<!is_palindrome_v<std::integer_sequence<int, 0, 2, 1, 2, 0, 3>>>();
 
-    execute<subset_v<std::integer_sequence<int, 4>, std::integer_sequence<int, 4>>>();
-    execute<!subset_v<std::integer_sequence<int, 4, 5, 6>, std::integer_sequence<int, 4>>>();
-    execute<subset_v<std::integer_sequence<int, 4, 5, 6>,
+    execute<is_subset_v<std::integer_sequence<int, 4>, std::integer_sequence<int, 4>>>();
+    execute<!is_subset_v<std::integer_sequence<int, 4, 5, 6>, std::integer_sequence<int, 4>>>();
+    execute<is_subset_v<std::integer_sequence<int, 4, 5, 6>,
             std::integer_sequence<int, 1, 2, 3, 4, 5, 6, 7>>>();
-    execute<subset_v<std::tuple<float, char, double>,
+    execute<is_subset_v<std::tuple<float, char, double>,
             std::tuple<int, double, char, float, char, double, int>>>();
 
     execute<cartesian_product_t<std::tuple<int, double>, std::tuple<char, float>>,
@@ -1162,7 +1166,7 @@ int main(int argc, char* argv[])
                               std::tuple<double, char, int>,
                               std::tuple<double, int, char>>;
 
-    execute<matrix_element_t<3, 1, list_t>, double>();
+    execute<get_matrix_element_t<3, 1, list_t>, double>();
 
     execute<transpose_t<list_t>, std::tuple<std::tuple<char, char, int, int, double, double>,
             std::tuple<int, double, char, double, char, int>,
@@ -1180,6 +1184,10 @@ int main(int argc, char* argv[])
                               std::integer_sequence<int, 2, 3, 1>,
                               std::integer_sequence<int, 3, 1, 2>,
                               std::integer_sequence<int, 3, 2, 1>>;
+
+    execute<get_matrix_element_v<3, 1, list_n>, 3>();
+    using sme = set_matrix_element_c<3, 1, 7, list_n>;
+    execute<get_matrix_element_v<3, 1, sme>, 7>();
 
     execute<next_permutation_list<std::integer_sequence<int, 1, 2, 3>>, list_n>();
     execute<prev_permutation_list<std::integer_sequence<int, 3, 2, 1>>, reverse_t<list_n>>();
@@ -1358,6 +1366,11 @@ int main(int argc, char* argv[])
     execute<find_first_of_v<std::index_sequence<4, 0, 3, 7, 5>, std::index_sequence<9, 8, 3, 6>>, 2>();
 
     execute<lis_t<std::integer_sequence<int, 10, 22, 9, 33, 21, 50, 70, 60, 80>>, std::index_sequence<0, 1, 3, 5, 7, 8>>();
+
+    execute<lcs_t<std::tuple<int, char, short, double, char, short, char, int>,
+            std::tuple<char, double, short, int, char, short>>, std::tuple<char, short, char, short>>();
+    execute<lcs_t<std::index_sequence<2, 5, 3, 1, 6, 7, 4, 8>, std::index_sequence<7, 2, 9, 3, 8, 6, 0, 4, 9, 8>>,
+            std::index_sequence<2, 3, 6, 4, 8>>();
 
     execute<stable_sort_t<std::tuple<double, uint64_t, double, float, int, char, float, char, double>>,
             std::tuple<char, char, float, int, float, double, uint64_t, double, double>>();

@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 62
+#define MONSTER_VERSION 63
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -90,22 +90,35 @@ namespace monster
     using conditional_of = std::conditional_t<typev<T>, U, V>;
 
     template <typename T, typename = std::void_t<>>
-    struct has_value : std::false_type
+    struct has_type : std::false_type
+    {
+    };
+
+    template <typename T>
+    struct has_type<T, std::void_t<typename T::type>> : std::true_type
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto has_type_v = typev<has_type<T>>;
+
+    template <typename T, typename = std::void_t<>>
+    struct has_value_type : std::false_type
     {
         using value_type = int;
     };
 
     template <typename T>
-    struct has_value<T, std::void_t<value_t<T>>> : std::true_type
+    struct has_value_type<T, std::void_t<value_t<T>>> : std::true_type
     {
         using value_type = value_t<T>;
     };
 
     template <typename T>
-    using has_value_t = value_t<has_value<T>>;
+    using has_value_type_t = value_t<has_value_type<T>>;
 
     template <typename T>
-    inline constexpr auto has_value_v = typev<has_value<T>>;
+    inline constexpr auto has_value_type_v = typev<has_value_type<T>>;
 
     template <typename T, typename = std::void_t<>>
     struct has_new : std::false_type
@@ -2007,7 +2020,7 @@ namespace monster
         using args = T<Args...>;
         using head = typeof_t<F<head_v<std::index_sequence<N...>>, args>>;
 
-        using type = std::integer_sequence<has_value_t<head>, sizeof_t_v<typeof_t<F<N, args>>>...>;
+        using type = std::integer_sequence<has_value_type_t<head>, sizeof_t_v<typeof_t<F<N, args>>>...>;
     };
 
     template <template <auto, typename> typename F, template <typename ...> typename T, typename... Args, auto... N>
@@ -2101,7 +2114,7 @@ namespace monster
         };
 
         using head = typeof_t<F<head_v<std::index_sequence<N...>, V>, T>>;
-        using type = typeof_t<impl<T, negav<has_value<head>>>>;
+        using type = typeof_t<impl<T, negav<has_value_type<head>>>>;
     };
 
     template <template <auto, typename> typename F, typename T, auto V>
@@ -2331,6 +2344,14 @@ namespace monster
 
     template <bool B, auto lower, auto upper, typename T>
     using range_if_t = typeof_t<range_if<B, lower, upper, T>>;
+
+    template <auto pos, auto len, typename T>
+    struct subset : range<pos, pos + len, T>
+    {
+    };
+
+    template <auto pos, auto len, typename T>
+    using subset_t = typeof_t<subset<pos, len, T>>;
 
     template <auto N, typename T>
     struct pivot : concat<range_t<N, sizeof_t_v<T>, T>, range_t<0, N, T>>
@@ -4308,7 +4329,7 @@ namespace monster
         template <template <auto, typename> typename F>
         using call = expand<F, T, index_sequence_of_c<n>>;
 
-        using type = type_if<has_value_v<T>, call<impl>, call<identity>>;
+        using type = type_if<!has_type_v<T> || !has_value_type_v<T>, call<identity>, call<impl>>;
     };
 
     template <auto n, typename T>
@@ -4512,6 +4533,12 @@ namespace monster
             return std::make_tuple(std::get<N>(t)...);
         }
         (integer_sequence_t<size_t, j - i, i, 1>());
+    }
+
+    template <auto pos, auto len, typename... Args>
+    auto tuple_subset(const std::tuple<Args...>& t)
+    {
+        return tuple_range<pos, pos + len>(t);
     }
 
     template <auto i, auto j, typename... Args>
@@ -5426,7 +5453,7 @@ namespace monster
     inline constexpr auto find_first_of_v = typev<find_first_of<T, U, B1, E1, B2, E2, F>>;
 
     template <typename T, typename U>
-    struct subset
+    struct is_subset
     {
         static constexpr auto M = sizeof_t_v<T>;
         static constexpr auto N = sizeof_t_v<U>;
@@ -5448,7 +5475,7 @@ namespace monster
     };
 
     template <typename T, typename U>
-    inline constexpr auto subset_v = typev<subset<T, U>>;
+    inline constexpr auto is_subset_v = typev<is_subset<T, U>>;
 
     template <typename... Args>
     struct store
@@ -5467,7 +5494,7 @@ namespace monster
             using type = std::integer_sequence<value_t<first>, typev<args>...>;
         };
 
-        using type = typeof_t<impl<negav<has_value<first>>, Args...>>;
+        using type = typeof_t<impl<negav<has_value_type<first>>, Args...>>;
     };
 
     template <typename... Args>
@@ -5672,12 +5699,26 @@ namespace monster
     using zip_with_t = typeof_t<zip_with<F, T, U>>;
 
     template <auto row, auto col, typename T>
-    struct matrix_element : element<col, element_t<row, T>>
+    struct get_matrix_element : element<col, element_t<row, T>>
     {
     };
 
     template <auto row, auto col, typename T>
-    using matrix_element_t = typeof_t<matrix_element<row, col, T>>;
+    using get_matrix_element_t = typeof_t<get_matrix_element<row, col, T>>;
+
+    template <auto row, auto col, typename T>
+    inline constexpr auto get_matrix_element_v = typev<get_matrix_element_t<row, col, T>>;
+
+    template <auto row, auto col, typename T, typename U>
+    struct set_matrix_element : exchange<row, exchange_t<col, T, element_t<row, U>>, U>
+    {
+    };
+
+    template <auto row, auto col, typename T, typename U>
+    using set_matrix_element_t = typeof_t<set_matrix_element<row, col, T, U>>;
+
+    template <auto row, auto col, auto v, typename U>
+    using set_matrix_element_c = set_matrix_element_t<row, col, int_<v>, U>;
 
     template <typename T>
     struct transpose
@@ -5688,7 +5729,7 @@ namespace monster
         template <int i, int j, int k, int l, typename U, typename V>
         struct impl
         {
-            using row = append_t<U, matrix_element_t<i, k, T>>;
+            using row = append_t<U, get_matrix_element_t<i, k, T>>;
             using type = typeof_t<impl<i + 1, j, k, l, row, V>>;
         };
 
@@ -7649,6 +7690,75 @@ namespace monster
 
     template <typename T, int B = 0, int E = sizeof_t_v<T>>
     using lis_t = typeof_t<lis<T, B, E>>;
+
+    template <int row, int col, auto v = 0>
+    using matrix = fill_t<row, index_sequence_c<col, v>>;
+
+    template <typename T, typename U>
+    struct lcs
+    {
+        static constexpr auto M = sizeof_t_v<T>;
+        static constexpr auto N = sizeof_t_v<U>;
+
+        template <int i, int j, typename V, bool>
+        struct search : std::type_identity<pair_t<int_<0>, int_<get_matrix_element_v<i, j, V> + 1>>>
+        {
+        };
+
+        template <int i, int j, typename V>
+        struct search<i, j, V, false>
+        {
+            using curr = get_matrix_element_t<i, j + 1, V>;
+            static constexpr auto value = get_matrix_element_v<i + 1, j, V> <= typev<curr>;
+
+            using type = pair_t<int_<value ? 1 : 2>, type_if<value, curr, get_matrix_element<i + 1, j, V>>>;
+        };
+
+        template <int i, int j, int m, int n, typename V, typename W>
+        struct next
+        {
+            using pair = typeof_t<search<i, j, W, std::is_same_v<element_t<i, T>, element_t<j, U>>>>;
+            using lhst = set_matrix_element_t<i, j, first_t<pair>, V>;
+
+            using rhst = set_matrix_element_t<i + 1, j + 1, second_t<pair>, W>;
+            using type = typeof_t<next<i, j + 1, m, n, lhst, rhst>>;
+        };
+
+        template <int i, int m, int n, typename V, typename W>
+        struct next<i, n, m, n, V, W> : next<i + 1, 0, m, n, V, W>
+        {
+        };
+
+        template <int j, int m, int n, typename V, typename W>
+        struct next<m, j, m, n, V, W> : std::type_identity<V>
+        {
+        };
+
+        template <int i, int j, typename V, typename W>
+        struct impl
+        {
+            static constexpr auto value = get_matrix_element_v<i, j, V>;
+
+            using call = prepend_if_t<value == 0, W, element_if_t<value == 0, i, T, std::type_identity<T>>>;
+            using type = typeof_t<impl<i - (value < 2), j - (value != 1), V, call>>;
+        };
+
+        template <int j, typename V, typename W>
+        struct impl<-1, j, V, W> : std::type_identity<W>
+        {
+        };
+
+        template <int i, typename V, typename W>
+        struct impl<i, -1, V, W> : std::type_identity<W>
+        {
+        };
+
+        using maps = typeof_t<next<0, 0, M, N, matrix<M, N>, matrix<M + 1, N + 1>>>;
+        using type = typeof_t<impl<M - 1, N - 1, maps, base_type_t<T>>>;
+    };
+
+    template <typename T, typename U>
+    using lcs_t = typeof_t<lcs<T, U>>;
 }
 
 #endif
