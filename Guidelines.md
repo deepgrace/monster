@@ -927,12 +927,12 @@ using n = set_matrix_element_t<3, 1, nullptr_t, matrix>;
 // m == double
 // get_matrix_element_t<3, 1, n> == nullptr_t
 
-using t = transpose_t<matrix>;
+using t = matrix_transpose_t<matrix>;
 // t == std::tuple<std::tuple<char,   char,   int,    int,    double, double>,
                    std::tuple<int,    double, char,   double, char,   int>,
                    std::tuple<double, int,    double, char,   int,    char>>
 
-// transpose_t<transpose_t<matrix>> == matrix
+// matrix_transpose_t<matrix_transpose_t<matrix>> == matrix
 
 // zip elements
 using z1 = zip_t<std::tuple<int, double>, std::tuple<char, float, nullptr_t>>;

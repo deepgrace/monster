@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 63
+#define MONSTER_VERSION 64
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5719,6 +5719,63 @@ namespace monster
 
     template <auto row, auto col, auto v, typename U>
     using set_matrix_element_c = set_matrix_element_t<row, col, int_<v>, U>;
+
+    template <typename T>
+    using matrix_type = base_type_t<element_t<0, T>>;
+
+    template <auto N, typename T>
+    struct matrix_row : element<N, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using matrix_row_t = typeof_t<matrix_row<N, T>>;
+
+    template <auto N, typename T>
+    struct matrix_column
+    {
+        template <int i, int j, typename U>
+        struct impl : impl<i + 1, j, append_t<U, get_matrix_element_t<i, N, T>>>
+        {
+        };
+
+        template <int j, typename U>
+        struct impl<j, j, U> : std::type_identity<U>
+        {
+        };
+
+        using type = typeof_t<impl<0, sizeof_t_v<T>, matrix_type<T>>>;
+    };
+
+    template <auto N, typename T>
+    using matrix_column_t = typeof_t<matrix_column<N, T>>;
+
+    template <typename T>
+    struct matrix_transpose
+    {
+        static constexpr auto row = sizeof_t_v<T>;
+        static constexpr auto col = sizeof_t_v<element_t<0, T>>;
+
+        template <int i, int j, int k, int l, typename U>
+        struct impl : impl<i, j, k + 1, l, set_matrix_element_t<k, i, get_matrix_element_t<i, k, T>, U>>
+        {
+        };
+
+        template <int i, int j, int l, typename U>
+        struct impl<i, j, l, l, U> : impl<i + 1, j, 0, l, U>
+        {
+        };
+
+        template <int j, int k, int l, typename U>
+        struct impl<j, j, k, l, U> : std::type_identity<U>
+        {
+        };
+
+        using type = typeof_t<impl<0, row, 0, col, fill_t<col, matrix_column_t<0, T>>>>;
+    };
+
+    template <typename T>
+    using matrix_transpose_t = typeof_t<matrix_transpose<T>>;
 
     template <typename T>
     struct transpose
