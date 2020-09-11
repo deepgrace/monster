@@ -934,6 +934,34 @@ using t = matrix_transpose_t<matrix>;
 
 // matrix_transpose_t<matrix_transpose_t<matrix>> == matrix
 
+using row1 = get_matrix_row_t<1, matrix>;
+using col1 = get_matrix_col_t<1, matrix>;
+// row1 == std::tuple<char, double, int>
+// col1 == std::tuple<int, double, char, double, char, int>
+
+using numbers = std::tuple<std::integer_sequence<int, 1, 2, 3>,
+                           std::integer_sequence<int, 1, 3, 2>,
+                           std::integer_sequence<int, 2, 1, 3>,
+                           std::integer_sequence<int, 2, 3, 1>,
+                           std::integer_sequence<int, 3, 1, 2>,
+                           std::integer_sequence<int, 3, 2, 1>>;
+
+using row2 = set_matrix_row_t<3, std::integer_sequence<int, 7, 8, 9>, numbers>;
+using col2 = set_matrix_col_t<1, std::integer_sequence<int, 4, 5, 6, 7, 8, 9>, numbers>;
+// row2 == std::tuple<std::integer_sequence<int, 1, 2, 3>,
+                      std::integer_sequence<int, 1, 3, 2>,
+                      std::integer_sequence<int, 2, 1, 3>,
+                      std::integer_sequence<int, 7, 8, 9>,
+                      std::integer_sequence<int, 3, 1, 2>,
+                      std::integer_sequence<int, 3, 2, 1>>
+
+// col2 == std::tuple<std::integer_sequence<int, 1, 4, 3>,
+                      std::integer_sequence<int, 1, 5, 2>,
+                      std::integer_sequence<int, 2, 6, 3>,
+                      std::integer_sequence<int, 2, 7, 1>,
+                      std::integer_sequence<int, 3, 8, 2>,
+                      std::integer_sequence<int, 3, 9, 1>>
+
 // zip elements
 using z1 = zip_t<std::tuple<int, double>, std::tuple<char, float, nullptr_t>>;
 using z2 = zip_t<std::integer_sequence<int, 1>, std::integer_sequence<int, 3>>;

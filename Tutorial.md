@@ -1163,8 +1163,8 @@ int main(int argc, char* argv[])
             std::tuple<int, double, char, double, char, int>,
             std::tuple<double, int, double, char, int, char>>>();
 
-    execute<matrix_row_t<1, list_t>, std::tuple<char, double, int>>();
-    execute<matrix_column_t<1, list_t>, std::tuple<int, double, char, double, char, int>>();
+    execute<get_matrix_row_t<1, list_t>, std::tuple<char, double, int>>();
+    execute<get_matrix_col_t<1, list_t>, std::tuple<int, double, char, double, char, int>>();
 
     execute<next_permutation_list<std::tuple<char, int, double>>, list_t>();
     execute<prev_permutation_list<std::tuple<double, int, char>>, reverse_t<list_t>>();
@@ -1182,6 +1182,22 @@ int main(int argc, char* argv[])
     execute<get_matrix_element_v<3, 1, list_n>, 3>();
     using sme = set_matrix_element_c<3, 1, 7, list_n>;
     execute<get_matrix_element_v<3, 1, sme>, 7>();
+
+    execute<set_matrix_row_t<3, std::integer_sequence<int, 7, 8, 9>, list_n>,
+            std::tuple<std::integer_sequence<int, 1, 2, 3>,
+                       std::integer_sequence<int, 1, 3, 2>,
+                       std::integer_sequence<int, 2, 1, 3>,
+                       std::integer_sequence<int, 7, 8, 9>,
+                       std::integer_sequence<int, 3, 1, 2>,
+                       std::integer_sequence<int, 3, 2, 1>>>();
+
+    execute<set_matrix_col_t<1, std::integer_sequence<int, 4, 5, 6, 7, 8, 9>, list_n>,
+            std::tuple<std::integer_sequence<int, 1, 4, 3>,
+                       std::integer_sequence<int, 1, 5, 2>,
+                       std::integer_sequence<int, 2, 6, 3>,
+                       std::integer_sequence<int, 2, 7, 1>,
+                       std::integer_sequence<int, 3, 8, 2>,
+                       std::integer_sequence<int, 3, 9, 1>>>();
 
     execute<next_permutation_list<std::integer_sequence<int, 1, 2, 3>>, list_n>();
     execute<prev_permutation_list<std::integer_sequence<int, 3, 2, 1>>, reverse_t<list_n>>();
