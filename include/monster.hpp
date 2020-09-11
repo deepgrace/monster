@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 65
+#define MONSTER_VERSION 66
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5766,17 +5766,17 @@ namespace monster
     template <auto N, typename T>
     using get_matrix_col_t = typeof_t<get_matrix_col<N, T>>;
 
-    template <auto N, typename T, typename U>
-    requires (matrix_row_size_v<T> == matrix_col_size_v<U>)
+    template <auto N, typename T, typename U, bool B = false>
+    requires (matrix_row_size_v<T> == matrix_col_size_v<U> || B)
     struct set_matrix_row : exchange<N, T, U>
     {
     };
 
-    template <auto N, typename T, typename U>
-    requires (matrix_row_size_v<T> == matrix_col_size_v<U>)
-    using set_matrix_row_t = typeof_t<set_matrix_row<N, T, U>>;
+    template <auto N, typename T, typename U, bool B = false>
+    requires (matrix_row_size_v<T> == matrix_col_size_v<U> || B)
+    using set_matrix_row_t = typeof_t<set_matrix_row<N, T, U, B>>;
 
-    template <int N, typename T, typename U>
+    template <auto N, typename T, typename U>
     requires (matrix_row_size_v<T> == matrix_row_size_v<U>)
     struct set_matrix_col : exchange<N, T, U>
     {
@@ -5793,9 +5793,159 @@ namespace monster
         using type = typeof_t<impl<0, matrix_row_size_v<U>, U>>;
     };
 
-    template <int N, typename T, typename U>
+    template <auto N, typename T, typename U>
     requires (matrix_row_size_v<T> == matrix_row_size_v<U>)
     using set_matrix_col_t = typeof_t<set_matrix_col<N, T, U>>;
+
+    template <auto lower, auto upper, typename T, template <auto, auto, typename> typename F>
+    struct matrix_row_transform : F<lower, upper, T>
+    {
+    };
+
+    template <auto lower, auto upper, typename T, template <auto, auto, typename> typename F>
+    using matrix_row_transform_t = typeof_t<matrix_row_transform<lower, upper, T, F>>;
+
+    template <auto lower, auto upper, typename T, template <auto, auto, typename> typename F>
+    struct matrix_col_transform
+    {
+        template <int i, int j, typename V>
+        struct impl : impl<i + 1, j, set_matrix_row_t<i, typeof_t<F<lower, upper, element_t<i, V>>>, V, 1>>
+        {
+        };
+
+        template <int j, typename V>
+        struct impl<j, j, V> : std::type_identity<V>
+        {
+        };
+
+        using type = typeof_t<impl<0, matrix_row_size_v<T>, T>>;
+    };
+
+    template <auto lower, auto upper, typename T, template <auto, auto, typename> typename F>
+    using matrix_col_transform_t = typeof_t<matrix_col_transform<lower, upper, T, F>>;
+
+    template <auto N, typename T, typename U>
+    requires (matrix_row_size_v<T> == matrix_col_size_v<U>)
+    struct add_matrix_row : insert<N, U, T>
+    {
+    };
+
+    template <auto N, typename T, typename U>
+    requires (matrix_row_size_v<T> == matrix_col_size_v<U>)
+    using add_matrix_row_t = typeof_t<add_matrix_row<N, T, U>>;
+
+    template <auto N, typename T, typename U>
+    requires (matrix_row_size_v<T> == matrix_row_size_v<U>)
+    struct add_matrix_col
+    {
+        template <int i, int j, typename V>
+        struct impl : impl<i + 1, j, set_matrix_row_t<i, insert_t<N, element_t<i, V>, element_t<i, T>>, V, 1>>
+        {
+        };
+
+        template <int j, typename V>
+        struct impl<j, j, V> : std::type_identity<V>
+        {
+        };
+
+        using type = typeof_t<impl<0, matrix_row_size_v<U>, U>>;
+    };
+
+    template <auto N, typename T, typename U>
+    requires (matrix_row_size_v<T> == matrix_row_size_v<U>)
+    using add_matrix_col_t = typeof_t<add_matrix_col<N, T, U>>;
+
+    template <auto N, typename T>
+    struct del_matrix_row : drop<N, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using del_matrix_row_t = typeof_t<del_matrix_row<N, T>>;
+
+    template <auto N, typename T>
+    struct del_matrix_col
+    {
+        template <int i, int j, typename U>
+        using impl = drop<i, U>;
+
+        using type = matrix_col_transform_t<N, N, T, impl>;
+    };
+
+    template <auto N, typename T>
+    using del_matrix_col_t = typeof_t<del_matrix_col<N, T>>;
+
+    template <auto row, auto col, typename T>
+    struct del_matrix_row_col : del_matrix_col<col, del_matrix_row_t<row, T>>
+    {
+    };
+
+    template <auto row, auto col, typename T>
+    using del_matrix_row_col_t = typeof_t<del_matrix_row_col<row, col, T>>;
+
+    template <auto lower, auto upper, typename T>
+    struct swap_matrix_row : matrix_row_transform<lower, upper, T, swap>
+    {
+    };
+
+    template <auto lower, auto upper, typename T>
+    using swap_matrix_row_t = typeof_t<swap_matrix_row<lower, upper, T>>;
+
+    template <auto lower, auto upper, typename T>
+    struct swap_matrix_col : matrix_col_transform<lower, upper, T, swap>
+    {
+    };
+
+    template <auto lower, auto upper, typename T>
+    using swap_matrix_col_t = typeof_t<swap_matrix_col<lower, upper, T>>;
+
+    template <auto lower, auto upper, typename T>
+    struct matrix_row_range : matrix_row_transform<lower, upper, T, range>
+    {
+    };
+
+    template <auto lower, auto upper, typename T>
+    using matrix_row_range_t = typeof_t<matrix_row_range<lower, upper, T>>;
+
+    template <auto lower, auto upper, typename T>
+    struct matrix_col_range : matrix_col_transform<lower, upper, T, range>
+    {
+    };
+
+    template <auto lower, auto upper, typename T>
+    using matrix_col_range_t = typeof_t<matrix_col_range<lower, upper, T>>;
+
+    template <auto lower, auto upper, typename T>
+    struct matrix_row_erase : matrix_row_transform<lower, upper, T, erase>
+    {
+    };
+
+    template <auto lower, auto upper, typename T>
+    using matrix_row_erase_t = typeof_t<matrix_row_erase<lower, upper, T>>;
+
+    template <auto lower, auto upper, typename T>
+    struct matrix_col_erase : matrix_col_transform<lower, upper, T, erase>
+    {
+    };
+
+    template <auto lower, auto upper, typename T>
+    using matrix_col_erase_t = typeof_t<matrix_col_erase<lower, upper, T>>;
+
+    template <auto pos, auto len, typename T>
+    struct matrix_row_subset : matrix_row_range<pos, pos + len, T>
+    {
+    };
+
+    template <auto pos, auto len, typename T>
+    using matrix_row_subset_t = typeof_t<matrix_row_subset<pos, len, T>>;
+
+    template <auto pos, auto len, typename T>
+    struct matrix_col_subset : matrix_col_range<pos, pos + len, T>
+    {
+    };
+
+    template <auto pos, auto len, typename T>
+    using matrix_col_subset_t = typeof_t<matrix_col_subset<pos, len, T>>;
 
     template <typename T>
     struct matrix_transpose
