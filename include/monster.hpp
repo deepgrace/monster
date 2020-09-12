@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 67
+#define MONSTER_VERSION 68
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5965,6 +5965,97 @@ namespace monster
 
     template <auto i, auto j, auto k, typename T>
     using matrix_col_rotate_t = typeof_t<matrix_col_rotate<i, j, k, T>>;
+
+    template <auto N, typename T>
+    struct matrix_row_reverse : set_matrix_row<N, reverse_t<get_matrix_row_t<N, T>>, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using matrix_row_reverse_t = typeof_t<matrix_row_reverse<N, T>>;
+
+    template <auto N, typename T>
+    struct matrix_col_reverse : set_matrix_col<N, reverse_t<get_matrix_col_t<N, T>>, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using matrix_col_reverse_t = typeof_t<matrix_col_reverse<N, T>>;
+
+    template <auto p, auto q, typename T, template <auto, typename> typename F1, template <auto, typename> typename F2>
+    struct matrix_reverse : F2<q, typeof_t<F1<p, T>>>
+    {
+    };
+
+    template <auto p, auto q, typename T, template <auto, typename> typename F1, template <auto, typename> typename F2>
+    using matrix_reverse_t = typeof_t<matrix_reverse<p, q, T, F1, F2>>;
+
+    template <auto row, auto col, typename T>
+    struct matrix_row_col_reverse : matrix_reverse<row, col, T, matrix_row_reverse, matrix_col_reverse>
+    {
+    };
+
+    template <auto row, auto col, typename T>
+    using matrix_row_col_reverse_t = typeof_t<matrix_row_col_reverse<row, col, T>>;
+
+    template <auto col, auto row, typename T>
+    struct matrix_col_row_reverse : matrix_reverse<col, row, T, matrix_col_reverse, matrix_row_reverse>
+    {
+    };
+
+    template <auto col, auto row, typename T>
+    using matrix_col_row_reverse_t = typeof_t<matrix_col_row_reverse<col, row, T>>;
+
+    template <auto lower, auto upper, typename T, template <auto, typename> typename F>
+    struct matrix_reverse_range
+    {
+        template <int i, int j, typename U>
+        struct impl : impl<i + 1, j, typeof_t<F<i, U>>>
+        {
+        };
+
+        template <int j, typename U>
+        struct impl<j, j, U> : std::type_identity<U>
+        {
+        };
+
+        using type = typeof_t<impl<lower, upper, T>>;
+    };
+
+    template <auto lower, auto upper, typename T, template <auto, typename> typename F>
+    using matrix_reverse_range_t = typeof_t<matrix_reverse_range<lower, upper, T, F>>;
+
+    template <auto lower, auto upper, typename T>
+    struct matrix_row_reverse_range : matrix_reverse_range<lower, upper, T, matrix_row_reverse>
+    {
+    };
+
+    template <auto lower, auto upper, typename T>
+    using matrix_row_reverse_range_t = typeof_t<matrix_row_reverse_range<lower, upper, T>>;
+
+    template <auto lower, auto upper, typename T>
+    struct matrix_col_reverse_range : matrix_reverse_range<lower, upper, T, matrix_col_reverse>
+    {
+    };
+
+    template <auto lower, auto upper, typename T>
+    using matrix_col_reverse_range_t = typeof_t<matrix_col_reverse_range<lower, upper, T>>;
+
+    template <auto row_lower, auto row_upper, auto col_lower, auto col_upper, typename T>
+    struct matrix_row_col_reverse_range : matrix_col_reverse_range<col_lower, col_upper, matrix_row_reverse_range_t<row_lower, row_upper, T>>
+    {
+    };
+
+    template <auto row_lower, auto row_upper, auto col_lower, auto col_upper, typename T>
+    using matrix_row_col_reverse_range_t = typeof_t<matrix_row_col_reverse_range<row_lower, row_upper, col_lower, col_upper, T>>; 
+
+    template <auto col_lower, auto col_upper, auto row_lower, auto row_upper, typename T>
+    struct matrix_col_row_reverse_range : matrix_row_reverse_range<row_lower, row_upper, matrix_col_reverse_range_t<col_lower, col_upper, T>>
+    {
+    };
+
+    template <auto col_lower, auto col_upper, auto row_lower, auto row_upper, typename T>
+    using matrix_col_row_reverse_range_t = typeof_t<matrix_col_row_reverse_range<col_lower, col_upper, row_lower, row_upper, T>>; 
 
     template <typename T>
     struct matrix_transpose

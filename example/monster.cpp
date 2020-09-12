@@ -1306,6 +1306,57 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, 1, 2, 3>,
                        std::integer_sequence<int, 2, 1, 3>>>();
 
+    execute<matrix_row_reverse_t<3, list_n>,
+            std::tuple<std::integer_sequence<int, 1, 2, 3>,
+                       std::integer_sequence<int, 1, 3, 2>,
+                       std::integer_sequence<int, 2, 1, 3>,
+                       std::integer_sequence<int, 1, 3, 2>,
+                       std::integer_sequence<int, 3, 1, 2>,
+                       std::integer_sequence<int, 3, 2, 1>>>();
+
+    execute<matrix_col_reverse_t<1, list_n>,
+            std::tuple<std::integer_sequence<int, 1, 2, 3>,
+                       std::integer_sequence<int, 1, 1, 2>,
+                       std::integer_sequence<int, 2, 3, 3>,
+                       std::integer_sequence<int, 2, 1, 1>,
+                       std::integer_sequence<int, 3, 3, 2>,
+                       std::integer_sequence<int, 3, 2, 1>>>();
+
+    using matrix = std::tuple<std::integer_sequence<int, 0, 1, 2, 3, 4>,
+                              std::integer_sequence<int, 5, 6, 7, 8, 9>>;
+
+    execute<matrix_row_col_reverse_t<1, 3, matrix>,
+            std::tuple<std::integer_sequence<int, 0, 1, 2, 6, 4>,
+                       std::integer_sequence<int, 9, 8, 7, 3, 5>>>();
+
+    execute<matrix_col_row_reverse_t<3, 1, matrix>,
+            std::tuple<std::integer_sequence<int, 0, 1, 2, 8, 4>,
+                       std::integer_sequence<int, 9, 3, 7, 6, 5>>>();
+
+    execute<matrix_row_reverse_range_t<2, 5, list_n>,
+            std::tuple<std::integer_sequence<int, 1, 2, 3>,
+                       std::integer_sequence<int, 1, 3, 2>,
+                       std::integer_sequence<int, 3, 1, 2>,
+                       std::integer_sequence<int, 1, 3, 2>,
+                       std::integer_sequence<int, 2, 1, 3>,
+                       std::integer_sequence<int, 3, 2, 1>>>();
+
+    execute<matrix_col_reverse_range_t<1, 3, list_n>,
+            std::tuple<std::integer_sequence<int, 1, 2, 1>,
+                       std::integer_sequence<int, 1, 1, 2>,
+                       std::integer_sequence<int, 2, 3, 1>,
+                       std::integer_sequence<int, 2, 1, 3>,
+                       std::integer_sequence<int, 3, 3, 2>,
+                       std::integer_sequence<int, 3, 2, 3>>>();
+
+    execute<matrix_row_col_reverse_range_t<0, 2, 2, 4, matrix>,
+            std::tuple<std::integer_sequence<int, 4, 3, 7, 6, 0>,
+                       std::integer_sequence<int, 9, 8, 2, 1, 5>>>();
+
+    execute<matrix_col_row_reverse_range_t<2, 4, 0, 2, matrix>,
+            std::tuple<std::integer_sequence<int, 4, 8, 7, 1, 0>,
+                       std::integer_sequence<int, 9, 3, 2, 6, 5>>>();
+
     execute<next_permutation_list<std::integer_sequence<int, 1, 2, 3>>, list_n>();
     execute<prev_permutation_list<std::integer_sequence<int, 3, 2, 1>>, reverse_t<list_n>>();
 
