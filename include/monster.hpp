@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 66
+#define MONSTER_VERSION 67
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5805,12 +5805,14 @@ namespace monster
     template <auto lower, auto upper, typename T, template <auto, auto, typename> typename F>
     using matrix_row_transform_t = typeof_t<matrix_row_transform<lower, upper, T, F>>;
 
-    template <auto lower, auto upper, typename T, template <auto, auto, typename> typename F>
+    template <auto lower, auto upper, typename T, template <auto, auto, typename> typename F, bool B = false>
     struct matrix_col_transform
     {
         template <int i, int j, typename V>
-        struct impl : impl<i + 1, j, set_matrix_row_t<i, typeof_t<F<lower, upper, element_t<i, V>>>, V, 1>>
+        struct impl
         {
+            using call = F<lower, upper, type_if<!B, element<i, V>, index_upper<i, V>>>;
+            using type = typeof_t<impl<i + 1, j, set_matrix_row_t<i, typeof_t<call>, V, 1>>>;
         };
 
         template <int j, typename V>
@@ -5821,8 +5823,8 @@ namespace monster
         using type = typeof_t<impl<0, matrix_row_size_v<T>, T>>;
     };
 
-    template <auto lower, auto upper, typename T, template <auto, auto, typename> typename F>
-    using matrix_col_transform_t = typeof_t<matrix_col_transform<lower, upper, T, F>>;
+    template <auto lower, auto upper, typename T, template <auto, auto, typename> typename F, bool B = false>
+    using matrix_col_transform_t = typeof_t<matrix_col_transform<lower, upper, T, F, B>>;
 
     template <auto N, typename T, typename U>
     requires (matrix_row_size_v<T> == matrix_col_size_v<U>)
@@ -5839,16 +5841,13 @@ namespace monster
     struct add_matrix_col
     {
         template <int i, int j, typename V>
-        struct impl : impl<i + 1, j, set_matrix_row_t<i, insert_t<N, element_t<i, V>, element_t<i, T>>, V, 1>>
+        struct impl
         {
+            static constexpr auto n = typev<V>;
+            using type = insert_t<i, element_t<n, typeof_t<V>>, element_t<n, T>>;
         };
 
-        template <int j, typename V>
-        struct impl<j, j, V> : std::type_identity<V>
-        {
-        };
-
-        using type = typeof_t<impl<0, matrix_row_size_v<U>, U>>;
+        using type = matrix_col_transform_t<N, N, U, impl, 1>;
     };
 
     template <auto N, typename T, typename U>
@@ -5946,6 +5945,26 @@ namespace monster
 
     template <auto pos, auto len, typename T>
     using matrix_col_subset_t = typeof_t<matrix_col_subset<pos, len, T>>;
+
+    template <auto i, auto j, auto k, typename T>
+    struct matrix_row_rotate : rotate<i, j, k, T>
+    {
+    };
+
+    template <auto i, auto j, auto k, typename T>
+    using matrix_row_rotate_t = typeof_t<matrix_row_rotate<i, j, k, T>>;
+
+    template <auto i, auto j, auto k, typename T>
+    struct matrix_col_rotate
+    {
+        template <auto p, auto q, typename U>
+        using impl = rotate<p, q, k, U>;
+
+        using type = matrix_col_transform_t<i, j, T, impl>;
+    };
+
+    template <auto i, auto j, auto k, typename T>
+    using matrix_col_rotate_t = typeof_t<matrix_col_rotate<i, j, k, T>>;
 
     template <typename T>
     struct matrix_transpose

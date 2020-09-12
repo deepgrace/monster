@@ -1290,6 +1290,22 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, 2>,
                        std::integer_sequence<int, 1>>>();
 
+    execute<matrix_row_rotate_t<1, 3, 5, list_n>,
+            std::tuple<std::integer_sequence<int, 1, 2, 3>,
+                       std::integer_sequence<int, 2, 3, 1>,
+                       std::integer_sequence<int, 3, 1, 2>,
+                       std::integer_sequence<int, 1, 3, 2>,
+                       std::integer_sequence<int, 2, 1, 3>,
+                       std::integer_sequence<int, 3, 2, 1>>>();
+
+    execute<matrix_col_rotate_t<0, 1, 3, list_n>,
+            std::tuple<std::integer_sequence<int, 2, 3, 1>,
+                       std::integer_sequence<int, 3, 2, 1>,
+                       std::integer_sequence<int, 1, 3, 2>,
+                       std::integer_sequence<int, 3, 1, 2>,
+                       std::integer_sequence<int, 1, 2, 3>,
+                       std::integer_sequence<int, 2, 1, 3>>>();
+
     execute<next_permutation_list<std::integer_sequence<int, 1, 2, 3>>, list_n>();
     execute<prev_permutation_list<std::integer_sequence<int, 3, 2, 1>>, reverse_t<list_n>>();
 
