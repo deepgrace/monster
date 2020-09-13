@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 68
+#define MONSTER_VERSION 69
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5914,6 +5914,14 @@ namespace monster
     template <auto lower, auto upper, typename T>
     using matrix_col_range_t = typeof_t<matrix_col_range<lower, upper, T>>;
 
+    template <auto row_lower, auto row_upper, auto col_lower, auto col_upper, typename T>
+    struct sub_matrix : matrix_col_range<col_lower, col_upper, matrix_row_range_t<row_lower, row_upper, T>>
+    {
+    };
+
+    template <auto row_lower, auto row_upper, auto col_lower, auto col_upper, typename T>
+    using sub_matrix_t = typeof_t<sub_matrix<row_lower, row_upper, col_lower, col_upper, T>>;
+
     template <auto lower, auto upper, typename T>
     struct matrix_row_erase : matrix_row_transform<lower, upper, T, erase>
     {
@@ -6056,6 +6064,16 @@ namespace monster
 
     template <auto col_lower, auto col_upper, auto row_lower, auto row_upper, typename T>
     using matrix_col_row_reverse_range_t = typeof_t<matrix_col_row_reverse_range<col_lower, col_upper, row_lower, row_upper, T>>; 
+
+    template <auto row_lower, auto row_upper, auto col_lower, auto col_upper, typename T>
+    struct sub_matrix_reverse
+    {
+        using curr = sub_matrix_t<row_lower, row_upper, col_lower, col_upper, T>;
+        using type = matrix_col_reverse_range_t<0, col_upper - col_lower, matrix_row_reverse_range_t<0, row_upper - row_lower, curr>>;
+    };
+
+    template <auto row_lower, auto row_upper, auto col_lower, auto col_upper, typename T>
+    using sub_matrix_reverse_t = typeof_t<sub_matrix_reverse<row_lower, row_upper, col_lower, col_upper, T>>;
 
     template <typename T>
     struct matrix_transpose

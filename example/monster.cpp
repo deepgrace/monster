@@ -1325,6 +1325,14 @@ int main(int argc, char* argv[])
     using matrix = std::tuple<std::integer_sequence<int, 0, 1, 2, 3, 4>,
                               std::integer_sequence<int, 5, 6, 7, 8, 9>>;
 
+    execute<sub_matrix_t<0, 2, 1, 4, matrix>,
+            std::tuple<std::integer_sequence<int, 1, 2, 3>,
+                       std::integer_sequence<int, 6, 7, 8>>>();
+
+    execute<sub_matrix_reverse_t<0, 2, 1, 4, matrix>,
+            std::tuple<std::integer_sequence<int, 8, 7, 6>,
+                       std::integer_sequence<int, 3, 2, 1>>>();
+
     execute<matrix_row_col_reverse_t<1, 3, matrix>,
             std::tuple<std::integer_sequence<int, 0, 1, 2, 6, 4>,
                        std::integer_sequence<int, 9, 8, 7, 3, 5>>>();
