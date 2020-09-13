@@ -1785,9 +1785,9 @@ auto  m3 = mode_v<std::integer_sequence<int, 1, 2, 3, 1>>;
 auto i1 = typeindex<char, float, int, char>();
 auto i2 = typeindex<int, double, int, char>();
 auto i3 = typeindex<int, double, double, float>();
-// i1 == 3
-// i2 == 2
-// i3 == 4
+// i1 == 2
+// i2 == 1
+// i3 == 3
 
 // returns the first index at which the provided element appears in the type
 auto i4 = type_index_v<int, std::tuple<char, float, double, int, char>>;

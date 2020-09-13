@@ -778,8 +778,11 @@ int main(int argc, char* argv[])
     execute<reverse_range_t<1, 4, std::integer_sequence<int, 1, 2, -2, 4, 3, 5>>,
             std::integer_sequence<int, 1, 4, -2, 2, 3, 5>>();
 
-    execute<typeindex<char, float, double, int, char>(), 4>();
-    execute<typeindex<short, float, double, int, char>(), 5>();
+    execute<typeindex<char, float, double, int, char>(), 3>();
+    execute<typeindex<short, float, double, int, char>(), 4>();
+
+    execute<valueindex<3, 7, 5, 4, 3, 8, 3>(), 3>();
+    execute<valueindex<4, 8, 6, 7, 5, 3, 4>(), 5>();
 
     execute<type_index_v<int, std::tuple<char, float, double, int, char>>, 3>();
     execute<type_index_v<uint64_t, std::tuple<char, float, double, int, char>>, 5>();

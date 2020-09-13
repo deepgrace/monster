@@ -3424,7 +3424,13 @@ namespace monster
     template <typename T, typename U = T, typename... Args>
     constexpr size_t typeindex()
     {
-        return std::is_same<T, U>() ? 1 : typeindex<T, Args...>() + 1;
+        return std::is_same<T, U>() ? 0 : typeindex<T, Args...>() + 1;
+    }
+
+    template <auto T, auto U = T, auto... Args>
+    constexpr size_t valueindex()
+    {
+        return T == U ? 0 : valueindex<T, Args...>() + 1;
     }
 
     template <typename T, typename U>
