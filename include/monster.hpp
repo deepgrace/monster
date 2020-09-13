@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 70
+#define MONSTER_VERSION 71
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -263,7 +263,7 @@ namespace monster
     };
 
     template <typename T, typename... Args>
-    struct contains<T, Args...> : std::disjunction<std::is_same<T, Args>...>
+    struct contains<T, Args...> : bool_<(std::is_same_v<T, Args> || ...)>
     {
     };
 
@@ -271,7 +271,7 @@ namespace monster
     inline constexpr auto contains_v = std::false_type{};
 
     template <typename T, typename... Args>
-    inline constexpr auto contains_v<T, Args...> = std::disjunction_v<std::is_same<T, Args>...>;
+    inline constexpr auto contains_v<T, Args...> = (std::is_same_v<T, Args> || ...);
 
     template <auto... values>
     struct comprise : std::false_type
@@ -279,7 +279,7 @@ namespace monster
     };
 
     template <auto value, auto... values>
-    struct comprise<value, values...> : std::disjunction<bool_<value == values>...>
+    struct comprise<value, values...> : bool_<((value == values) || ...)>
     {
     };
 
@@ -287,7 +287,7 @@ namespace monster
     inline constexpr auto comprise_v = std::false_type{};
 
     template <auto value, auto... values>
-    inline constexpr auto comprise_v<value, values...> = std::disjunction_v<bool_<value == values>...>;
+    inline constexpr auto comprise_v<value, values...> = ((value == values) || ...);
 
     template <typename B, typename ...>
     struct exists_type : B
@@ -463,7 +463,7 @@ namespace monster
     inline constexpr auto is_inheritable_v = typev<is_inheritable<T>>;
 
     template <typename... Args>
-    struct is_inheritable_pack : std::conjunction<is_inheritable<Args>...>
+    struct is_inheritable_pack : bool_<(is_inheritable_v<Args> && ...)>
     {
     };
 
@@ -636,7 +636,7 @@ namespace monster
     inline constexpr auto is_variadic_value_v = typev<is_variadic_value<T>>;
 
     template <typename T>
-    struct is_variadic : std::disjunction<is_variadic_type<T>, is_variadic_value<T>>
+    struct is_variadic : bool_<is_variadic_type_v<T> || is_variadic_value_v<T>>
     {
     };
 
@@ -644,7 +644,7 @@ namespace monster
     inline constexpr auto is_variadic_v = typev<is_variadic<T>>;
 
     template <typename... Args>
-    struct is_variadic_pack : std::conjunction<is_variadic<Args>...>
+    struct is_variadic_pack : bool_<(is_variadic_v<Args> && ...)>
     {
     };
 
@@ -2000,10 +2000,10 @@ namespace monster
     using flip_t = typeof_t<flip<F, Args...>>;
 
     template <typename T>
-    using is_bool = std::disjunction<std::is_same<T, std::true_type>, std::is_same<T, std::false_type>>;
+    using is_bool_type = contains<T, std::true_type, std::false_type>;
 
     template <typename T>
-    inline constexpr auto is_bool_v = typev<is_bool<T>>;
+    inline constexpr auto is_bool_type_v = typev<is_bool_type<T>>;
 
     template <template <auto, typename> typename F, typename T, typename U, auto V = 0>
     struct expand;
@@ -2069,7 +2069,7 @@ namespace monster
             using type = std::integer_sequence<U, typev<F<N + V, W>>...>;
         };
 
-        using type = type_if<is_bool_v<head>, next<args, false>, impl<args, sizeof...(values) != 1 || value>>;
+        using type = type_if<is_bool_type_v<head>, next<args, false>, impl<args, sizeof...(values) != 1 || value>>;
     };
 
     template <template <auto, typename> typename F, template <typename, auto ...> typename T, typename U, auto... values, auto... N>
@@ -6879,7 +6879,7 @@ namespace monster
     using sort_t = typeof_t<sort<T, comparator>>;
 
     template <typename T, typename U, template <typename> typename... sort>
-    inline constexpr auto sort_v = std::conjunction_v<std::is_same<typeof_t<sort<T>>, U>...>;
+    inline constexpr auto sort_v = (std::is_same_v<typeof_t<sort<T>>, U> && ...);
 
     template <typename T, template <typename, typename> typename comparator = less_equal_t>
     struct select_sort
