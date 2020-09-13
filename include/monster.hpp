@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 69
+#define MONSTER_VERSION 70
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5937,6 +5937,14 @@ namespace monster
 
     template <auto lower, auto upper, typename T>
     using matrix_col_erase_t = typeof_t<matrix_col_erase<lower, upper, T>>;
+
+    template <auto row_lower, auto row_upper, auto col_lower, auto col_upper, typename T>
+    struct matrix_row_col_erase : matrix_col_erase<col_lower, col_upper, matrix_row_erase_t<row_lower, row_upper, T>>
+    {
+    };
+
+    template <auto row_lower, auto row_upper, auto col_lower, auto col_upper, typename T>
+    using matrix_row_col_erase_t = typeof_t<matrix_row_col_erase<row_lower, row_upper, col_lower, col_upper, T>>;
 
     template <auto pos, auto len, typename T>
     struct matrix_row_subset : matrix_row_range<pos, pos + len, T>

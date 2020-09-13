@@ -1290,6 +1290,11 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, 2>,
                        std::integer_sequence<int, 1>>>();
 
+    execute<matrix_row_col_erase_t<1, 4, 1, 2, list_n>,
+            std::tuple<std::integer_sequence<int, 1, 3>,
+                       std::integer_sequence<int, 3, 2>,
+                       std::integer_sequence<int, 3, 1>>>();
+
     execute<matrix_row_rotate_t<1, 3, 5, list_n>,
             std::tuple<std::integer_sequence<int, 1, 2, 3>,
                        std::integer_sequence<int, 2, 3, 1>,
