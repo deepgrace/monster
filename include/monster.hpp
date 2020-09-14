@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 75
+#define MONSTER_VERSION 76
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6024,7 +6024,31 @@ namespace monster
     using mul_matrix_col_t = typeof_t<mul_matrix_col<N, T, U>>;
 
     template <auto N, auto M, typename T>
-    struct scale_matrix_row : set_matrix_row<N, inner_mul_t<M, get_matrix_row_t<N, T>>, T>
+    struct scale_row : inner_mul<M, get_matrix_row_t<N, T>>
+    {
+    };
+
+    template <auto N, auto M, typename T>
+    using scale_row_t = typeof_t<scale_row<N, M, T>>;
+
+    template <auto N, auto M, typename T>
+    struct scale_col : inner_mul<M, get_matrix_col_t<N, T>>
+    {
+    };
+
+    template <auto N, auto M, typename T>
+    using scale_col_t = typeof_t<scale_col<N, M, T>>;
+
+    template <auto lower, auto upper, auto M, typename T>
+    struct scale_range : replace_range<lower, upper, T, inner_mul_t<M, range_t<lower, upper, T>>>
+    {
+    };
+
+    template <auto lower, auto upper, auto M, typename T>
+    using scale_range_t = typeof_t<scale_range<lower, upper, M, T>>;
+
+    template <auto N, auto M, typename T>
+    struct scale_matrix_row : set_matrix_row<N, scale_row_t<N, M, T>, T>
     {
     };
 
@@ -6032,12 +6056,48 @@ namespace monster
     using scale_matrix_row_t = typeof_t<scale_matrix_row<N, M, T>>;
 
     template <auto N, auto M, typename T>
-    struct scale_matrix_col : set_matrix_col<N, inner_mul_t<M, get_matrix_col_t<N, T>>, T>
+    struct scale_matrix_col : set_matrix_col<N, scale_col_t<N, M, T>, T>
     {
     };
 
     template <auto N, auto M, typename T>
     using scale_matrix_col_t = typeof_t<scale_matrix_col<N, M, T>>;
+
+    template <auto lower, auto upper, auto M, typename T>
+    struct scale_matrix_row_range
+    {
+        template <int i, int j, typename U>
+        using impl = inner_mul<M, U>;
+
+        using type = matrix_col_transform_t<lower, upper, T, impl, 0, 0, 0, 1>;
+    };
+
+    template <auto lower, auto upper, auto M, typename T>
+    using scale_matrix_row_range_t = typeof_t<scale_matrix_row_range<lower, upper, M, T>>;
+
+    template <auto lower, auto upper, auto M, typename T>
+    struct scale_matrix_col_range
+    {
+        template <int i, int j, typename U>
+        using impl = scale_range<i, j, M, U>;
+
+        using type = matrix_col_transform_t<lower, upper, T, impl>;
+    };
+
+    template <auto lower, auto upper, auto M, typename T>
+    using scale_matrix_col_range_t = typeof_t<scale_matrix_col_range<lower, upper, M, T>>;
+
+    template <auto M, typename T>
+    struct scale_matrix
+    {
+        template <int i, int j, typename U>
+        using impl = inner_mul<M, U>;
+
+        using type = matrix_col_transform_t<M, M, T, impl>;
+    };
+
+    template <auto M, typename T>
+    using scale_matrix_t = typeof_t<scale_matrix<M, T>>;
 
     template <auto lower, auto upper, typename T>
     struct swap_matrix_row : matrix_row_transform<lower, upper, T, swap>

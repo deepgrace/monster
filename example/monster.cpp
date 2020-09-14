@@ -1284,6 +1284,14 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, 3, 1, 2>,
                        std::integer_sequence<int, 3, 2, 1>>>();
 
+    execute<scale_matrix_row_range_t<3, 5, 2, list_n>,
+            std::tuple<std::integer_sequence<int, 1, 2, 3>,
+                       std::integer_sequence<int, 1, 3, 2>,
+                       std::integer_sequence<int, 2, 1, 3>,
+                       std::integer_sequence<int, 4, 6, 2>,
+                       std::integer_sequence<int, 6, 2, 4>,
+                       std::integer_sequence<int, 3, 2, 1>>>();
+
     execute<scale_matrix_col_t<1, 2, list_n>,
             std::tuple<std::integer_sequence<int, 1, 4, 3>,
                        std::integer_sequence<int, 1, 6, 2>,
@@ -1291,6 +1299,22 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, 2, 6, 1>,
                        std::integer_sequence<int, 3, 2, 2>,
                        std::integer_sequence<int, 3, 4, 1>>>();
+
+    execute<scale_matrix_col_range_t<1, 3, 2, list_n>,
+            std::tuple<std::integer_sequence<int, 1, 4, 6>,
+                       std::integer_sequence<int, 1, 6, 4>,
+                       std::integer_sequence<int, 2, 2, 6>,
+                       std::integer_sequence<int, 2, 6, 2>,
+                       std::integer_sequence<int, 3, 2, 4>,
+                       std::integer_sequence<int, 3, 4, 2>>>();
+
+    execute<scale_matrix_t<2, list_n>,
+            std::tuple<std::integer_sequence<int, 2, 4, 6>,
+                       std::integer_sequence<int, 2, 6, 4>,
+                       std::integer_sequence<int, 4, 2, 6>,
+                       std::integer_sequence<int, 4, 6, 2>,
+                       std::integer_sequence<int, 6, 2, 4>,
+                       std::integer_sequence<int, 6, 4, 2>>>();
 
     execute<remove_matrix_row_t<2, list_n>,
             std::tuple<std::integer_sequence<int, 1, 2, 3>,
