@@ -1456,6 +1456,21 @@ int main(int argc, char* argv[])
             std::tuple<std::integer_sequence<int, 5, -7>,
                        std::integer_sequence<int, 51, 8>>>();
 
+    execute<matrix_mul_t<col_matrix_t<std::integer_sequence<int, 5, 4, 3>>,
+                         row_matrix_t<std::integer_sequence<int, 6, 7, 8>>>,
+
+            std::tuple<std::integer_sequence<int, 30, 35, 40>,
+                       std::integer_sequence<int, 24, 28, 32>,
+                       std::integer_sequence<int, 18, 21, 24>>>();
+
+    execute<matrix_row_col_dot_v<2, 2, mid, rhs>, -26>();
+
+    execute<matrix_col_row_dot_t<1, 0, mid, rhs>,
+            std::tuple<std::integer_sequence<int, -18, 0, 36, 9>,
+                       std::integer_sequence<int, 0, 0, 0, 0>,
+                       std::integer_sequence<int, -4, 0, 8, 2>,
+                       std::integer_sequence<int, -6, 0, 12, 3>>>();
+
     execute<next_permutation_list<std::integer_sequence<int, 1, 2, 3>>, list_n>();
     execute<prev_permutation_list<std::integer_sequence<int, 3, 2, 1>>, reverse_t<list_n>>();
 

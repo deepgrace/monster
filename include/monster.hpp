@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 74
+#define MONSTER_VERSION 75
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6336,6 +6336,51 @@ namespace monster
     template <typename T, typename U>
     requires (matrix_col_size_v<T> == matrix_row_size_v<U>)
     using matrix_mul_t = typeof_t<matrix_mul<T, U>>;
+
+    template <auto row, auto col, typename T, typename U>
+    requires (matrix_col_size_v<T> == matrix_row_size_v<U>)
+    struct matrix_row_col_dot : sum<inner_dot_t<get_matrix_row_t<row, T>, get_matrix_col_t<col, U>>>
+    {
+    };
+
+    template <auto row, auto col, typename T, typename U>
+    using matrix_row_col_dot_t = typeof_t<matrix_row_col_dot<row, col, T, U>>;
+
+    template <auto row, auto col, typename T, typename U>
+    inline constexpr auto matrix_row_col_dot_v = typev<matrix_row_col_dot_t<row, col, T, U>>;
+
+    template <typename T>
+    struct row_matrix : std::type_identity<std::tuple<T>>
+    {
+    };
+
+    template <typename T>
+    using row_matrix_t = typeof_t<row_matrix<T>>;
+
+    template <typename T>
+    struct col_matrix;
+
+    template <template <typename ...> typename T, typename... Args>
+    struct col_matrix<T<Args...>> : std::type_identity<T<T<Args>...>>
+    {
+    };
+
+    template <template <typename, auto ...> typename T, typename U, auto... Args>
+    struct col_matrix<T<U, Args...>> : std::type_identity<std::tuple<T<U, Args>...>>
+    {
+    };
+
+    template <typename T>
+    using col_matrix_t = typeof_t<col_matrix<T>>;
+
+    template <auto col, auto row, typename T, typename U>
+    requires (matrix_row_size_v<T> == matrix_col_size_v<U>)
+    struct matrix_col_row_dot : matrix_mul<col_matrix_t<get_matrix_col_t<col, T>>, row_matrix_t<get_matrix_row_t<row, U>>>
+    {
+    };
+
+    template <auto col, auto row, typename T, typename U>
+    using matrix_col_row_dot_t = typeof_t<matrix_col_row_dot<col, row, T, U>>;
 
     template <auto row_lower, auto row_upper, auto col_lower, auto col_upper, typename T>
     struct sub_matrix_transpose : matrix_transpose<sub_matrix_t<row_lower, row_upper, col_lower, col_upper, T>>
