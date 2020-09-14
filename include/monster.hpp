@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 73
+#define MONSTER_VERSION 74
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3810,16 +3810,10 @@ namespace monster
     using add_t = typeof_t<add<n, N, T>>;
 
     template <auto n, typename T>
-    inline constexpr auto inc_v = get_v<n, T> + 1;
-
-    template <auto n, typename T>
     using inc = add<n, 1, T>;
 
     template <auto n, typename T>
     using inc_t = typeof_t<inc<n, T>>;
-
-    template <auto n, typename T>
-    inline constexpr auto dec_v = get_v<n, T> - 1;
 
     template <auto n, typename T>
     using dec = add<n, -1, T>;
@@ -3836,17 +3830,54 @@ namespace monster
     template <auto n, typename T, typename U>
     using dot_t = typeof_t<dot<n, T, U>>;
 
-    template <typename T, typename U>
-    struct inner_dot
+    template <typename T, typename U, bool B>
+    struct inner_operator
     {
-        template <auto n, typename V>
-        using impl = int_<dot_v<n, V, U>>;
+        template <auto i, typename V>
+        struct call
+        {
+            static constexpr auto p = get_v<i, V>;
+            static constexpr auto q = get_v<i, U>;
+
+            static constexpr auto value = B ? p + q : p * q;
+        };
+
+        template <auto i, typename V>
+        using impl = int_<typev<call<i, V>>>;
 
         using type = expand_t<impl, T, index_sequence_of_c<sizeof_t_v<min_t<T, U>>>>;
     };
 
+    template <typename T, typename U, bool B>
+    using inner_operator_t = typeof_t<inner_operator<T, U, B>>;
+
+    template <typename T, typename U>
+    struct inner_sum : inner_operator<T, U, 1>
+    {
+    };
+
+    template <typename T, typename U>
+    using inner_sum_t = typeof_t<inner_sum<T, U>>;
+
+    template <typename T, typename U>
+    struct inner_dot : inner_operator<T, U, 0>
+    {
+    };
+
     template <typename T, typename U>
     using inner_dot_t = typeof_t<inner_dot<T, U>>;
+
+    template <auto n, typename T>
+    struct inner_mul
+    {
+        template <auto i, typename U>
+        using impl = int_<get_v<i, U> * n>;
+
+        using type = expand_t<impl, T, index_sequence_of_t<T>>;
+    };
+
+    template <auto n, typename T>
+    using inner_mul_t = typeof_t<inner_mul<n, T>>;
 
     template <typename... F>
     struct overload_set : F...
@@ -5719,19 +5750,19 @@ namespace monster
     template <auto row, auto col, typename T>
     inline constexpr auto get_matrix_element_v = typev<get_matrix_element_t<row, col, T>>;
 
-    template <auto row, auto col, typename T, typename U, int m, int n>
+    template <auto row, auto col, typename T, typename U, int m = 1, int n = 1>
     struct matrix_element_summator : int_<m * get_matrix_element_v<row, col, T> + n * get_matrix_element_v<row, col, U>>
     {
     };
 
-    template <auto row, auto col, typename T, typename U, int m, int n>
+    template <auto row, auto col, typename T, typename U, int m = 1, int n = 1>
     using matrix_element_summator_t = typeof_t<matrix_element_summator<row, col, T, U, m, n>>;
 
-    template <auto row, auto col, typename T, typename U, int m, int n>
+    template <auto row, auto col, typename T, typename U, int m = 1, int n = 1>
     inline constexpr auto matrix_element_summator_v = typev<matrix_element_summator_t<row, col, T, U, m, n>>;
 
     template <auto row, auto col, typename T, typename U>
-    struct matrix_element_add : matrix_element_summator<row, col, T, U, 1, 1>
+    struct matrix_element_add : matrix_element_summator<row, col, T, U>
     {
     };
 
@@ -5876,17 +5907,17 @@ namespace monster
 
     template <auto N, typename T, typename U>
     requires (matrix_row_size_v<T> == matrix_col_size_v<U>)
-    struct add_matrix_row : insert<N, U, T>
+    struct insert_matrix_row : insert<N, U, T>
     {
     };
 
     template <auto N, typename T, typename U>
     requires (matrix_row_size_v<T> == matrix_col_size_v<U>)
-    using add_matrix_row_t = typeof_t<add_matrix_row<N, T, U>>;
+    using insert_matrix_row_t = typeof_t<insert_matrix_row<N, T, U>>;
 
     template <auto N, typename T, typename U>
     requires (matrix_row_size_v<T> == matrix_row_size_v<U>)
-    struct add_matrix_col
+    struct insert_matrix_col
     {
         template <int i, int j, typename V>
         struct impl : insert<i, element_t<typev<V>, typeof_t<V>>, element_t<typev<V>, T>>
@@ -5898,18 +5929,18 @@ namespace monster
 
     template <auto N, typename T, typename U>
     requires (matrix_row_size_v<T> == matrix_row_size_v<U>)
-    using add_matrix_col_t = typeof_t<add_matrix_col<N, T, U>>;
+    using insert_matrix_col_t = typeof_t<insert_matrix_col<N, T, U>>;
 
     template <auto N, typename T>
-    struct del_matrix_row : drop<N, T>
+    struct remove_matrix_row : drop<N, T>
     {
     };
 
     template <auto N, typename T>
-    using del_matrix_row_t = typeof_t<del_matrix_row<N, T>>;
+    using remove_matrix_row_t = typeof_t<remove_matrix_row<N, T>>;
 
     template <auto N, typename T>
-    struct del_matrix_col
+    struct remove_matrix_col
     {
         template <int i, int j, typename U>
         using impl = drop<i, U>;
@@ -5918,15 +5949,95 @@ namespace monster
     };
 
     template <auto N, typename T>
-    using del_matrix_col_t = typeof_t<del_matrix_col<N, T>>;
+    using remove_matrix_col_t = typeof_t<remove_matrix_col<N, T>>;
 
     template <auto row, auto col, typename T>
-    struct del_matrix_row_col : del_matrix_col<col, del_matrix_row_t<row, T>>
+    struct remove_matrix_row_col : remove_matrix_col<col, remove_matrix_row_t<row, T>>
     {
     };
 
     template <auto row, auto col, typename T>
-    using del_matrix_row_col_t = typeof_t<del_matrix_row_col<row, col, T>>;
+    using remove_matrix_row_col_t = typeof_t<remove_matrix_row_col<row, col, T>>;
+
+    template <auto N, typename T, typename U, template <typename, typename> typename F>
+    requires (matrix_row_size_v<T> == matrix_col_size_v<U>)
+    struct matrix_row_operator : set_matrix_row<N, typeof_t<F<T, get_matrix_row_t<N, U>>>, U>
+    {
+    };
+
+    template <auto N, typename T, typename U, template <typename, typename> typename F>
+    requires (matrix_row_size_v<T> == matrix_col_size_v<U>)
+    using matrix_row_operator_t = typeof_t<matrix_row_operator<N, T, U, F>>;
+
+    template <auto N, typename T, typename U, bool B>
+    requires (matrix_row_size_v<T> == matrix_row_size_v<U>)
+    struct matrix_col_operator
+    {
+        template <int i, int j, typename V>
+        struct impl
+        {
+            using curr = element_t<typev<V>, typeof_t<V>>;
+
+            static constexpr auto p = element_v<i, curr>;
+            static constexpr auto q = element_v<typev<V>, T>;
+
+            using type = exchange_t<i, int_<B ? p + q : p * q>, curr>;
+        };
+
+        using type = matrix_col_transform_t<N, N, U, impl, 1>;
+    };
+
+    template <auto N, typename T, typename U, bool B>
+    requires (matrix_row_size_v<T> == matrix_row_size_v<U>)
+    using matrix_col_operator_t = typeof_t<matrix_col_operator<N, T, U, B>>;
+
+    template <auto N, typename T, typename U>
+    struct add_matrix_row : matrix_row_operator<N, T, U, inner_sum>
+    {
+    };
+
+    template <auto N, typename T, typename U>
+    using add_matrix_row_t = typeof_t<add_matrix_row<N, T, U>>;
+
+    template <auto N, typename T, typename U>
+    struct add_matrix_col : matrix_col_operator<N, T, U, 1>
+    {
+    };
+
+    template <auto N, typename T, typename U>
+    using add_matrix_col_t = typeof_t<add_matrix_col<N, T, U>>;
+
+    template <auto N, typename T, typename U>
+    struct mul_matrix_row : matrix_row_operator<N, T, U, inner_dot>
+    {
+    };
+
+    template <auto N, typename T, typename U>
+    using mul_matrix_row_t = typeof_t<mul_matrix_row<N, T, U>>;
+
+    template <auto N, typename T, typename U>
+    struct mul_matrix_col : matrix_col_operator<N, T, U, 0>
+    {
+    };
+
+    template <auto N, typename T, typename U>
+    using mul_matrix_col_t = typeof_t<mul_matrix_col<N, T, U>>;
+
+    template <auto N, auto M, typename T>
+    struct scale_matrix_row : set_matrix_row<N, inner_mul_t<M, get_matrix_row_t<N, T>>, T>
+    {
+    };
+
+    template <auto N, auto M, typename T>
+    using scale_matrix_row_t = typeof_t<scale_matrix_row<N, M, T>>;
+
+    template <auto N, auto M, typename T>
+    struct scale_matrix_col : set_matrix_col<N, inner_mul_t<M, get_matrix_col_t<N, T>>, T>
+    {
+    };
+
+    template <auto N, auto M, typename T>
+    using scale_matrix_col_t = typeof_t<scale_matrix_col<N, M, T>>;
 
     template <auto lower, auto upper, typename T>
     struct swap_matrix_row : matrix_row_transform<lower, upper, T, swap>
@@ -6163,23 +6274,23 @@ namespace monster
     template <typename T>
     using matrix_transpose_t = typeof_t<matrix_transpose<T>>;
 
-    template <typename T, typename U, int n>
+    template <typename T, typename U, int m = 1, int n = 1>
     requires (matrix_row_size_v<T> == matrix_row_size_v<U> && matrix_col_size_v<T> == matrix_col_size_v<U>)
     struct matrix_summator
     {
         template <int i, int j, typename V>
-        struct impl : set_matrix_element<i, j, matrix_element_summator_t<i, j, T, U, 1, 2 * n - 1>, V>
+        struct impl : set_matrix_element<i, j, matrix_element_summator_t<i, j, T, U, m, n>, V>
         {
         };
 
         using type = matrix_operator_t<matrix_row_size_v<T>, matrix_col_size_v<T>, T, impl>;
     };
 
-    template <typename T, typename U, int n>
-    using matrix_summator_t = typeof_t<matrix_summator<T, U, n>>;
+    template <typename T, typename U, int m = 1, int n = 1>
+    using matrix_summator_t = typeof_t<matrix_summator<T, U, m, n>>;
 
     template <typename T, typename U>
-    struct matrix_add : matrix_summator<T, U, 1>
+    struct matrix_add : matrix_summator<T, U>
     {
     };
 
@@ -6187,7 +6298,7 @@ namespace monster
     using matrix_add_t = typeof_t<matrix_add<T, U>>;
 
     template <typename T, typename U>
-    struct matrix_sub : matrix_summator<T, U, 0>
+    struct matrix_sub : matrix_summator<T, U, 1, -1>
     {
     };
 
@@ -6206,16 +6317,14 @@ namespace monster
             template <int p, int q, typename W>
             struct sum
             {
-                static constexpr auto m = get_matrix_element_v<i, p, T> * get_matrix_element_v<p, j, U>;
-                using type = typeof_t<sum<p + 1, q, set_matrix_element_c<i, j, get_matrix_element_v<i, j, W> + m, W>>>;
+                static constexpr auto n = typev<W>;
+                static constexpr auto m = get_matrix_element_v<i, n, T> * get_matrix_element_v<n, j, U>;
+
+                using curr = typeof_t<W>;
+                using type = set_matrix_element_c<i, j, get_matrix_element_v<i, j, curr> + m, curr>;
             };
 
-            template <int q, typename W>
-            struct sum<q, q, W> : std::type_identity<W>
-            {
-            };
-
-            using type = typeof_t<sum<0, len, V>>;
+            using type = matrix_col_transform_t<0, len, V, sum, 1, 1, 0, 1>;
         };
 
         static constexpr auto row = matrix_row_size_v<T>;
