@@ -3879,6 +3879,14 @@ namespace monster
     template <auto n, typename T>
     using inner_mul_t = typeof_t<inner_mul<n, T>>;
 
+    template <auto lower, auto upper, auto M, typename T>
+    struct inner_mul_range : inner_mul<M, range_t<lower, upper, T>>
+    {
+    };
+
+    template <auto lower, auto upper, auto M, typename T>
+    using inner_mul_range_t = typeof_t<inner_mul_range<lower, upper, M, T>>;
+
     template <typename... F>
     struct overload_set : F...
     {
@@ -6040,7 +6048,7 @@ namespace monster
     using scale_col_t = typeof_t<scale_col<N, M, T>>;
 
     template <auto lower, auto upper, auto M, typename T>
-    struct scale_range : replace_range<lower, upper, T, inner_mul_t<M, range_t<lower, upper, T>>>
+    struct scale_range : replace_range<lower, upper, T, inner_mul_range_t<lower, upper, M, T>>
     {
     };
 
