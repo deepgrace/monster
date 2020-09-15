@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 79
+#define MONSTER_VERSION 80
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5956,6 +5956,39 @@ namespace monster
 
     template <auto row, auto col, typename T>
     using remove_matrix_row_col_t = typeof_t<remove_matrix_row_col<row, col, T>>;
+
+    template <auto row, typename T, typename U>
+    struct row_multiply : inner_dot<get_matrix_row_t<row, T>, get_matrix_row_t<row, U>>
+    {
+    };
+
+    template <auto row, typename T, typename U>
+    using row_multiply_t = typeof_t<row_multiply<row, T, U>>;
+
+    template <auto row, typename T, typename U>
+    struct col_multiply : inner_dot<get_matrix_col_t<row, T>, get_matrix_col_t<row, U>>
+    {
+    };
+
+    template <auto row, typename T, typename U>
+    using col_multiply_t = typeof_t<col_multiply<row, T, U>>;
+
+    template <typename T, typename U>
+    requires (matrix_row_size_v<T> == matrix_row_size_v<U> && matrix_col_size_v<T> == matrix_col_size_v<U>)
+    struct matrix_elementwise_multiply
+    {
+        template <int i, int j, typename V>
+        struct impl
+        {
+            static constexpr auto row = typev<V>;
+            using type = set_matrix_row_t<row, row_multiply_t<row, T, U>, typeof_t<V>>;
+        };
+
+        using type = matrix_col_transform_t<0, 0, T, impl, 1, 1>;
+    };
+
+    template <typename T, typename U>
+    using matrix_elementwise_multiply_t = typeof_t<matrix_elementwise_multiply<T, U>>;
 
     template <auto N, typename T, typename U, template <typename, typename> typename F>
     requires (matrix_row_size_v<T> == matrix_col_size_v<U>)

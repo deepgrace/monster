@@ -1529,6 +1529,13 @@ int main(int argc, char* argv[])
             std::tuple<std::integer_sequence<int, 5, -7>,
                        std::integer_sequence<int, 51, 8>>>();
 
+    execute<matrix_elementwise_multiply_t<lhs, rhs>,
+            std::tuple<std::integer_sequence<int, 0, 0, 8, 3>,
+                       std::integer_sequence<int, 4, 30, -30, 21>>>();
+
+    execute<row_multiply_t<1, lhs, rhs>, std::integer_sequence<int, 4, 30, -30, 21>>();
+    execute<col_multiply_t<2, lhs, rhs>, std::integer_sequence<int, 8, -30>>();
+
     execute<matrix_mul_t<col_matrix_t<std::integer_sequence<int, 5, 4, 3>>,
                          row_matrix_t<std::integer_sequence<int, 6, 7, 8>>>,
 
