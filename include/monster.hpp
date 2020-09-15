@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 76
+#define MONSTER_VERSION 77
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -857,7 +857,6 @@ namespace monster
     using as_tuple = rename<T, std::tuple<>>;
 
     template <typename T>
-    requires is_variadic_type_v<T>
     using as_tuple_t = typeof_t<as_tuple<T>>;
 
     template <bool B, typename T>
@@ -865,7 +864,6 @@ namespace monster
     using as_tuple_if = std::conditional_t<B, as_tuple<T>, std::type_identity<T>>;
 
     template <bool B, typename T>
-    requires is_variadic_type_v<T>
     using as_tuple_if_t = typeof_t<as_tuple_if<B, T>>;
 
     template <auto N, typename T>
@@ -898,7 +896,6 @@ namespace monster
     using variadic_element_t =  element_t<N, T>;
 
     template <auto N, typename T>
-    requires is_variadic_value_v<T>
     inline constexpr auto variadic_element_v = element_v<N, T>;
 
     template <bool B, auto N, typename T, typename U>
@@ -2334,7 +2331,6 @@ namespace monster
     };
 
     template <typename indices, typename T, typename U>
-    requires less_equal_v<indices, U>
     using exchange_with_t = typeof_t<exchange_with<indices, T, U>>;
 
     template <auto lower, auto upper, typename T>
@@ -2473,7 +2469,6 @@ namespace monster
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_variadic_pack_v<T, U>
     using set_difference_t = typeof_t<set_difference<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
@@ -2514,7 +2509,6 @@ namespace monster
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_variadic_pack_v<T, U>
     using set_symmetric_difference_t = typeof_t<set_symmetric_difference<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
@@ -2555,7 +2549,6 @@ namespace monster
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_variadic_pack_v<T, U>
     using set_intersection_t = typeof_t<set_intersection<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
@@ -2596,7 +2589,6 @@ namespace monster
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_variadic_pack_v<T, U>
     using set_union_t = typeof_t<set_union<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
@@ -2637,17 +2629,14 @@ namespace monster
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_variadic_pack_v<T, U>
     using mismatch_t = typeof_t<mismatch<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_variadic_pack_v<T, U>
     inline constexpr auto mismatch_first = first_v<mismatch_t<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_variadic_pack_v<T, U>
     inline constexpr auto mismatch_second = second_v<mismatch_t<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
@@ -2677,12 +2666,10 @@ namespace monster
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_variadic_pack_v<T, U>
     using includes_t = typeof_t<includes<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_variadic_pack_v<T, U>
     inline constexpr auto includes_v = typev<includes_t<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
@@ -2720,12 +2707,10 @@ namespace monster
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_variadic_pack_v<T, U>
     using search_t = typeof_t<search<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_variadic_pack_v<T, U>
     inline constexpr auto search_v = typev<search_t<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, int N, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
@@ -2785,12 +2770,10 @@ namespace monster
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_variadic_pack_v<T, U>
     using find_end_t = typeof_t<find_end<F, T, U, B1, E1, B2, E2>>;
 
     template <template <typename, typename> typename F, typename T, typename U,
     auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
-    requires is_variadic_pack_v<T, U>
     inline constexpr auto find_end_v = typev<find_end_t<F, T, U, B1, E1, B2, E2>>;
 
     template <typename T, typename U>
@@ -2935,7 +2918,6 @@ namespace monster
     };
 
     template <template <typename, typename> typename F, typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0>
-    requires is_variadic_pack_v<T, U>
     using transmute_t = typeof_t<transmute<F, T, U, B1, E1, B2>>;
 
     template <template <typename, typename> typename F1, template <typename, typename> typename F2,
@@ -2965,12 +2947,10 @@ namespace monster
 
     template <template <typename, typename> typename F1, template <typename, typename> typename F2,
     typename T, typename U, typename V, auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0>
-    requires is_variadic_pack_v<T, U>
     using inner_product_t = typeof_t<inner_product<F1, F2, T, U, V, B1, E1, B2>>;
 
     template <template <typename, typename> typename F1, template <typename, typename> typename F2,
     typename T, typename U, typename V, auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0>
-    requires is_variadic_pack_v<T, U>
     inline constexpr auto inner_product_v = typev<inner_product_t<F1, F2, T, U, V, B1, E1, B2>>;
 
     template <template <typename, typename> typename F, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
@@ -3276,7 +3256,6 @@ namespace monster
     };
 
     template <auto i, auto j, template <typename ...> typename F, typename T, typename U>
-    requires is_variadic_pack_v<T, U>
     using extract_t = typeof_t<extract<i, j, F, T, U>>;
 
     template <auto i, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
@@ -3290,7 +3269,6 @@ namespace monster
     };
 
     template <auto i, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
-    requires is_variadic_pack_v<T, U>
     using insert_range_t = typeof_t<insert_range<i, T, U, B, E>>;
 
     template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
@@ -3329,7 +3307,6 @@ namespace monster
     };
 
     template <auto i, auto j, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
-    requires is_variadic_pack_v<T, U>
     using replace_range_t = typeof_t<replace_range<i, j, T, U, B, E>>;
 
     template <auto i, auto j, typename T>
@@ -4785,11 +4762,9 @@ namespace monster
     };
 
     template <typename F, typename T>
-    requires is_tuple_v<T>
     using invocable_t = typeof_t<invocable<F, T>>;
 
     template <typename F, typename T>
-    requires is_tuple_v<T>
     inline constexpr auto invocable_v = typev<invocable_t<F, T>>;
 
     template <typename T, typename U = size_t>
@@ -4848,7 +4823,6 @@ namespace monster
     };
 
     template <typename limit, typename T, template <typename ...> typename F, bool ASC = true>
-    requires is_sequence_v<limit>
     using loop_indices_t = typeof_t<loop_indices<limit, T, F, ASC>>;
 
     template <typename T, auto N = sizeof_t_v<T>>
@@ -5727,7 +5701,6 @@ namespace monster
     };
 
     template <typename T, typename U>
-    requires is_variadic_pack_v<T, U>
     using zip_t = typeof_t<zip<T, U>>;
 
     template <template <typename ...> typename F, typename T, typename U>
@@ -5744,7 +5717,6 @@ namespace monster
     };
 
     template <template <typename ...> typename F, typename T, typename U>
-    requires is_variadic_pack_v<T, U>
     using zip_with_t = typeof_t<zip_with<F, T, U>>;
 
     template <auto row, auto col, typename T>
@@ -5841,7 +5813,6 @@ namespace monster
     };
 
     template <auto N, typename T, typename U, bool B = false>
-    requires (matrix_row_size_v<T> == matrix_col_size_v<U> || B)
     using set_matrix_row_t = typeof_t<set_matrix_row<N, T, U, B>>;
 
     template <auto lower, auto upper, typename T, template <auto, auto, typename> typename F>
@@ -5888,7 +5859,6 @@ namespace monster
     };
 
     template <auto N, typename T, typename U, bool B = false>
-    requires (matrix_row_size_v<T> == matrix_row_size_v<U> || B)
     using set_matrix_col_t = typeof_t<set_matrix_col<N, T, U, B>>;
 
     template <auto N, typename T>
@@ -5920,7 +5890,6 @@ namespace monster
     };
 
     template <auto N, typename T, typename U>
-    requires (matrix_row_size_v<T> == matrix_col_size_v<U>)
     using insert_matrix_row_t = typeof_t<insert_matrix_row<N, T, U>>;
 
     template <auto N, typename T, typename U>
@@ -5936,7 +5905,6 @@ namespace monster
     };
 
     template <auto N, typename T, typename U>
-    requires (matrix_row_size_v<T> == matrix_row_size_v<U>)
     using insert_matrix_col_t = typeof_t<insert_matrix_col<N, T, U>>;
 
     template <auto N, typename T>
@@ -5974,7 +5942,6 @@ namespace monster
     };
 
     template <auto N, typename T, typename U, template <typename, typename> typename F>
-    requires (matrix_row_size_v<T> == matrix_col_size_v<U>)
     using matrix_row_operator_t = typeof_t<matrix_row_operator<N, T, U, F>>;
 
     template <auto N, typename T, typename U, bool B>
@@ -5996,7 +5963,6 @@ namespace monster
     };
 
     template <auto N, typename T, typename U, bool B>
-    requires (matrix_row_size_v<T> == matrix_row_size_v<U>)
     using matrix_col_operator_t = typeof_t<matrix_col_operator<N, T, U, B>>;
 
     template <auto N, typename T, typename U>
@@ -6106,6 +6072,46 @@ namespace monster
 
     template <auto M, typename T>
     using scale_matrix_t = typeof_t<scale_matrix<M, T>>;
+
+    template <auto N, auto M, auto P,  typename T, template <auto, auto, typename> typename F1, template <auto, typename, typename> typename F2>
+    struct scale_matrix_operator : F2<P, typeof_t<F1<N, M, T>>, T>
+    {
+    };
+
+    template <auto N, auto M, auto P,  typename T, template <auto, auto, typename> typename F1, template <auto, typename, typename> typename F2>
+    using scale_matrix_operator_t = typeof_t<scale_matrix_operator<N, M, P, T, F1, F2>>;
+
+    template <auto N, auto M, auto P,  typename T>
+    struct scale_add_matrix_row : scale_matrix_operator<N, M, P, T, scale_row, add_matrix_row>
+    {
+    };
+
+    template <auto N, auto M, auto P,  typename T>
+    using scale_add_matrix_row_t = typeof_t<scale_add_matrix_row<N, M, P, T>>;
+
+    template <auto N, auto M, auto P,  typename T>
+    struct scale_add_matrix_col : scale_matrix_operator<N, M, P, T, scale_col, add_matrix_col>
+    {
+    };
+
+    template <auto N, auto M, auto P,  typename T>
+    using scale_add_matrix_col_t = typeof_t<scale_add_matrix_col<N, M, P, T>>;
+
+    template <auto N, auto M, auto P,  typename T>
+    struct scale_mul_matrix_row : scale_matrix_operator<N, M, P, T, scale_row, mul_matrix_row>
+    {
+    };
+
+    template <auto N, auto M, auto P,  typename T>
+    using scale_mul_matrix_row_t = typeof_t<scale_mul_matrix_row<N, M, P, T>>;
+
+    template <auto N, auto M, auto P,  typename T>
+    struct scale_mul_matrix_col : scale_matrix_operator<N, M, P, T, scale_col, mul_matrix_col>
+    {
+    };
+
+    template <auto N, auto M, auto P,  typename T>
+    using scale_mul_matrix_col_t = typeof_t<scale_mul_matrix_col<N, M, P, T>>;
 
     template <auto lower, auto upper, typename T>
     struct swap_matrix_row : matrix_row_transform<lower, upper, T, swap>
@@ -6402,7 +6408,6 @@ namespace monster
     };
 
     template <typename T, typename U>
-    requires (matrix_col_size_v<T> == matrix_row_size_v<U>)
     using matrix_mul_t = typeof_t<matrix_mul<T, U>>;
 
     template <auto row, auto col, typename T, typename U>
