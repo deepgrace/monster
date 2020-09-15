@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 77
+#define MONSTER_VERSION 78
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6013,6 +6013,38 @@ namespace monster
     template <auto N, auto M, typename T>
     using scale_col_t = typeof_t<scale_col<N, M, T>>;
 
+    template <auto N, auto M, auto P, typename T>
+    struct scale_add_row : inner_sum<get_matrix_row_t<P, T>, inner_mul_t<M, get_matrix_row_t<N, T>>>
+    {
+    };
+
+    template <auto N, auto M, auto P, typename T>
+    using scale_add_row_t = typeof_t<scale_add_row<N, M, P, T>>;
+
+    template <auto N, auto M, auto P, typename T>
+    struct scale_add_col : inner_sum<get_matrix_col_t<P, T>, inner_mul_t<M, get_matrix_col_t<N, T>>>
+    {
+    };
+
+    template <auto N, auto M, auto P, typename T>
+    using scale_add_col_t = typeof_t<scale_add_col<N, M, P, T>>;
+
+    template <auto N, auto M, auto P, typename T>
+    struct scale_mul_row : inner_dot<get_matrix_row_t<P, T>, inner_mul_t<M, get_matrix_row_t<N, T>>>
+    {
+    };
+
+    template <auto N, auto M, auto P, typename T>
+    using scale_mul_row_t = typeof_t<scale_mul_row<N, M, P, T>>;
+
+    template <auto N, auto M, auto P, typename T>
+    struct scale_mul_col : inner_dot<get_matrix_col_t<P, T>, inner_mul_t<M, get_matrix_col_t<N, T>>>
+    {
+    };
+
+    template <auto N, auto M, auto P, typename T>
+    using scale_mul_col_t = typeof_t<scale_mul_col<N, M, P, T>>;
+
     template <auto lower, auto upper, auto M, typename T>
     struct scale_range : replace_range<lower, upper, T, inner_mul_range_t<lower, upper, M, T>>
     {
@@ -6073,44 +6105,50 @@ namespace monster
     template <auto M, typename T>
     using scale_matrix_t = typeof_t<scale_matrix<M, T>>;
 
-    template <auto N, auto M, auto P,  typename T, template <auto, auto, typename> typename F1, template <auto, typename, typename> typename F2>
-    struct scale_matrix_operator : F2<P, typeof_t<F1<N, M, T>>, T>
+    template <auto N, auto M, auto P, typename T, template <auto, auto, auto, typename> typename F1, template <auto, typename, typename> typename F2>
+    struct scale_matrix_operator : F2<P, typeof_t<F1<N, M, P, T>>, T>
     {
     };
 
-    template <auto N, auto M, auto P,  typename T, template <auto, auto, typename> typename F1, template <auto, typename, typename> typename F2>
+    template <auto N, auto M, auto P, typename T, template <auto, auto, auto, typename> typename F1, template <auto, typename, typename> typename F2>
     using scale_matrix_operator_t = typeof_t<scale_matrix_operator<N, M, P, T, F1, F2>>;
 
-    template <auto N, auto M, auto P,  typename T>
-    struct scale_add_matrix_row : scale_matrix_operator<N, M, P, T, scale_row, add_matrix_row>
+    template <auto N, auto M, auto P, typename T, template <auto, auto, auto, typename> typename F>
+    using scale_row_operator  = scale_matrix_operator<N, M, P, T, F, set_matrix_row>;
+
+    template <auto N, auto M, auto P, typename T, template <auto, auto, auto, typename> typename F>
+    using scale_col_operator  = scale_matrix_operator<N, M, P, T, F, set_matrix_col>;
+
+    template <auto N, auto M, auto P, typename T>
+    struct scale_add_matrix_row : scale_row_operator<N, M, P, T, scale_add_row>
     {
     };
 
-    template <auto N, auto M, auto P,  typename T>
+    template <auto N, auto M, auto P, typename T>
     using scale_add_matrix_row_t = typeof_t<scale_add_matrix_row<N, M, P, T>>;
 
-    template <auto N, auto M, auto P,  typename T>
-    struct scale_add_matrix_col : scale_matrix_operator<N, M, P, T, scale_col, add_matrix_col>
+    template <auto N, auto M, auto P, typename T>
+    struct scale_add_matrix_col : scale_col_operator<N, M, P, T, scale_add_col>
     {
     };
 
-    template <auto N, auto M, auto P,  typename T>
+    template <auto N, auto M, auto P, typename T>
     using scale_add_matrix_col_t = typeof_t<scale_add_matrix_col<N, M, P, T>>;
 
-    template <auto N, auto M, auto P,  typename T>
-    struct scale_mul_matrix_row : scale_matrix_operator<N, M, P, T, scale_row, mul_matrix_row>
+    template <auto N, auto M, auto P, typename T>
+    struct scale_mul_matrix_row : scale_row_operator<N, M, P, T, scale_mul_row>
     {
     };
 
-    template <auto N, auto M, auto P,  typename T>
+    template <auto N, auto M, auto P, typename T>
     using scale_mul_matrix_row_t = typeof_t<scale_mul_matrix_row<N, M, P, T>>;
 
-    template <auto N, auto M, auto P,  typename T>
-    struct scale_mul_matrix_col : scale_matrix_operator<N, M, P, T, scale_col, mul_matrix_col>
+    template <auto N, auto M, auto P, typename T>
+    struct scale_mul_matrix_col : scale_col_operator<N, M, P, T, scale_mul_col>
     {
     };
 
-    template <auto N, auto M, auto P,  typename T>
+    template <auto N, auto M, auto P, typename T>
     using scale_mul_matrix_col_t = typeof_t<scale_mul_matrix_col<N, M, P, T>>;
 
     template <auto lower, auto upper, typename T>
