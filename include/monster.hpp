@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 80
+#define MONSTER_VERSION 81
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5814,6 +5814,14 @@ namespace monster
     template <typename T>
     inline constexpr auto matrix_col_size_v = typev<matrix_col_size<T>>;
 
+    template <typename T>
+    struct is_square_matrix : bool_<matrix_row_size_v<T> && matrix_col_size_v<T>>
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto is_square_matrix_v = typev<is_square_matrix<T>>;
+
     template <auto N, typename T, typename U, bool B = false>
     requires (matrix_row_size_v<T> == matrix_col_size_v<U> || B)
     struct set_matrix_row : exchange<N, T, U>
@@ -5867,6 +5875,38 @@ namespace monster
 
     template <auto N>
     using identity_matrix_t = typeof_t<identity_matrix<N>>;
+
+    template <typename T>
+    requires is_square_matrix_v<T>
+    struct get_matrix_diagonal
+    {
+        template <int i, int j, typename V>
+        struct impl : append<typeof_t<V>, get_matrix_element_t<typev<V>, typev<V>, T>>
+        {
+        };
+
+        using type = matrix_col_transform_t<0, 0, T, impl, 1, 1, 1>;
+    };
+
+    template <typename T>
+    using get_matrix_diagonal_t = typeof_t<get_matrix_diagonal<T>>;
+
+    template <typename T, typename U>
+    requires (matrix_row_size_v<T> == matrix_row_size_v<U> && is_square_matrix_v<U>)
+    struct set_matrix_diagonal
+    {
+        template <int i, int j, typename V>
+        struct impl
+        {
+            static constexpr auto row = typev<V>;
+            using type = set_matrix_element_t<row, row, element_t<row, T>, typeof_t<V>>;
+        };
+
+        using type = matrix_col_transform_t<0, 0, U, impl, 1, 1>;
+    };
+
+    template <typename T, typename U>
+    using set_matrix_diagonal_t = typeof_t<set_matrix_diagonal<T, U>>;
 
     template <auto N, typename T, typename U, bool B = false>
     requires (matrix_row_size_v<T> == matrix_row_size_v<U> || B)
