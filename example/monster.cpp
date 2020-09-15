@@ -1544,6 +1544,16 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, -4, 0, 8, 2>,
                        std::integer_sequence<int, -6, 0, 12, 3>>>();
 
+    execute<zero_matrix_t<3>,
+            std::tuple<std::integer_sequence<int, 0, 0, 0>,
+                       std::integer_sequence<int, 0, 0, 0>,
+                       std::integer_sequence<int, 0, 0, 0>>>();
+
+    execute<identity_matrix_t<3>,
+            std::tuple<std::integer_sequence<int, 1, 0, 0>,
+                       std::integer_sequence<int, 0, 1, 0>,
+                       std::integer_sequence<int, 0, 0, 1>>>();
+
     execute<next_permutation_list<std::integer_sequence<int, 1, 2, 3>>, list_n>();
     execute<prev_permutation_list<std::integer_sequence<int, 3, 2, 1>>, reverse_t<list_n>>();
 

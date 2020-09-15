@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 78
+#define MONSTER_VERSION 79
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5790,6 +5790,14 @@ namespace monster
     template <auto row, auto col, typename T>
     using matrix_t = typeof_t<matrix<row, col, T>>;
 
+    template <auto row, auto col = row>
+    struct zero_matrix : matrix<row, col, c_0>
+    {
+    };
+
+    template <auto row, auto col = row>
+    using zero_matrix_t = typeof_t<zero_matrix<row, col>>;
+
     template <typename T>
     struct matrix_row_size : sizeof_t<T>
     {
@@ -5845,6 +5853,20 @@ namespace monster
     template <auto lower, auto upper, typename T, template <auto, auto, typename> typename F,
     bool B1 = false, bool B2 = false, bool B3 = false, bool B4 = false>
     using matrix_col_transform_t = typeof_t<matrix_col_transform<lower, upper, T, F, B1, B2, B3, B4>>;
+
+    template <auto N>
+    struct identity_matrix
+    {
+        template <int i, int j, typename V>
+        struct impl : set_matrix_element<typev<V>, typev<V>, c_1, typeof_t<V>>
+        {
+        };
+
+        using type = matrix_col_transform_t<N, N, zero_matrix_t<N>, impl, 1, 1>;
+    };
+
+    template <auto N>
+    using identity_matrix_t = typeof_t<identity_matrix<N>>;
 
     template <auto N, typename T, typename U, bool B = false>
     requires (matrix_row_size_v<T> == matrix_row_size_v<U> || B)
