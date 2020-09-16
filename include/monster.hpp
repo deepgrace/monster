@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 84
+#define MONSTER_VERSION 85
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -655,6 +655,19 @@ namespace monster
     template <typename... Args>
     inline constexpr auto is_variadic_pack_v = typev<is_variadic_pack<Args...>>;
 
+    template <typename T>
+    struct is_group : std::false_type
+    {
+    };
+
+    template <template <typename ...> typename T, typename... Args>
+    struct is_group<T<Args...>> : is_variadic_pack<Args...>
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto is_group_v = typev<is_group<T>>;
+
     template <typename... Args>
     inline constexpr auto sizeof_v = sizeof...(Args);
     
@@ -1087,6 +1100,35 @@ namespace monster
     {
         template <typename... args>
         using apply = F<args..., Args...>;
+    };
+
+    template <bool B1, bool B2, template <typename ...> typename F, typename... Args>
+    struct bind_if
+    {
+        template <bool, typename... args>
+        struct impl
+        {
+            using apply = std::conditional_t<B2, F<Args..., args...>, F<args..., Args...>>;
+        };
+
+        template <typename... args>
+        struct impl<false, args...>
+        {
+            using apply = F<args...>;
+        };
+
+        template <typename... args>
+        using apply = impl<B1, args...>::apply;
+    };
+
+    template <bool B, template <typename ...> typename F, typename... Args>
+    struct bind_front_if : bind_if<B, 1, F, Args...>
+    {
+    };
+
+    template <bool B, template <typename ...> typename F, typename... Args>
+    struct bind_back_if : bind_if<B, 0, F, Args...>
+    {
     };
 
     template <typename F, typename... Args>
@@ -8548,6 +8590,42 @@ namespace monster
 
     template <typename T>
     using group_t = typeof_t<group<T>>;
+
+    template <typename T, typename U, template <typename ...> typename F = std::is_same, bool B = false>
+    requires is_group_v<U>
+    struct find_group
+    {
+        template <int i, int j>
+        struct impl
+        {
+            using curr = element_t<i, U>;
+            using func = bind_front_if<!B, F, T>;
+
+            static constexpr auto n = find_if_v<func::template apply, curr>;
+            static constexpr auto found = type_if_v<B, call<func, T>, std::false_type>;
+
+            static constexpr auto value = n != sizeof_t_v<curr> && (!B || found);
+            using type = type_if<value, std::type_identity<triple<i, n, curr>>, impl<i + 1, j>>;
+        };
+
+        template <int j>
+        struct impl<j, j> : std::type_identity<triple<j, j, U>>
+        {
+        };
+
+        using type = typeof_t<impl<0, sizeof_t_v<U>>>;
+    };
+
+    template <typename T, typename U, template <typename ...> typename F = std::is_same, bool B = false>
+    using find_group_t = typeof_t<find_group<T, U, F, B>>;
+
+    template <template <typename ...> typename F, typename T, typename U>
+    struct find_group_if : find_group<T, U, F, 1>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T, typename U>
+    using find_group_if_t = typeof_t<find_group_if<F, T, U>>;
 
     template <typename T>
     struct adjacent : arrange<T, true, false>

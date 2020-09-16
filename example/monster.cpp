@@ -808,6 +808,23 @@ int main(int argc, char* argv[])
     execute<find_v<char, std::tuple<float, char, double, int, char>>, 1>();
     execute<find_v<int_<6>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>, 2>();
 
+    using fg1 = find_group_t<char, std::tuple<std::tuple<float, char>, std::tuple<double, int, char>>>;
+    execute<first_v<fg1>, 0>();
+    execute<second_v<fg1>, 1>();
+    execute<typeof_t<fg1>, std::tuple<float, char>>();
+
+    using fg2 = find_group_t<int_<6>, std::tuple<std::integer_sequence<int, 3, -2>,
+            std::integer_sequence<int, 6, 3>, std::integer_sequence<int, 6, 5>>>;
+    execute<first_v<fg2>, 1>();
+    execute<second_v<fg2>, 0>();
+    execute<typeof_t<fg2>, std::integer_sequence<int, 6, 3>>();
+
+    using fg3 = find_group_if_t<is_tuple, std::tuple<>, std::tuple<std::tuple<float, char>,
+                std::tuple<std::tuple<double>, int, char>>>;
+    execute<first_v<fg3>, 1>();
+    execute<second_v<fg3>, 0>();
+    execute<typeof_t<fg3>, std::tuple<std::tuple<double>, int, char>>();
+
     execute<find_backward_v<char, std::tuple<float, char, double, int, char>>, 4>();
     execute<find_backward_v<int_<3>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>, 3>();
 
