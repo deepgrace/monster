@@ -149,11 +149,15 @@ int main(int argc, char* argv[])
     using adjacent_type = std::tuple<char, char, char, double, double, int, float>;
     execute<adjacent_t<not_adjacent_type>, adjacent_type>();
     execute<remove_unique_t<not_adjacent_type>, std::tuple<char, char, char, double, double>>();
+    execute<group_t<not_adjacent_type>, std::tuple<std::tuple<char, char, char>,
+            std::tuple<double, double>, std::tuple<int>, std::tuple<float>>>();
 
     using not_adjacent_value = std::index_sequence<2, 1, 3, 5, 3, 5, 8, 7, 2, 5, 9, 8>;
     using adjacent_value = std::index_sequence<2, 2, 1, 3, 3, 5, 5, 5, 8, 8, 7, 9>;
     execute<adjacent_t<not_adjacent_value>, adjacent_value>();
     execute<remove_unique_t<not_adjacent_value>, std::index_sequence<2, 2, 3, 3, 5, 5, 5, 8, 8>>();
+    execute<group_t<not_adjacent_value>, std::tuple<std::index_sequence<2, 2>,
+            std::index_sequence<3, 3>, std::index_sequence<5, 5, 5>, std::index_sequence<8, 8>>>();
 
     std::cout << e<double> << std::endl; // 2.71828
     std::cout << pi<double> << std::endl; // 3.14159
@@ -250,8 +254,8 @@ int main(int argc, char* argv[])
     execute<sum_t<std::integer_sequence<int, 1, 2, 4>>, int_<7>>();
     execute<sum_v<std::integer_sequence<int, 1, 2, 4>>, 7>();
 
-    execute<mul_t<std::integer_sequence<int, 1, 2, 4>>, int_<12>>();
-    execute<mul_v<std::integer_sequence<int, 1, 2, 4>>, 12>();
+    execute<mul_t<std::integer_sequence<int, 1, 2, 4>>, int_<8>>();
+    execute<mul_v<std::integer_sequence<int, 1, 2, 4>>, 8>();
 
     execute<element_t<1, std::tuple<char, double, int>>, double>();
     execute<element_t<2, std::integer_sequence<int, 1, -2, 7, 4>>, int_<7>>();

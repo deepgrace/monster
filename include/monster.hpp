@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 83
+#define MONSTER_VERSION 84
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -8503,7 +8503,7 @@ namespace monster
     template <typename P, typename T, template <typename, typename> typename searcher = bmh>
     inline constexpr auto number_of_v = typev<number_of<P, T, searcher>>;
 
-    template <typename T, bool B1, bool B2>
+    template <typename T, bool B1, bool B2, bool B3 = false>
     struct arrange
     {
         using uniq = unique_t<T>;
@@ -8534,11 +8534,20 @@ namespace monster
             using type = typeof_t<call<B1, size == 1, lhs, rhs>>;
         };
 
-        using type = unpack_t<concat_t, expand_t<impl, uniq, index_sequence_of_t<uniq>>>;
+        using curr = expand_t<impl, uniq, index_sequence_of_t<uniq>>;
+        using type = type_if<B3, unpack<tuple_t, curr>, unpack<concat_t, curr>>;
     };
 
-    template <typename T, bool B1, bool B2>
-    using arrange_t = typeof_t<arrange<T, B1, B2>>;
+    template <typename T, bool B1, bool B2, bool B3 = false>
+    using arrange_t = typeof_t<arrange<T, B1, B2, B3>>;
+
+    template <typename T>
+    struct group : arrange<T, true, false, true>
+    {
+    };
+
+    template <typename T>
+    using group_t = typeof_t<group<T>>;
 
     template <typename T>
     struct adjacent : arrange<T, true, false>
