@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 81
+#define MONSTER_VERSION 82
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5908,6 +5908,17 @@ namespace monster
     template <typename T, typename U>
     using set_matrix_diagonal_t = typeof_t<set_matrix_diagonal<T, U>>;
 
+    template <typename T>
+    struct trace : sum<get_matrix_diagonal_t<T>>
+    {
+    };
+
+    template <typename T>
+    using trace_t = typeof_t<trace<T>>;
+
+    template <typename T>
+    inline constexpr auto trace_v = typev<trace_t<T>>;
+
     template <auto N, typename T, typename U, bool B = false>
     requires (matrix_row_size_v<T> == matrix_row_size_v<U> || B)
     struct set_matrix_col : exchange<N, T, U>
@@ -5996,6 +6007,35 @@ namespace monster
 
     template <auto row, auto col, typename T>
     using remove_matrix_row_col_t = typeof_t<remove_matrix_row_col<row, col, T>>;
+
+    template <typename T>
+    requires is_square_matrix_v<T>
+    struct det
+    {
+        template <int i, int j, int k>
+        struct impl
+        {
+            static constexpr auto value = get_matrix_element_v<0, i, T>;
+            using next = type_if<value != 0, remove_matrix_row_col<0, i, T>, std::type_identity<T>>;
+
+            static constexpr auto curr = (i % 2 ? -1 : 1) * value;
+            using type = typeof_t<impl<i + 1, j, k + curr * type_if_v<value != 0, det<next>, c_0>>>;
+        };
+
+        template <int j, int k>
+        struct impl<j, j, k> : int_<k>
+        {
+        };
+
+        static constexpr auto row = matrix_row_size_v<T>;
+        using type = type_if<row + matrix_col_size_v<T> == 2, get_matrix_element<0, 0, T>, impl<0, row, 0>>;
+    };
+
+    template <typename T>
+    using det_t = typeof_t<det<T>>;
+
+    template <typename T>
+    inline constexpr auto det_v = typev<det_t<T>>;
 
     template <auto row, typename T, typename U>
     struct row_multiply : inner_dot<get_matrix_row_t<row, T>, get_matrix_row_t<row, U>>

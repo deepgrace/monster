@@ -1568,6 +1568,16 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, 0, 4, 0>,
                        std::integer_sequence<int, 0, 0, 4>>>();
 
+    execute<trace_v<set_matrix_diagonal_t<fill_c<3, 5>, identity_matrix_t<3>>>, 15>();
+
+    using matrix_ = std::tuple<std::integer_sequence<int, 1, 0, 2, -1>,
+                               std::integer_sequence<int, 3, 0, 0, 5>,
+                               std::integer_sequence<int, 2, 1, 4, -3>,
+                               std::integer_sequence<int, 1, 0, 5, 0>>;
+
+    execute<det_v<matrix_>, 30>();
+    execute<det_v<std::tuple<std::integer_sequence<int, 4, 5>, std::integer_sequence<int, 7, 8>>>, -3>();
+
     execute<next_permutation_list<std::integer_sequence<int, 1, 2, 3>>, list_n>();
     execute<prev_permutation_list<std::integer_sequence<int, 3, 2, 1>>, reverse_t<list_n>>();
 
