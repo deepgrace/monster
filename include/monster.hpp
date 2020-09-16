@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 82
+#define MONSTER_VERSION 83
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -807,26 +807,27 @@ namespace monster
     template <typename T, auto N = 0>
     inline constexpr auto head_v = get_v<0, T> + N;
 
+    template <bool B, typename T>
+    struct collect;
+
+    template <bool B, template <typename, auto ...> typename T, typename U, auto... values>
+    struct collect<B, T<U, values...>> : int_<B ? (values + ...) : (values * ...), U>
+    {
+    };
+
+    template <bool B, template <auto ...> typename T, auto... values>
+    struct collect<B, T<values...>> : int_<B ? (values + ...) : (values * ...)>
+    {
+    };
+
+    template <bool B, typename T>
+    using collect_t = typeof_t<collect<B, T>>;
+
+    template <bool B, typename T>
+    inline constexpr auto collect_v = typev<collect_t<B, T>>;
+
     template <typename T>
-    struct sum;
-
-    template <template <typename, auto ...> typename T, typename U, auto value>
-    struct sum<T<U, value>> : int_<value, U>
-    {
-    };
-
-    template <template <typename, auto ...> typename T, typename U, auto value, auto... values>
-    struct sum<T<U, value, values...>> : int_<value + typev<sum<T<U, values...>>>, U>
-    {
-    };
-
-    template <template <auto ...> typename T, auto value>
-    struct sum<T<value>> : int_<value>
-    {
-    };
-
-    template <template <auto ...> typename T, auto value, auto... values>
-    struct sum<T<value, values...>> : int_<value + typev<sum<T<values...>>>>
+    struct sum : collect<1, T>
     {
     };
 
@@ -834,7 +835,18 @@ namespace monster
     using sum_t = typeof_t<sum<T>>;
 
     template <typename T>
-    inline constexpr auto sum_v = typev<sum<T>>;
+    inline constexpr auto sum_v = typev<sum_t<T>>;
+
+    template <typename T>
+    struct mul : collect<0, T>
+    {
+    };
+
+    template <typename T>
+    using mul_t = typeof_t<mul<T>>;
+
+    template <typename T>
+    inline constexpr auto mul_v = typev<mul_t<T>>;
 
     template <typename L, typename R>
     struct rename;
@@ -6036,6 +6048,52 @@ namespace monster
 
     template <typename T>
     inline constexpr auto det_v = typev<det_t<T>>;
+
+    template <typename T, template <typename> typename F1, template <auto, typename> typename F2, template <typename> typename F3>
+    struct line_summator
+    {
+        template <int i, int j, typename U>
+        struct impl : append<typeof_t<U>, typeof_t<F3<typeof_t<F2<typev<U>, T>>>>>
+        {
+        };
+
+        using type = matrix_col_transform_t<0, typev<F1<T>>, T, impl, 1, 1, 1, 1>;
+    };
+
+    template <typename T, template <typename> typename F1, template <auto, typename> typename F2, template <typename> typename F3>
+    using line_summator_t = typeof_t<line_summator<T, F1, F2, F3>>;
+
+    template <typename T>
+    struct matrix_row_sum : line_summator<T, matrix_col_size, get_matrix_col, sum>
+    {
+    };
+
+    template <typename T>
+    using matrix_row_sum_t = typeof_t<matrix_row_sum<T>>;
+
+    template <typename T>
+    struct matrix_col_sum : line_summator<T, matrix_row_size, get_matrix_row, sum>
+    {
+    };
+
+    template <typename T>
+    using matrix_col_sum_t = typeof_t<matrix_col_sum<T>>;
+
+    template <typename T>
+    struct matrix_row_mul : line_summator<T, matrix_col_size, get_matrix_col, mul>
+    {
+    };
+
+    template <typename T>
+    using matrix_row_mul_t = typeof_t<matrix_row_mul<T>>;
+
+    template <typename T>
+    struct matrix_col_mul : line_summator<T, matrix_row_size, get_matrix_row, mul>
+    {
+    };
+
+    template <typename T>
+    using matrix_col_mul_t = typeof_t<matrix_col_mul<T>>;
 
     template <auto row, typename T, typename U>
     struct row_multiply : inner_dot<get_matrix_row_t<row, T>, get_matrix_row_t<row, U>>

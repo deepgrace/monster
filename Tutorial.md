@@ -241,6 +241,9 @@ int main(int argc, char* argv[])
     execute<sum_t<std::integer_sequence<int, 1, 2, 4>>, int_<7>>();
     execute<sum_v<std::integer_sequence<int, 1, 2, 4>>, 7>();
 
+    execute<mul_t<std::integer_sequence<int, 1, 2, 4>>, int_<12>>();
+    execute<mul_v<std::integer_sequence<int, 1, 2, 4>>, 12>();
+
     execute<element_t<1, std::tuple<char, double, int>>, double>();
     execute<element_t<2, std::integer_sequence<int, 1, -2, 7, 4>>, int_<7>>();
     execute<element_v<3, std::integer_sequence<int, 1, -2, 7, 4>>, 4>();
@@ -1568,6 +1571,12 @@ int main(int argc, char* argv[])
 
     execute<det_v<matrix_>, 30>();
     execute<det_v<std::tuple<std::integer_sequence<int, 4, 5>, std::integer_sequence<int, 7, 8>>>, -3>();
+
+    execute<matrix_row_sum_t<matrix_>, std::integer_sequence<int, 7, 1, 11, 1>>();
+    execute<matrix_col_sum_t<matrix_>, std::integer_sequence<int, 2, 8, 4, 6>>();
+
+    execute<matrix_row_mul_t<matrix_>, std::integer_sequence<int, 6, 0, 0, 0>>();
+    execute<matrix_col_mul_t<matrix_>, std::integer_sequence<int, 0, 0, -24, 0>>();
 
     execute<next_permutation_list<std::integer_sequence<int, 1, 2, 3>>, list_n>();
     execute<prev_permutation_list<std::integer_sequence<int, 3, 2, 1>>, reverse_t<list_n>>();
