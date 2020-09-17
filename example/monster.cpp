@@ -1205,9 +1205,15 @@ int main(int argc, char* argv[])
 
     execute<get_matrix_element_t<3, 1, list_t>, double>();
 
-    execute<matrix_transpose_t<list_t>, std::tuple<std::tuple<char, char, int, int, double, double>,
-            std::tuple<int, double, char, double, char, int>,
-            std::tuple<double, int, double, char, int, char>>>();
+    execute<matrix_transpose_t<list_t>,
+            std::tuple<std::tuple<char, char, int, int, double, double>,
+                       std::tuple<int, double, char, double, char, int>,
+                       std::tuple<double, int, double, char, int, char>>>();
+
+    execute<matrix_transpose_r_t<list_t>,
+            std::tuple<std::tuple<char, int, char, double, int, double>,
+                       std::tuple<int, char, double, char, double, int>,
+                       std::tuple<double, double, int, int, char, char>>>();
 
     execute<get_matrix_row_t<1, list_t>, std::tuple<char, double, int>>();
     execute<get_matrix_col_t<1, list_t>, std::tuple<int, double, char, double, char, int>>();

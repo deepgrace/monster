@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 87
+#define MONSTER_VERSION 88
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6640,20 +6640,38 @@ namespace monster
     template <auto row, auto col, typename T, template <auto, auto, typename> typename F>
     using matrix_operator_t = typeof_t<matrix_operator<row, col, T, F>>;
 
-    template <typename T>
+    template <typename T, bool B = false>
     struct matrix_transpose
     {
+        static constexpr auto row = matrix_row_size_v<T>;
+        static constexpr auto col = matrix_col_size_v<T>;
+
         template <int i, int j, typename U>
-        struct impl : set_matrix_element<j, i, get_matrix_element_t<i, j, T>, U>
+        struct impl : set_matrix_element<B ? i : j, B ? j : i, get_matrix_element_t<B ? row - j - 1 : i, B ? col - i - 1 : j, T>, U>
         {
         };
 
-        static constexpr auto col = matrix_col_size_v<T>;
-        using type = matrix_operator_t<matrix_row_size_v<T>, col, fill_t<col, get_matrix_col_t<0, T>>, impl>;
+        using type = matrix_operator_t<B ? col : row, B ? row : col, fill_t<col, get_matrix_col_t<0, T>>, impl>;
+    };
+
+    template <typename T, bool B = false>
+    using matrix_transpose_t = typeof_t<matrix_transpose<T, B>>;
+
+    template <typename T>
+    struct matrix_transpose_l : matrix_transpose<T, false>
+    {
     };
 
     template <typename T>
-    using matrix_transpose_t = typeof_t<matrix_transpose<T>>;
+    using matrix_transpose_l_t = typeof_t<matrix_transpose_l<T>>;
+
+    template <typename T>
+    struct matrix_transpose_r : matrix_transpose<T, true>
+    {
+    };
+
+    template <typename T>
+    using matrix_transpose_r_t = typeof_t<matrix_transpose_r<T>>;
 
     template <typename T>
     struct rotate_matrix_left : matrix_colwise_reverse<matrix_transpose_t<T>>
