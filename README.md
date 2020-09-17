@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
     using min1 = select_t<2, std::tuple<short, int, double, int, char>>;
     using min2 = select_t<2, std::integer_sequence<int, -2, 1, 0, -7, 4, 3>>;
     static_assert(std::is_same_v<min1, short>);
-    static_assert(std::is_same_v<min2, int_<-2>>);
+    static_assert(std::is_same_v<min2, c_<-2>>);
 
     // find K-th greatest element in a sequence (k == 2)
     using max1 = select_t<2, std::tuple<short, int, double, int, char>, greater_equal_t>;
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
     using e2 = element_t<3, std::integer_sequence<int, 1, -2, 7, 4>>;
     constexpr auto e3 = element_v<3, std::integer_sequence<int, 1, -2, 7, 4>>;
     static_assert(std::is_same_v<e1, double>);
-    static_assert(std::is_same_v<e2, int_<4>>);
+    static_assert(std::is_same_v<e2, c_4>);
     static_assert(e3 == 4);
 
     // remove duplicate elements from a sequence, keep the first appearance

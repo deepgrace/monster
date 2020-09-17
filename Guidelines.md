@@ -50,7 +50,7 @@ using f2 = front_t<std::integer_sequence<int, 1, -2, 7, 4>>;
 auto  f3 = front_v<std::integer_sequence<int, 1, -2, 7, 4>>;
 using f4 = first_type<int, double, char*, float>;
 // f1 == char
-// f2 == int_<1>
+// f2 == c_1
 // f3 == 1
 // f4 == int
 
@@ -64,7 +64,7 @@ using b2 = back_t<std::integer_sequence<int, 1, -2, 7, 4>>;
 auto  b3 = back_v<std::integer_sequence<int, 1, -2, 7, 4>>;
 using b4 = last_type<int, double, char*, float>;
 // b1 == int
-// b2 == int_<4>
+// b2 == c_4
 // b3 == 4
 // b4 == float
 
@@ -92,8 +92,8 @@ auto  e4 = get_v<1, std::integer_sequence<int, 1, 2, 4>>;
 auto  e5 = element_v<3, std::integer_sequence<int, 1, -2, 7, 4>>;
 using e6 = nth_type_t<2, int, double, char*, float>;
 // e1 == double
-// e2 == int_<7>
-// e3 == int_<2>
+// e2 == c_7
+// e3 == c_2
 // e4 == 2
 // e5 == 4
 // e6 == char*
@@ -103,7 +103,7 @@ using p1 = prev_t<2, std::tuple<int, double, char, float, char>>;
 using p2 = prev_t<1, std::integer_sequence<int, 7, 3, -1, 2, 4>>;
 auo   p3 = prev_v<1, std::integer_sequence<int, 7, 3, -1, 2, 4>>;
 // p1 == double
-// p2 == int_<7>
+// p2 == c_7
 // p3 == 7
 
 // next element of a specific index
@@ -111,7 +111,7 @@ using n1 = next_t<2, std::tuple<int, double, char, float, char>>;
 using n2 = next_t<1, std::integer_sequence<int, 7, 3, -1, 2, 4>>;
 auto  n3 = next_v<1, std::integer_sequence<int, 7, 3, -1, 2, 4>>;
 // n1 == float
-// n2 == int_<-1>
+// n2 == c_<-1>
 // n3 == -1
 
 // middle element of a sequence
@@ -119,11 +119,11 @@ using m1 = midpoint_t<std::tuple<char, double, short, float, char>>;
 using m2 = midpoint_t<std::integer_sequence<int, 7, 3, -1, 2, 4, 0>>;
 auto  m3 = midpoint_v<std::integer_sequence<int, 7, 3, -1, 2, 4, 0>>;
 // m1 == short
-// m2 == int_<-1>
+// m2 == c_<-1>
 // m3 == -1
 
 // size of a type
-auto s1 = sizeof_t_v<int_<8>>;
+auto s1 = sizeof_t_v<c_8>;
 auto s2 = sizeof_t_v<int>;
 auto s3 = sizeof_t_v<std::tuple<int, char, double>>;
 auto s4 = sizeof_t_v<std::index_sequence<1, 2, 0, 4>>;
@@ -142,11 +142,11 @@ auto t = tuple_element_size_v<2, std::tuple<short, int, double>>;
 // sum of a type
 using s1 = sum_t<std::integer_sequence<int, 1, 2, 4>>;
 auto  s2 = sum_v<std::integer_sequence<int, 6, 7, 8>>;
-// s1 == int_<7>
+// s1 == c_7
 // s2 == 21
 
 // count the number of occurrences of an element
-auto c1 = count_v<int_<1>, std::integer_sequence<int, 1, 2, 3, 1>>;
+auto c1 = count_v<c_1, std::integer_sequence<int, 1, 2, 3, 1>>;
 auto c2 = count_v<char, std::tuple<char, char, int, float, char, int>>;
 // c1 == 2
 // c2 == 3
@@ -270,7 +270,7 @@ using p4 = typeof_t<stable_partition_t<1, 6, std::integer_sequence<int, 1, 3, 2,
 // partition point in the range [begin, end)
 using p5 = partition_point_t<p2, is_tuple, 1, 6>;
 auto  p6 = partition_point_v<p4, is_even,  1, 6>;
-// p5 == int_<3>
+// p5 == c_3
 // p6 == 4
 
 // partial sort in the range [begin, end)
@@ -296,18 +296,18 @@ using m3 = kadane_t<array>;                // maximum type
 auto  m4 = kadane_v<array>;                // maximum value
 // m1 == std::integer_sequence<int, 2, 6, 7>
 // m2 == m1
-// m3 == int_<7>
+// m3 == c_7
 // m4 == 7
 // the elements in the range [2, 6] is the maximum subarray of array with sum 7
 
 // equal range
 using ins = std::integer_sequence<int, 1, 1, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6>;
 
-using equal_range1 = equal_range_t<int_<3>, ins>;
+using equal_range1 = equal_range_t<c_3, ins>;
 using rng1 = range_t<equal_range1::first, equal_range1::second, ins>;
 // rng1 == std::integer_sequence<int, 3, 3, 3, 3>
 
-using equal_range2 = equal_range_t<int_<4>, ins>;
+using equal_range2 = equal_range_t<c_4, ins>;
 using rng2 = range_t<equal_range2::first, equal_range2::second, ins>;
 // rng2 == std::integer_sequence<int, 4, 4, 4>
 
@@ -335,25 +335,25 @@ using s4 = set_union_t<less_t, std::integer_sequence<int, 1, 2, 3, 4, 5, 5, 5>,
 
 // find
 auto f0 = find_v<char, std::tuple<float, char, double, int, char>>;
-auto f1 = find_v<int_<6>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>;
+auto f1 = find_v<c_6, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>;
 // f0 == 1
 // f1 == 2
 
 // find backward
 auto f2 = find_backward_v<char, std::tuple<float, char, double, int, char>>;
-auto f3 = find_backward_v<int_<3>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>;
+auto f3 = find_backward_v<c_3, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>;
 // f2 == 4
 // f3 == 3
 
 // find not
 auto f4 = find_not_v<float, std::tuple<char, int, double, int, char>>;
-auto f5 = find_not_v<int_<4>, std::integer_sequence<int, 4, 3, -2, 6, 3, 6>>;
+auto f5 = find_not_v<c_4, std::integer_sequence<int, 4, 3, -2, 6, 3, 6>>;
 // f4 == 0
 // f5 == 1
 
 // find not backward
 auto f6 = find_not_backward_v<float, std::tuple<char, int, double, int, float>>;
-auto f7 = find_not_backward_v<int_<4>, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>;
+auto f7 = find_not_backward_v<c_4, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>;
 // f6 == 3
 // f7 == 5
 
@@ -425,7 +425,7 @@ auto f = find_end_v<equal_t, std::integer_sequence<int, 0, 1, 2, 0, 1, 2, 0, 1, 
 // f == 6
 
 // search_n
-auto s6 = search_n_v<std::is_same, 2, int_<2>, std::integer_sequence<int, 1, 2, 0, 2, 2, 7, 2>>;
+auto s6 = search_n_v<std::is_same, 2, c_2, std::integer_sequence<int, 1, 2, 0, 2, 2, 7, 2>>;
 auto s7 = search_n_v<std::is_same, 2, int, std::tuple<int, char, int, int, double, int, int, char>>;
 // s6 == 3
 // s7 == 2
@@ -449,8 +449,8 @@ using in2 = inclusive_scan_t<multiplies_t, seq>;
 // in2 == std::integer_sequence<int, 1, 2, 6, 24>
 
 // exclusive_scan
-using ex1 = exclusive_scan_t<plus_t, seq, int_<2>>;
-using ex2 = exclusive_scan_t<multiplies_t, seq, int_<2>>;
+using ex1 = exclusive_scan_t<plus_t, seq, c_2>;
+using ex2 = exclusive_scan_t<multiplies_t, seq, c_2>;
 // ex1 == std::integer_sequence<int, 2, 3, 5, 8>
 // ex2 == std::integer_sequence<int, 2, 2, 4, 12>
 
@@ -461,8 +461,8 @@ using ti2 = transform_inclusive_scan_t<multiplies_t, seq, succ>;
 // ti2 == std::integer_sequence<int, 2, 6, 24, 120>
 
 // transform_exclusive_scan
-using te1 = transform_exclusive_scan_t<plus_t, seq, pred, int_<2>>;
-using te2 = transform_exclusive_scan_t<multiplies_t, seq, succ, int_<2>>;
+using te1 = transform_exclusive_scan_t<plus_t, seq, pred, c_2>;
+using te2 = transform_exclusive_scan_t<multiplies_t, seq, succ, c_2>;
 // te1 == std::integer_sequence<int, 2, 2, 3, 5>
 // te2 == std::integer_sequence<int, 2, 4, 12, 48>
 
@@ -473,18 +473,18 @@ using t = transmute_t<plus_t, std::integer_sequence<int, 1, 3, 0, 2>,
 
 // inner product
 auto in1 = inner_product_v<plus_t, equal_t, std::integer_sequence<int, 1, 3, 0, 2>,
-           std::integer_sequence<int, 1, 5, 4, 2>, int_<0>>;
+           std::integer_sequence<int, 1, 5, 4, 2>, c_0>;
 auto in2 = inner_product_v<plus_t, multiplies_t, std::integer_sequence<int, 1, 3, 0, 2>,
-           std::integer_sequence<int, 1, 5, 4, 2>, int_<0>>;
+           std::integer_sequence<int, 1, 5, 4, 2>, c_0>;
 // in1 == 2
 // in2 == 20
 
 // accumulate
-auto acc = accumulate_v<multiplies_t, int_<1>, std::integer_sequence<int, 1, 3, -3, 2>>;
+auto acc = accumulate_v<multiplies_t, c_1, std::integer_sequence<int, 1, 3, -3, 2>>;
 // acc == -18
 
 // iota
-using io = iota_t<succ, int_<-2>, std::integer_sequence<int, 0, 0, 0, 0, 0>>;
+using io = iota_t<succ, c_<-2>, std::integer_sequence<int, 0, 0, 0, 0, 0>>;
 // io == std::integer_sequence<int, -2, -1, 0, 1, 2>
 
 // tokenize a number into a sequence of specific length (default in base ten with length one)
@@ -724,7 +724,7 @@ using d2 = drop_t<1, std::integer_sequence<int, 1, 2, -2, 4, 5>>;
 
 // delete an element of specific type or value
 using d3 = eliminate_t<char, std::tuple<int, char, double, float, char>>;
-using d4 = eliminate_t<int_<3>, std::integer_sequence<int, 0, 3, 2, 4, 7, 3>>;
+using d4 = eliminate_t<c_3, std::integer_sequence<int, 0, 3, 2, 4, 7, 3>>;
 using d5 = eliminate_c<4, std::integer_sequence<int, 4, 3, 2, 4, 7, 3>>;
 // d3 == std::tuple<int, double, float>
 // d4 == std::integer_sequence<int, 0, 2, 4, 7>
@@ -882,7 +882,7 @@ using e8 = expand_of_t<list4, std::index_sequence<1, 3, 5>>;
 ```cpp
 // generate a list
 using f1 = fill_t<3, int>;
-using f2 = fill_t<4, int_<1>>;
+using f2 = fill_t<4, c_1>;
 using f3 = fill_c<5, 2>;
 using f4 = range_generator_t<int, 1, 7>;
 using f5 = index_range<2, 7>;
@@ -996,7 +996,7 @@ using s2 = splat_t<3, 5, std::tuple<int, char, short, int, char>>;
 ```cpp
 // insert elements at specific index
 using i1 = insert_t<2, std::tuple<float, double, int>, float, char>;
-using i2 = insert_t<1, std::integer_sequence<int, 1, 2, -2>, int_<0>, int_<4>>;
+using i2 = insert_t<1, std::integer_sequence<int, 1, 2, -2>, c_0, c_4>;
 using i3 = insert_c<0, std::integer_sequence<int, 0, 4, 3>, 5, 6, 7>;
 // i1 == std::tuple<float, double, float, char, int>
 // i2 == std::integer_sequence<int, 1, 0, 4, 2, -2>
@@ -1224,7 +1224,7 @@ struct negaf;
 For a bool `BOOL` and a function `F`, which take arguments `Args...`, `negaf` can be used as:  
 `negaf<F, BOOL>::template apply<Args...>` or `call<negaf<F, BOOL>, Args...>`.
 ```cpp
-using four = int_<4>;
+using four = c_4;
 using is_odd_ = negaf<is_even>;
 
 auto ev1 = is_even_v<four>;
@@ -1591,7 +1591,7 @@ using p2 = pivot_t<3, std::index_sequence<0, 1, 2, 3, 4, 5>>;
 ```cpp
 // replace specific elements
 using r1 = replace_with_t<int, float, std::tuple<int, char, int, double, int, float, char>>;
-using r2 = replace_with_t<int_<1>, int_<-6>, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>;
+using r2 = replace_with_t<c_1, c_<-6>, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>;
 using r3 = replace_with_c<1, -6, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>;
 // r1 == std::tuple<float, char, float, double, float, float, char>
 // r2 == std::integer_sequence<int, -6, 3, -2, -6, 7, -6, 4, 6>
@@ -1614,7 +1614,7 @@ using r7 = replace_range_t<1, 3, std::integer_sequence<int, 4, 1, 2, -2>,
 
 // replace specific elements in the range [begin, end)
 using g1 = gsub_t<1, 5, int, float, std::tuple<int, char, int, double, int, float, char>>;
-using g2 = gsub_t<1, 5, int_<-2>, int_<-6>, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>;
+using g2 = gsub_t<1, 5, c_<-2>, c_<-6>, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>;
 using g3 = gsub_c<1, 5, -2, -6, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>;
 // g1 == std::tuple<int, char, float, double, float, float, char>
 // g2 == std::integer_sequence<int, 1, 3, -6, 1, 7, 1, 4, 6>
@@ -1622,13 +1622,13 @@ using g3 = gsub_c<1, 5, -2, -6, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4,
 
 // replace elements in the range [begin, end) satisfying specific criteria
 using g4 = gsub_if_t<1, 4, is_tuple, int, std::tuple<int, char, std::tuple<>, double, std::tuple<>>>;
-using g5 = gsub_if_t<1, 5, is_even, int_<-6>, std::integer_sequence<int, 1, 3, -2, 4, 7, 0, 4, 6>>;
+using g5 = gsub_if_t<1, 5, is_even, c_<-6>, std::integer_sequence<int, 1, 3, -2, 4, 7, 0, 4, 6>>;
 // g4 == std::tuple<int, char, int, double, std::tuple<>>
 // g5 == std::integer_sequence<int, 1, 3, -6, -6, 7, 0, 4, 6>
 
 // adjust specific elements in the range [begin, end)
 using a1 = adjust_t<1, 5, int, std::tuple<int, char, int, double, int, float, char>, std::add_pointer>;
-using a2 = adjust_t<1, 5, int_<1>, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>, succ>;
+using a2 = adjust_t<1, 5, c_1, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>, succ>;
 // a1 == std::tuple<int, char, int*, double, int*, float, char>
 // a2 == std::integer_sequence<int, 1, 3, -2, 2, 7, 1, 4, 6>
 
@@ -1641,7 +1641,7 @@ using a4 = adjust_if_t<1, 5, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>
 
 // substitute elements in the range [begin, end) with specific element
 using s1 = substitute_t<2, 5, int, std::tuple<int, char, int, double, int, float, char>>;
-using s2 = substitute_t<2, 5, int_<-2>, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>;
+using s2 = substitute_t<2, 5, c_<-2>, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>;
 using s3 = substitute_c<3, 6, 9, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>;
 // s1 == std::tuple<int, char, int, int, int, float, char>
 // s2 == std::integer_sequence<int, 1, 3, -2, -2, -2, 1, 4, 6>
@@ -1649,7 +1649,7 @@ using s3 = substitute_c<3, 6, 9, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4
 
 // replace element at specific index
 using e1 = exchange_t<2, int, std::tuple<int, int, char, double, int, float, char>>;
-using e2 = exchange_t<1, int_<-2>, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>;
+using e2 = exchange_t<1, c_<-2>, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>;
 using e3 = exchange_c<4, 9, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>;
 // e1 == std::tuple<int, int, int, double, int, float, char>
 // e2 == std::integer_sequence<int, 1, -2, -2, 1, 7, 1, 4, 6>
@@ -1762,7 +1762,7 @@ using s1 = select_t<2, std::tuple<short, int, double, int, char>>;
 using s2 = select_t<3, std::integer_sequence<int, 0, 3, 2, 1, 2, 6>>;
 auto  s3 = select_v<4, std::integer_sequence<int, -2, 1, 0, -7, 4, 3>>;
 // s1 == short
-// s2 == int_<2>
+// s2 == c_2
 // s3 == 1
 
 // the kth maximum element
@@ -1770,7 +1770,7 @@ using s4 = select_t<2, std::tuple<short, int, double, int, char>, greater_equal_
 using s5 = select_t<3, std::integer_sequence<int, 0, 3, 4, 1, -2, 6>, greater_equal_t>;
 auto  s6 = select_v<4, std::integer_sequence<int, -2, 1, 0, -7, 4, 3>, greater_equal_t>;
 // s4 == int
-// s5 == int_<3>
+// s5 == c_3
 // s6 == 0
 
 // mode, the element that appears most often
@@ -1778,7 +1778,7 @@ using m1 = monster::mode_t<std::tuple<char, double, char, double, int, float, ch
 using m2 = monster::mode_t<std::integer_sequence<int, 1, 2, 3, 1>>;
 auto  m3 = mode_v<std::integer_sequence<int, 1, 2, 3, 1>>;
 // m1 == char
-// m2 == int_<1>
+// m2 == c_1
 // m3 == 1
 
 // returns the first index of the type that appears in the rest of a parameter pack
@@ -1806,7 +1806,7 @@ auto  m6 = max_element_v<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>;
 using m7 = max_t<char, double>;
 using m8 = maximum_t<short, int, char, short>;
 // m4 == int
-// m5 == int_<4>
+// m5 == c_4
 // m6 == 4
 // m7 == double
 // m8 == int
@@ -1818,20 +1818,20 @@ auto  n6 = min_element_v<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>;
 using n7 = min_t<char, double>;
 using n8 = minimum_t<short, int, char, int>;
 // n4 == char
-// n5 ==  int_<-2>
+// n5 ==  c_<-2>
 // n6 == -2
 // n7 == char
 // n8 = char
 
 // search element
 auto b1 = binary_search_v<double, std::tuple<short, int, double>>;
-auto b2 = binary_search_v<int_<7>, std::integer_sequence<int, -2, 0, 3, 7, 8>>;
+auto b2 = binary_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>;
 auto b3 = exponential_search_v<double, std::tuple<short, int, double>>;
-auto b4 = exponential_search_v<int_<7>, std::integer_sequence<int, -2, 0, 3, 7, 8>>;
+auto b4 = exponential_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>;
 auto b5 = interpolation_search_v<double, std::tuple<short, int, double>>;
-auto b6 = interpolation_search_v<int_<7>, std::integer_sequence<int, -2, 0, 3, 7, 8>>>;
+auto b6 = interpolation_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>>;
 auto b7 = fibonacci_search_v<double, std::tuple<short, int, double>>;
-auto b8 = fibonacci_search_v<int_<7>, std::integer_sequence<int, -2, 0, 3, 7, 8>>>;
+auto b8 = fibonacci_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>>;
 // b1..b8 == true
 
 // majority element
@@ -1977,7 +1977,7 @@ int main(int argc, char* argv[])
 ```cpp
 // add elements at the front
 using p1 = prepend_t<std::tuple<float, double, int>, int, float>;
-using p2 = prepend_t<std::integer_sequence<int, 1, 2, -2>, int_<4>, int_<3>>;
+using p2 = prepend_t<std::integer_sequence<int, 1, 2, -2>, c_4, c_3>;
 using p3 = prepend_c<std::integer_sequence<int, 1, 2, -2>, 4, 3>;
 // p1 == std::tuple<int, float, float, double, int>
 // p2 == std::integer_sequence<int, 4, 3, 1, 2, -2>
@@ -1985,7 +1985,7 @@ using p3 = prepend_c<std::integer_sequence<int, 1, 2, -2>, 4, 3>;
 
 // add elements at the back
 using a1 = append_t<std::tuple<float, double, int>, float, char>;
-using a2 = append_t<std::integer_sequence<int, 1, 2, -2>, int_<4>, int_<3>>;
+using a2 = append_t<std::integer_sequence<int, 1, 2, -2>, c_4, c_3>;
 using a3 = append_c<std::integer_sequence<int, 1, 2, -2>, 4, 3>;
 // a1 == std::tuple<float, double, int, float, char>
 // a2 == std::integer_sequence<int, 1, 2, -2, 4, 3>
@@ -1993,7 +1993,7 @@ using a3 = append_c<std::integer_sequence<int, 1, 2, -2>, 4, 3>;
 
 // add prefix to each element
 using p4 = prefix_t<std::tuple<int, double>, float, char>;
-using p5 = prefix_t<std::integer_sequence<int, 1, 2>, int_<3>, int_<4>>;
+using p5 = prefix_t<std::integer_sequence<int, 1, 2>, c_3, c_4>;
 using p6 = prefix_c<std::integer_sequence<int, 5, 0>, 3, 4>;
 // p4 == std::tuple<float, char, int, float, char, double>
 // p5 == std::integer_sequence<int, 3, 4, 1, 3, 4, 2>
@@ -2001,7 +2001,7 @@ using p6 = prefix_c<std::integer_sequence<int, 5, 0>, 3, 4>;
 
 // add suffix to each element
 using s1 = suffix_t<std::tuple<int, double>, float, char>;
-using s2 = suffix_t<std::integer_sequence<int, 1, 2>, int_<3>, int_<4>>;
+using s2 = suffix_t<std::integer_sequence<int, 1, 2>, c_3, c_4>;
 using s3 = suffix_c<std::integer_sequence<int, 5, 0>, 2, 6>;
 // s1 == std::tuple<int, float, char, double, float, char>
 // s2 == std::integer_sequence<int, 1, 3, 4, 2, 3, 4>
@@ -2015,7 +2015,7 @@ using c2 = eval_t<currying_t, std::add_pointer, c1>;
 
 // sequences in a repeated manner
 using c3 = cycle_t<3, int, double>;
-using c4 = cycle_t<3, int_<2>, int_<4>>;
+using c4 = cycle_t<3, c_2, c_4>;
 using c5 = cycle_c<3, 2, 4>;
 // c3 == std::tuple<int, double, int, double, int, double>
 // c4 == std::integer_sequence<int, 2, 4, 2, 4, 2, 4>
@@ -2045,7 +2045,7 @@ using t5 = to_sequence_t<std::tuple<int, double>>;
 
 // turn a integer sequence to a tuple that consist of the value of the elements
 using t6 = to_tuple_t<std::integer_sequence<int, 4, 8>>;
-// t6 == std::tuple<int_<4>, int_<8>>
+// t6 == std::tuple<c_4, c_8>
 
 // increase elements
 using seq = std::integer_sequence<int, 2, 7, 4>;
