@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 86
+#define MONSTER_VERSION 87
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6574,6 +6574,22 @@ namespace monster
     template <auto lower, auto upper, typename T>
     using matrix_col_reverse_range_t = typeof_t<matrix_col_reverse_range<lower, upper, T>>;
 
+    template <typename T>
+    struct matrix_rowwise_reverse : matrix_row_reverse_range<0, matrix_row_size_v<T>, T>
+    {
+    };
+
+    template <typename T>
+    using matrix_rowwise_reverse_t = typeof_t<matrix_rowwise_reverse<T>>;
+
+    template <typename T>
+    struct matrix_colwise_reverse : matrix_col_reverse_range<0, matrix_col_size_v<T>, T>
+    {
+    };
+
+    template <typename T>
+    using matrix_colwise_reverse_t = typeof_t<matrix_colwise_reverse<T>>;
+
     template <auto row_lower, auto row_upper, auto col_lower, auto col_upper, typename T>
     struct matrix_row_col_reverse_range : matrix_col_reverse_range<col_lower, col_upper, matrix_row_reverse_range_t<row_lower, row_upper, T>>
     {
@@ -6638,6 +6654,22 @@ namespace monster
 
     template <typename T>
     using matrix_transpose_t = typeof_t<matrix_transpose<T>>;
+
+    template <typename T>
+    struct rotate_matrix_left : matrix_colwise_reverse<matrix_transpose_t<T>>
+    {
+    };
+
+    template <typename T>
+    using rotate_matrix_left_t = typeof_t<rotate_matrix_left<T>>;
+
+    template <typename T>
+    struct rotate_matrix_right : matrix_rowwise_reverse<matrix_transpose_t<T>>
+    {
+    };
+
+    template <typename T>
+    using rotate_matrix_right_t = typeof_t<rotate_matrix_right<T>>;
 
     template <typename T, typename U, int m = 1, int n = 1>
     requires (matrix_row_size_v<T> == matrix_row_size_v<U> && matrix_col_size_v<T> == matrix_col_size_v<U>)

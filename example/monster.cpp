@@ -1489,6 +1489,28 @@ int main(int argc, char* argv[])
     using matrix = std::tuple<std::integer_sequence<int, 0, 1, 2, 3, 4>,
                               std::integer_sequence<int, 5, 6, 7, 8, 9>>;
 
+    execute<matrix_rowwise_reverse_t<matrix>,
+            std::tuple<std::integer_sequence<int, 4, 3, 2, 1, 0>,
+                       std::integer_sequence<int, 9, 8, 7, 6, 5>>>();
+
+    execute<matrix_colwise_reverse_t<matrix>,
+            std::tuple<std::integer_sequence<int, 5, 6, 7, 8, 9>,
+                       std::integer_sequence<int, 0, 1, 2, 3, 4>>>();
+
+    execute<rotate_matrix_left_t<matrix>,
+            std::tuple<std::integer_sequence<int, 4, 9>,
+                       std::integer_sequence<int, 3, 8>,
+                       std::integer_sequence<int, 2, 7>,
+                       std::integer_sequence<int, 1, 6>,
+                       std::integer_sequence<int, 0, 5>>>();
+
+    execute<rotate_matrix_right_t<matrix>,
+            std::tuple<std::integer_sequence<int, 5, 0>,
+                       std::integer_sequence<int, 6, 1>,
+                       std::integer_sequence<int, 7, 2>,
+                       std::integer_sequence<int, 8, 3>,
+                       std::integer_sequence<int, 9, 4>>>();
+
     execute<sub_matrix_t<0, 2, 1, 4, matrix>,
             std::tuple<std::integer_sequence<int, 1, 2, 3>,
                        std::integer_sequence<int, 6, 7, 8>>>();
