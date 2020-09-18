@@ -1576,6 +1576,16 @@ int main(int argc, char* argv[])
             std::tuple<std::integer_sequence<int, 2, 1, -2, 2>,
                        std::integer_sequence<int, 3, -1, 11, 4>>>();
 
+    execute<matrix_row_concat_t<lhs, rhs>,
+            std::tuple<std::integer_sequence<int, 0, 1, 2, 3, -2, 0, 4, 1>,
+                       std::integer_sequence<int, 4, 5, 6, 7, 1, 6, -5, 3>>>();
+
+    execute<matrix_col_concat_t<lhs, rhs>,
+            std::tuple<std::integer_sequence<int, 0, 1, 2, 3>,
+                       std::integer_sequence<int, 4, 5, 6, 7>,
+                       std::integer_sequence<int, -2, 0, 4, 1>,
+                       std::integer_sequence<int, 1, 6, -5, 3>>>();
+
     using mid = std::tuple<std::integer_sequence<int, -8, 9>,
                            std::integer_sequence<int, 4, 0>,
                            std::integer_sequence<int, -4, 2>,

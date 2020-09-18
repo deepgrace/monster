@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 89
+#define MONSTER_VERSION 90
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6854,6 +6854,32 @@ namespace monster
 
     template <typename T>
     using transpose_t = typeof_t<transpose<T>>;
+
+    template <typename T, typename U>
+    requires (matrix_row_size_v<T> == matrix_row_size_v<U>)
+    struct matrix_row_concat
+    {
+        template <int i, int j, typename V>
+        struct impl
+        {
+            static constexpr auto row = typev<V>;
+            using type = set_matrix_row_t<row, append_t<typeof_t<V>, get_matrix_row_t<row, U>>, typeof_t<V>>;
+        };
+
+        using type = matrix_col_transform_t<0, 0, T, impl, 1, 1>;
+    };
+
+    template <typename T, typename U>
+    using matrix_row_concat_t = typeof_t<matrix_row_concat<T, U>>;
+
+    template <typename T, typename U>
+    requires (matrix_col_size_v<T> == matrix_col_size_v<U>)
+    struct matrix_col_concat : append_range<T, U>
+    {
+    };
+
+    template <typename T, typename U>
+    using matrix_col_concat_t = typeof_t<matrix_col_concat<T, U>>;
 
     template <template <size_t, typename ...> typename F, size_t N, typename T, typename... Args>
     struct do_while
