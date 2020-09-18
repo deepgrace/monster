@@ -1451,6 +1451,11 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, 3, 2>,
                        std::integer_sequence<int, 3, 1>>>();
 
+    execute<matrix_col_row_erase_t<1, 2, 1, 4, list_n>,
+            std::tuple<std::integer_sequence<int, 1, 3>,
+                       std::integer_sequence<int, 3, 2>,
+                       std::integer_sequence<int, 3, 1>>>();
+
     execute<matrix_row_rotate_t<1, 3, 5, list_n>,
             std::tuple<std::integer_sequence<int, 1, 2, 3>,
                        std::integer_sequence<int, 2, 3, 1>,
@@ -1558,6 +1563,9 @@ int main(int argc, char* argv[])
 
     using rhs = std::tuple<std::integer_sequence<int, -2, 0, 4, 1>,
                            std::integer_sequence<int, 1, 6, -5, 3>>;
+
+    execute<matrix_element_add_v<1, 3, lhs, rhs>, 10>();
+    execute<matrix_element_sub_v<1, 2, lhs, rhs>, 11>();
 
     execute<matrix_add_t<lhs, rhs>,
             std::tuple<std::integer_sequence<int, -2, 1, 6, 4>,

@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 91
+#define MONSTER_VERSION 92
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6468,6 +6468,14 @@ namespace monster
     template <auto row_lower, auto row_upper, auto col_lower, auto col_upper, typename T>
     using matrix_row_col_erase_t = typeof_t<matrix_row_col_erase<row_lower, row_upper, col_lower, col_upper, T>>;
 
+    template <auto col_lower, auto col_upper, auto row_lower, auto row_upper, typename T>
+    struct matrix_col_row_erase : matrix_row_erase<row_lower, row_upper, matrix_col_erase_t<col_lower, col_upper, T>>
+    {
+    };
+
+    template <auto col_lower, auto col_upper, auto row_lower, auto row_upper, typename T>
+    using matrix_col_row_erase_t = typeof_t<matrix_col_row_erase<col_lower, col_upper, row_lower, row_upper, T>>;
+
     template <auto pos, auto len, typename T>
     struct matrix_row_subset : matrix_row_range<pos, pos + len, T>
     {
@@ -6505,7 +6513,23 @@ namespace monster
     using matrix_col_rotate_t = typeof_t<matrix_col_rotate<i, j, k, T>>;
 
     template <auto N, typename T>
-    struct matrix_row_reverse : set_matrix_row<N, reverse_t<get_matrix_row_t<N, T>>, T>
+    struct reverse_row : reverse<get_matrix_row_t<N, T>>
+    {
+    };
+
+    template <auto N, typename T>
+    using reverse_row_t = typeof_t<reverse_row<N, T>>;
+
+    template <auto N, typename T>
+    struct reverse_col : reverse<get_matrix_col_t<N, T>>
+    {
+    };
+
+    template <auto N, typename T>
+    using reverse_col_t = typeof_t<reverse_col<N, T>>;
+
+    template <auto N, typename T>
+    struct matrix_row_reverse : set_matrix_row<N, reverse_row_t<N, T>, T>
     {
     };
 
@@ -6513,7 +6537,7 @@ namespace monster
     using matrix_row_reverse_t = typeof_t<matrix_row_reverse<N, T>>;
 
     template <auto N, typename T>
-    struct matrix_col_reverse : set_matrix_col<N, reverse_t<get_matrix_col_t<N, T>>, T>
+    struct matrix_col_reverse : set_matrix_col<N, reverse_col_t<N, T>, T>
     {
     };
 
