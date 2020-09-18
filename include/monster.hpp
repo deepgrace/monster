@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 88
+#define MONSTER_VERSION 89
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6750,6 +6750,28 @@ namespace monster
 
     template <typename T, typename U>
     using matrix_mul_t = typeof_t<matrix_mul<T, U>>;
+
+    template <typename T, auto N>
+    struct matrix_power
+    {
+        using half = typeof_t<matrix_power<T, N / 2>>;
+        using curr = matrix_mul_t<half, half>;
+
+        using type = type_if<N % 2, matrix_mul<T, curr>, std::type_identity<curr>>;
+    };
+
+    template <typename T>
+    struct matrix_power<T, 1> : std::type_identity<T>
+    {
+    };
+
+    template <typename T>
+    struct matrix_power<T, 0> : identity_matrix<matrix_row_size_v<T>>
+    {
+    };
+
+    template <typename T, auto N>
+    using matrix_power_t = typeof_t<matrix_power<T, N>>;
 
     template <auto row, auto col, typename T, typename U>
     requires (matrix_col_size_v<T> == matrix_row_size_v<U>)
