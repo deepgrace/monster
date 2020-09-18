@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 90
+#define MONSTER_VERSION 91
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6545,7 +6545,7 @@ namespace monster
     using matrix_col_row_reverse_t = typeof_t<matrix_col_row_reverse<col, row, T>>;
 
     template <auto lower, auto upper, typename T, template <auto, typename> typename F>
-    struct matrix_reverse_range
+    struct matrix_range_operator
     {
         template <int i, int j, typename U>
         struct impl : F<typev<U>, typeof_t<U>>
@@ -6556,10 +6556,10 @@ namespace monster
     };
 
     template <auto lower, auto upper, typename T, template <auto, typename> typename F>
-    using matrix_reverse_range_t = typeof_t<matrix_reverse_range<lower, upper, T, F>>;
+    using matrix_range_operator_t = typeof_t<matrix_range_operator<lower, upper, T, F>>;
 
     template <auto lower, auto upper, typename T>
-    struct matrix_row_reverse_range : matrix_reverse_range<lower, upper, T, matrix_row_reverse>
+    struct matrix_row_reverse_range : matrix_range_operator<lower, upper, T, matrix_row_reverse>
     {
     };
 
@@ -6567,7 +6567,7 @@ namespace monster
     using matrix_row_reverse_range_t = typeof_t<matrix_row_reverse_range<lower, upper, T>>;
 
     template <auto lower, auto upper, typename T>
-    struct matrix_col_reverse_range : matrix_reverse_range<lower, upper, T, matrix_col_reverse>
+    struct matrix_col_reverse_range : matrix_range_operator<lower, upper, T, matrix_col_reverse>
     {
     };
 
@@ -6863,7 +6863,9 @@ namespace monster
         struct impl
         {
             static constexpr auto row = typev<V>;
-            using type = set_matrix_row_t<row, append_t<typeof_t<V>, get_matrix_row_t<row, U>>, typeof_t<V>>;
+
+            using curr = typeof_t<V>;
+            using type = set_matrix_row_t<row, append_range_t<element_t<row, curr>, get_matrix_row_t<row, U>>, curr, 1>;
         };
 
         using type = matrix_col_transform_t<0, 0, T, impl, 1, 1>;
@@ -8433,6 +8435,86 @@ namespace monster
 
     template <typename T, template <typename, typename> typename comparator = less_t>
     using heap_sort_t = sort_t<heap_sort, T, comparator>;
+
+    template <auto N, typename T>
+    struct sort_row : quick_sort<get_matrix_row_t<N, T>>
+    {
+    };
+
+    template <auto N, typename T>
+    using sort_row_t = typeof_t<sort_row<N, T>>;
+
+    template <auto N, typename T>
+    struct sort_col : quick_sort<get_matrix_col_t<N, T>>
+    {
+    };
+
+    template <auto N, typename T>
+    using sort_col_t = typeof_t<sort_col<N, T>>;
+
+    template <auto N, typename T>
+    struct matrix_row_sort : set_matrix_row<N, sort_row_t<N, T>, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using matrix_row_sort_t = typeof_t<matrix_row_sort<N, T>>;
+
+    template <auto N, typename T>
+    struct matrix_col_sort : set_matrix_col<N, sort_col_t<N, T>, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using matrix_col_sort_t = typeof_t<matrix_col_sort<N, T>>;
+
+    template <auto lower, auto upper, typename T>
+    struct matrix_row_sort_range : matrix_range_operator<lower, upper, T, matrix_row_sort>
+    {
+    };
+
+    template <auto lower, auto upper, typename T>
+    using matrix_row_sort_range_t = typeof_t<matrix_row_sort_range<lower, upper, T>>;
+
+    template <auto lower, auto upper, typename T>
+    struct matrix_col_sort_range : matrix_range_operator<lower, upper, T, matrix_col_sort>
+    {
+    };
+
+    template <auto lower, auto upper, typename T>
+    using matrix_col_sort_range_t = typeof_t<matrix_col_sort_range<lower, upper, T>>;
+
+    template <typename T>
+    struct matrix_rowwise_sort : matrix_row_sort_range<0, matrix_row_size_v<T>, T>
+    {
+    };
+
+    template <typename T>
+    using matrix_rowwise_sort_t = typeof_t<matrix_rowwise_sort<T>>;
+
+    template <typename T>
+    struct matrix_colwise_sort : matrix_col_sort_range<0, matrix_col_size_v<T>, T>
+    {
+    };
+
+    template <typename T>
+    using matrix_colwise_sort_t = typeof_t<matrix_colwise_sort<T>>;
+
+    template <typename T>
+    struct matrix_row_col_sort : matrix_colwise_sort<matrix_rowwise_sort_t<T>>
+    {
+    };
+
+    template <typename T>
+    using matrix_row_col_sort_t = typeof_t<matrix_row_col_sort<T>>;
+
+    template <typename T>
+    struct matrix_col_row_sort : matrix_rowwise_sort<matrix_colwise_sort_t<T>>
+    {
+    };
+
+    template <typename T>
+    using matrix_col_row_sort_t = typeof_t<matrix_col_row_sort<T>>;
 
     template <typename P, typename T>
     struct kmp

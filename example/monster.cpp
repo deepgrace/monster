@@ -1591,6 +1591,42 @@ int main(int argc, char* argv[])
                            std::integer_sequence<int, -4, 2>,
                            std::integer_sequence<int, 5, 3>>;
 
+    execute<matrix_row_sort_range_t<1, 3, mid>,
+            std::tuple<std::integer_sequence<int, -8, 9>,
+                       std::integer_sequence<int, 0, 4>,
+                       std::integer_sequence<int, -4, 2>,
+                       std::integer_sequence<int, 5, 3>>>();
+
+    execute<matrix_col_sort_range_t<1, 2, mid>,
+            std::tuple<std::integer_sequence<int, -8, 0>,
+                       std::integer_sequence<int, 4, 2>,
+                       std::integer_sequence<int, -4, 3>,
+                       std::integer_sequence<int, 5, 9>>>();
+
+    execute<matrix_rowwise_sort_t<mid>,
+            std::tuple<std::integer_sequence<int, -8, 9>,
+                       std::integer_sequence<int, 0, 4>,
+                       std::integer_sequence<int, -4, 2>,
+                       std::integer_sequence<int, 3, 5>>>();
+
+    execute<matrix_colwise_sort_t<mid>,
+            std::tuple<std::integer_sequence<int, -8, 0>,
+                       std::integer_sequence<int, -4, 2>,
+                       std::integer_sequence<int, 4, 3>,
+                       std::integer_sequence<int, 5, 9>>>();
+
+    execute<matrix_row_col_sort_t<mid>,
+            std::tuple<std::integer_sequence<int, -8, 2>,
+                       std::integer_sequence<int, -4, 4>,
+                       std::integer_sequence<int, 0, 5>,
+                       std::integer_sequence<int, 3, 9>>>();
+
+    execute<matrix_col_row_sort_t<mid>,
+            std::tuple<std::integer_sequence<int, -8, 0>,
+                       std::integer_sequence<int, -4, 2>,
+                       std::integer_sequence<int, 3, 4>,
+                       std::integer_sequence<int, 5, 9>>>();
+
     execute<matrix_mul_t<rhs, mid>,
             std::tuple<std::integer_sequence<int, 5, -7>,
                        std::integer_sequence<int, 51, 8>>>();
