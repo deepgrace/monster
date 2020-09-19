@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 92
+#define MONSTER_VERSION 93
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5791,6 +5791,46 @@ namespace monster
     template <template <typename ...> typename F, typename T, typename U>
     using zip_with_t = typeof_t<zip_with<F, T, U>>;
 
+    template <typename T>
+    struct row_type : base_type<element_t<0, T>>
+    {
+    };
+
+    template <typename T>
+    using row_type_t = typeof_t<row_type<T>>;
+
+    template <auto row, auto col, typename T>
+    struct matrix : fill<row, fill_t<col, T>>
+    {
+    };
+
+    template <auto row, auto col, typename T>
+    using matrix_t = typeof_t<matrix<row, col, T>>;
+
+    template <typename T>
+    struct matrix_row_size : sizeof_t<T>
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto matrix_row_size_v = typev<matrix_row_size<T>>;
+
+    template <typename T>
+    struct matrix_col_size : sizeof_t<type_if<is_variadic_v<T> && sizeof_t_v<T>, element<0, T>, c_0>>
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto matrix_col_size_v = typev<matrix_col_size<T>>;
+
+    template <typename T>
+    struct is_square_matrix : bool_<matrix_row_size_v<T> && matrix_col_size_v<T>>
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto is_square_matrix_v = typev<is_square_matrix<T>>;
+
     template <auto row, auto col, typename T>
     struct get_matrix_element : element<col, element_t<row, T>>
     {
@@ -5801,6 +5841,17 @@ namespace monster
 
     template <auto row, auto col, typename T>
     inline constexpr auto get_matrix_element_v = typev<get_matrix_element_t<row, col, T>>;
+
+    template <auto row, auto col, typename T, typename U>
+    struct set_matrix_element : exchange<row, exchange_t<col, T, element_t<row, U>>, U>
+    {
+    };
+
+    template <auto row, auto col, typename T, typename U>
+    using set_matrix_element_t = typeof_t<set_matrix_element<row, col, T, U>>;
+
+    template <auto row, auto col, auto v, typename U>
+    using set_matrix_element_c = set_matrix_element_t<row, col, c_<v>, U>;
 
     template <auto row, auto col, typename T, typename U, int m = 1, int n = 1>
     struct matrix_element_summator : c_<m * get_matrix_element_v<row, col, T> + n * get_matrix_element_v<row, col, U>>
@@ -5834,65 +5885,6 @@ namespace monster
 
     template <auto row, auto col, typename T, typename U>
     inline constexpr auto matrix_element_sub_v = typev<matrix_element_sub_t<row, col, T, U>>;
-
-    template <auto row, auto col, typename T, typename U>
-    struct set_matrix_element : exchange<row, exchange_t<col, T, element_t<row, U>>, U>
-    {
-    };
-
-    template <auto row, auto col, typename T, typename U>
-    using set_matrix_element_t = typeof_t<set_matrix_element<row, col, T, U>>;
-
-    template <auto row, auto col, auto v, typename U>
-    using set_matrix_element_c = set_matrix_element_t<row, col, c_<v>, U>;
-
-    template <typename T>
-    struct row_type : base_type<element_t<0, T>>
-    {
-    };
-
-    template <typename T>
-    using row_type_t = typeof_t<row_type<T>>;
-
-    template <auto row, auto col, typename T>
-    struct matrix : fill<row, fill_t<col, T>>
-    {
-    };
-
-    template <auto row, auto col, typename T>
-    using matrix_t = typeof_t<matrix<row, col, T>>;
-
-    template <auto row, auto col = row>
-    struct zero_matrix : matrix<row, col, c_0>
-    {
-    };
-
-    template <auto row, auto col = row>
-    using zero_matrix_t = typeof_t<zero_matrix<row, col>>;
-
-    template <typename T>
-    struct matrix_row_size : sizeof_t<T>
-    {
-    };
-
-    template <typename T>
-    inline constexpr auto matrix_row_size_v = typev<matrix_row_size<T>>;
-
-    template <typename T>
-    struct matrix_col_size : sizeof_t<type_if<is_variadic_v<T> && sizeof_t_v<T>, element<0, T>, c_0>>
-    {
-    };
-
-    template <typename T>
-    inline constexpr auto matrix_col_size_v = typev<matrix_col_size<T>>;
-
-    template <typename T>
-    struct is_square_matrix : bool_<matrix_row_size_v<T> && matrix_col_size_v<T>>
-    {
-    };
-
-    template <typename T>
-    inline constexpr auto is_square_matrix_v = typev<is_square_matrix<T>>;
 
     template <auto N, typename T, typename U, bool B = false>
     requires (matrix_row_size_v<T> == matrix_col_size_v<U> || B)
@@ -5933,6 +5925,29 @@ namespace monster
     template <auto lower, auto upper, typename T, template <auto, auto, typename> typename F,
     bool B1 = false, bool B2 = false, bool B3 = false, bool B4 = false>
     using matrix_col_transform_t = typeof_t<matrix_col_transform<lower, upper, T, F, B1, B2, B3, B4>>;
+
+    template <auto N, typename T, typename U, bool B = false>
+    requires (matrix_row_size_v<T> == matrix_row_size_v<U> || B)
+    struct set_matrix_col : exchange<N, T, U>
+    {
+        template <int i, int j, typename V>
+        struct impl : set_matrix_element<typev<V>, N, element_t<typev<V>, T>, typeof_t<V>>
+        {
+        };
+
+        using type = matrix_col_transform_t<N, N, U, impl, 1, 1>;
+    };
+
+    template <auto N, typename T, typename U, bool B = false>
+    using set_matrix_col_t = typeof_t<set_matrix_col<N, T, U, B>>;
+
+    template <auto row, auto col = row>
+    struct zero_matrix : matrix<row, col, c_0>
+    {
+    };
+
+    template <auto row, auto col = row>
+    using zero_matrix_t = typeof_t<zero_matrix<row, col>>;
 
     template <auto N>
     struct identity_matrix
@@ -5990,21 +6005,6 @@ namespace monster
 
     template <typename T>
     inline constexpr auto trace_v = typev<trace_t<T>>;
-
-    template <auto N, typename T, typename U, bool B = false>
-    requires (matrix_row_size_v<T> == matrix_row_size_v<U> || B)
-    struct set_matrix_col : exchange<N, T, U>
-    {
-        template <int i, int j, typename V>
-        struct impl : set_matrix_element<typev<V>, N, element_t<typev<V>, T>, typeof_t<V>>
-        {
-        };
-
-        using type = matrix_col_transform_t<N, N, U, impl, 1, 1>;
-    };
-
-    template <auto N, typename T, typename U, bool B = false>
-    using set_matrix_col_t = typeof_t<set_matrix_col<N, T, U, B>>;
 
     template <auto N, typename T>
     struct get_matrix_row : element<N, T>
@@ -6080,6 +6080,14 @@ namespace monster
     template <auto row, auto col, typename T>
     using remove_matrix_row_col_t = typeof_t<remove_matrix_row_col<row, col, T>>;
 
+    template <auto col, auto row, typename T>
+    struct remove_matrix_col_row : remove_matrix_row<row, remove_matrix_col_t<col, T>>
+    {
+    };
+
+    template <auto col, auto row, typename T>
+    using remove_matrix_col_row_t = typeof_t<remove_matrix_col_row<col, row, T>>;
+
     template <typename T>
     requires is_square_matrix_v<T>
     struct det
@@ -6122,6 +6130,50 @@ namespace monster
 
     template <typename T, template <typename> typename F1, template <auto, typename> typename F2, template <typename> typename F3>
     using line_summator_t = typeof_t<line_summator<T, F1, F2, F3>>;
+
+    template <auto N, typename T>
+    struct sum_row : sum<get_matrix_row_t<N, T>>
+    {
+    };
+
+    template <auto N, typename T>
+    using sum_row_t = typeof_t<sum_row<N, T>>;
+
+    template <auto N, typename T>
+    inline constexpr auto sum_row_v = typev<sum_row_t<N, T>>;
+
+    template <auto N, typename T>
+    struct sum_col : sum<get_matrix_col_t<N, T>>
+    {
+    };
+
+    template <auto N, typename T>
+    using sum_col_t = typeof_t<sum_col<N, T>>;
+
+    template <auto N, typename T>
+    inline constexpr auto sum_col_v = typev<sum_col_t<N, T>>;
+
+    template <auto N, typename T>
+    struct product_row : mul<get_matrix_row_t<N, T>>
+    {
+    };
+
+    template <auto N, typename T>
+    using product_row_t = typeof_t<product_row<N, T>>;
+
+    template <auto N, typename T>
+    inline constexpr auto product_row_v = typev<product_row_t<N, T>>;
+
+    template <auto N, typename T>
+    struct product_col : mul<get_matrix_col_t<N, T>>
+    {
+    };
+
+    template <auto N, typename T>
+    using product_col_t = typeof_t<product_col<N, T>>;
+
+    template <auto N, typename T>
+    inline constexpr auto product_col_v = typev<product_col_t<N, T>>;
 
     template <typename T>
     struct matrix_row_sum : line_summator<T, matrix_col_size, get_matrix_col, sum>

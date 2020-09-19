@@ -1412,6 +1412,13 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, 3, 2>,
                        std::integer_sequence<int, 3, 1>>>();
 
+    execute<remove_matrix_col_row_t<1, 3, list_n>,
+            std::tuple<std::integer_sequence<int, 1, 3>,
+                       std::integer_sequence<int, 1, 2>,
+                       std::integer_sequence<int, 2, 3>,
+                       std::integer_sequence<int, 3, 2>,
+                       std::integer_sequence<int, 3, 1>>>();
+
     execute<swap_matrix_row_t<2, 4, list_n>,
             std::tuple<std::integer_sequence<int, 1, 2, 3>,
                        std::integer_sequence<int, 1, 3, 2>,
@@ -1698,6 +1705,12 @@ int main(int argc, char* argv[])
 
     execute<det_v<matrix_>, 30>();
     execute<det_v<std::tuple<std::integer_sequence<int, 4, 5>, std::integer_sequence<int, 7, 8>>>, -3>();
+
+    execute<sum_row_v<0, matrix_>, 2>();
+    execute<sum_col_v<0, matrix_>, 7>();
+
+    execute<product_row_v<0, matrix_>, 0>();
+    execute<product_col_v<0, matrix_>, 6>();
 
     execute<matrix_row_sum_t<matrix_>, std::integer_sequence<int, 7, 1, 11, 1>>();
     execute<matrix_col_sum_t<matrix_>, std::integer_sequence<int, 2, 8, 4, 6>>();
