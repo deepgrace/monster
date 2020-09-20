@@ -46,6 +46,13 @@ int main(int argc, char* argv[])
     execute<kmp_t<std::tuple<char>, std::tuple<int, float, double, int, int>>, std::index_sequence<>>();
     execute<kmp_t<std::tuple<double>, std::tuple<double, int, int, double>>, std::index_sequence<0, 3>>();
 
+    execute<!contains_subtype_v<std::tuple<char, int>, std::tuple<int, float, double, int, int>>>();
+    execute<contains_subtype_v<std::tuple<int, double>, std::tuple<double, int, int, double>>>();
+
+    execute<first_subtype_index_t<std::tuple<char, int>, std::tuple<int, float, int>>, std::index_sequence<>>();
+    execute<first_subtype_index_t<std::tuple<int, double>, std::tuple<int, double, int, int, double>>,
+            std::index_sequence<0>>();
+
     execute<subtype_indices_t<std::tuple<char>, std::tuple<int, float, double, int, int>>, std::index_sequence<>>();
     execute<subtype_indices_t<std::tuple<double>, std::tuple<double, int, int, double>>, std::index_sequence<0, 3>>();
 

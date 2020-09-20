@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 93
+#define MONSTER_VERSION 94
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -8678,7 +8678,7 @@ namespace monster
     template <typename T, typename U>
     inline constexpr auto shift_value_v = typev<shift_value<T, U>>;
 
-    template <typename P, typename T, bool B>
+    template <typename P, typename T, bool B1, bool B2 = false>
     struct boyer_moore_horspool
     {
         static constexpr auto N = sizeof_t_v<P>;
@@ -8705,8 +8705,8 @@ namespace monster
         template <int i, int j, typename U>
         struct impl
         {
-            using next = ternary_conditional_t<j == 0, B, append<U, c_<i>>, erase<i, i + N, U>, impl<i, j - 1, U>>;
-            using type = type_if<is_same_v<j, i + j, P, std::conditional_t<B, T, U>, 1>, next, std::type_identity<U>>;
+            using next = ternary_conditional_t<j == 0, B1, append<U, c_<i>>, erase<i, i + N, U>, impl<i, j - 1, U>>;
+            using type = type_if<is_same_v<j, i + j, P, std::conditional_t<B1, T, U>, 1>, next, std::type_identity<U>>;
         };
 
         using maps = typeof_t<table<N != 1, N - 1, 1, tuple_t<offset<element_t<0, P>, N - 1>>>>;
@@ -8715,15 +8715,15 @@ namespace monster
         struct search
         {
             using curr = typeof_t<impl<i, N - 1, U>>;
-            using dest = element_if_t<N != 1, N + i - 1, std::conditional_t<B, T, U>, U>;
+            using dest = element_if_t<N != 1, N + i - 1, std::conditional_t<B1, T, U>, U>;
 
             using next = std::conditional_t<N == 1, c_1, shift_value<dest, maps>>;
 
-            static constexpr auto lhs = B && greater_v<curr, U>;
-            static constexpr auto rhs = !B && greater_v<U, curr>;
+            static constexpr auto lhs = B1 && greater_v<curr, U>;
+            static constexpr auto rhs = !B1 && greater_v<U, curr>;
 
             using cond = ternary_conditional_t<!lhs, rhs, c_0, next, c_1>;
-            using type = typeof_t<search<i + typev<cond>, j - rhs * N, curr>>;
+            using type = type_if<(lhs || rhs) && B2, std::type_identity<curr>, search<i + typev<cond>, j - rhs * N, curr>>;
         };
 
         template <int i, int j, typename U>
@@ -8731,11 +8731,11 @@ namespace monster
         {
         };
 
-        using type = typeof_t<search<0, sizeof_t_v<T> - N, std::conditional_t<!B, T, std::index_sequence<>>>>;
+        using type = typeof_t<search<0, sizeof_t_v<T> - N, std::conditional_t<!B1, T, std::index_sequence<>>>>;
     };
 
-    template <typename P, typename T, bool B>
-    using boyer_moore_horspool_t = typeof_t<boyer_moore_horspool<P, T, B>>;
+    template <typename P, typename T, bool B1, bool B2 = false>
+    using boyer_moore_horspool_t = typeof_t<boyer_moore_horspool<P, T, B1, B2>>;
 
     template <typename P, typename T>
     using bmh = boyer_moore_horspool<P, T, true>;
@@ -8754,6 +8754,25 @@ namespace monster
 
     template <typename P, typename T>
     using erase_subtype_t = typeof_t<erase_subtype<P, T>>;
+
+    template <typename P, typename T>
+    struct first_subtype_index : boyer_moore_horspool<P, T, true, true>
+    {
+    };
+
+    template <typename P, typename T>
+    using first_subtype_index_t = typeof_t<first_subtype_index<P, T>>;
+
+    template <typename P, typename T>
+    struct contains_subtype : bool_<sizeof_t_v<first_subtype_index_t<P, T>> == 1>
+    {
+    };
+
+    template <typename P, typename T>
+    using contains_subtype_t = typeof_t<contains_subtype<P, T>>;
+
+    template <typename P, typename T>
+    inline constexpr auto contains_subtype_v = typev<contains_subtype_t<P, T>>;
 
     template <typename P, typename T>
     struct eliminate_subtype
