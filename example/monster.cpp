@@ -1696,6 +1696,18 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, 18, 24, 20, 38>,
                        std::integer_sequence<int, 6, 4, 4, 10>>>();
 
+    execute<matrix_element_power_t<mp, 3>,
+            std::tuple<std::integer_sequence<int, 1, 0, 8, 1>,
+                       std::integer_sequence<int, 0, 8, 27, 1>,
+                       std::integer_sequence<int, 1, 8, 0, 27>,
+                       std::integer_sequence<int, 1, 0, 0, 1>>>();
+
+    execute<matrix_negate_t<mp>,
+            std::tuple<std::integer_sequence<int, -1, 0, -2, -1>,
+                       std::integer_sequence<int, 0, -2, -3, -1>,
+                       std::integer_sequence<int, -1, -2, 0, -3>,
+                       std::integer_sequence<int, -1, 0, 0, -1>>>();
+
     execute<get_matrix_diagonal_t<identity_matrix_t<3>>,  std::integer_sequence<int, 1, 1, 1>>();
 
     execute<set_matrix_diagonal_t<fill_c<3, 4>, identity_matrix_t<3>>,

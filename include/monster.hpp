@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 94
+#define MONSTER_VERSION 95
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6848,6 +6848,38 @@ namespace monster
 
     template <typename T, auto N>
     using matrix_power_t = typeof_t<matrix_power<T, N>>;
+
+    template <typename T, auto N>
+    struct matrix_element_power
+    {
+        template <int i, int j, typename U>
+        struct impl
+        {
+            using curr = power<get_matrix_element_v<i, j, U>, N>;
+            using type = set_matrix_element_c<i, j, typev<curr>, U>;
+        };
+
+        using type = matrix_operator_t<matrix_row_size_v<T>, matrix_col_size_v<T>, T, impl>;
+    };
+
+    template <typename T, auto N>
+    using matrix_element_power_t = typeof_t<matrix_element_power<T, N>>;
+
+    template <typename T>
+    struct matrix_negate
+    {
+        template <int i, int j, typename U>
+        struct impl
+        {
+            using curr = get_matrix_element_t<i, j, U>;
+            using type = set_matrix_element_c<i, j, -typev<curr>, U>;
+        };
+
+        using type = matrix_operator_t<matrix_row_size_v<T>, matrix_col_size_v<T>, T, impl>;
+    };
+
+    template <typename T>
+    using matrix_negate_t = typeof_t<matrix_negate<T>>;
 
     template <auto row, auto col, typename T, typename U>
     requires (matrix_col_size_v<T> == matrix_row_size_v<U>)
