@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 97
+#define MONSTER_VERSION 98
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6587,6 +6587,38 @@ namespace monster
 
     template <auto i, typename T>
     using matrix_col_pivot_t = typeof_t<matrix_col_pivot<i, T>>;
+
+    template <auto N, typename T>
+    struct matrix_shift_left : matrix_col_pivot<N, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using matrix_shift_left_t = typeof_t<matrix_shift_left<N, T>>;
+
+    template <auto N, typename T>
+    struct matrix_shift_right : matrix_col_pivot<matrix_col_size_v<T> - N, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using matrix_shift_right_t = typeof_t<matrix_shift_right<N, T>>;
+
+    template <auto N, typename T>
+    struct matrix_shift_up : matrix_row_pivot<N, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using matrix_shift_up_t = typeof_t<matrix_shift_up<N, T>>;
+
+    template <auto N, typename T>
+    struct matrix_shift_down : matrix_row_pivot<matrix_row_size_v<T> - N, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using matrix_shift_down_t = typeof_t<matrix_shift_down<N, T>>;
 
     template <auto N, typename T>
     struct reverse_row : reverse<get_matrix_row_t<N, T>>
