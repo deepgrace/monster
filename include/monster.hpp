@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 95
+#define MONSTER_VERSION 96
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6456,21 +6456,21 @@ namespace monster
     template <auto N, auto M, auto P, typename T>
     using scale_mul_matrix_col_t = typeof_t<scale_mul_matrix_col<N, M, P, T>>;
 
-    template <auto lower, auto upper, typename T>
-    struct swap_matrix_row : matrix_row_transform<lower, upper, T, swap>
+    template <auto M, auto N, typename T>
+    struct swap_matrix_row : matrix_row_transform<M, N, T, swap>
     {
     };
 
-    template <auto lower, auto upper, typename T>
-    using swap_matrix_row_t = typeof_t<swap_matrix_row<lower, upper, T>>;
+    template <auto M, auto N, typename T>
+    using swap_matrix_row_t = typeof_t<swap_matrix_row<M, N, T>>;
 
-    template <auto lower, auto upper, typename T>
-    struct swap_matrix_col : matrix_col_transform<lower, upper, T, swap>
+    template <auto M, auto N, typename T>
+    struct swap_matrix_col : matrix_col_transform<M, N, T, swap>
     {
     };
 
-    template <auto lower, auto upper, typename T>
-    using swap_matrix_col_t = typeof_t<swap_matrix_col<lower, upper, T>>;
+    template <auto M, auto N, typename T>
+    using swap_matrix_col_t = typeof_t<swap_matrix_col<M, N, T>>;
 
     template <auto lower, auto upper, typename T>
     struct matrix_row_range : matrix_row_transform<lower, upper, T, range>
@@ -6495,6 +6495,14 @@ namespace monster
 
     template <auto row_lower, auto row_upper, auto col_lower, auto col_upper, typename T>
     using sub_matrix_t = typeof_t<sub_matrix<row_lower, row_upper, col_lower, col_upper, T>>;
+
+    template <auto row, auto col, auto row_len, auto col_len, typename T>
+    struct matrix_subset : sub_matrix<row, row + row_len, col, col + col_len, T>
+    {
+    };
+
+    template <auto row, auto col, auto row_len, auto col_len, typename T>
+    using matrix_subset_t = typeof_t<matrix_subset<row, col, row_len, col_len, T>>;
 
     template <auto lower, auto upper, typename T>
     struct matrix_row_erase : matrix_row_transform<lower, upper, T, erase>
@@ -6795,6 +6803,21 @@ namespace monster
 
     template <typename T, typename U>
     using matrix_sub_t = typeof_t<matrix_sub<T, U>>;
+
+    template <auto row, auto col, typename T, typename U>
+    requires (matrix_row_size_v<T> <= matrix_row_size_v<U> && matrix_col_size_v<T> <= matrix_col_size_v<U>)
+    struct sub_matrix_replace
+    {
+        template <int i, int j, typename V>
+        struct impl : set_matrix_element<row + i, col + j, get_matrix_element_t<i, j, T>, V>
+        {
+        };
+
+        using type = matrix_operator_t<matrix_row_size_v<T>, matrix_col_size_v<T>, U, impl>;
+    };
+
+    template <auto row, auto col, typename T, typename U>
+    using sub_matrix_replace_t = typeof_t<sub_matrix_replace<row, col, T, U>>;
 
     template <typename T, typename U>
     requires (matrix_col_size_v<T> == matrix_row_size_v<U>)

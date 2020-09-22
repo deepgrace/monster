@@ -1216,6 +1216,15 @@ int main(int argc, char* argv[])
     execute<get_matrix_row_t<1, list_t>, std::tuple<char, double, int>>();
     execute<get_matrix_col_t<1, list_t>, std::tuple<int, double, char, double, char, int>>();
 
+    using nullt = std::tuple<nullptr_t, nullptr_t>;
+    execute<sub_matrix_replace_t<4, 1, std::tuple<nullt, nullt>, list_t>,
+            std::tuple<std::tuple<char, int, double>,
+                       std::tuple<char, double, int>,
+                       std::tuple<int, char, double>,
+                       std::tuple<int, double, char>,
+                       std::tuple<double, nullptr_t, nullptr_t>,
+                       std::tuple<double, nullptr_t, nullptr_t>>>();
+
     execute<next_permutation_list<std::tuple<char, int, double>>, list_t>();
     execute<prev_permutation_list<std::tuple<double, int, char>>, reverse_t<list_t>>();
 
@@ -1531,6 +1540,8 @@ int main(int argc, char* argv[])
             std::tuple<std::integer_sequence<int, 1, 2, 3>,
                        std::integer_sequence<int, 6, 7, 8>>>();
 
+    execute<matrix_subset_t<1, 2, 1, 2, matrix>, std::tuple<std::integer_sequence<int, 7, 8>>>();
+
     execute<sub_matrix_transpose_t<0, 2, 1, 4, matrix>,
             std::tuple<std::integer_sequence<int, 1, 6>,
                        std::integer_sequence<int, 2, 7>,
@@ -1686,6 +1697,18 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, 22, 32, 38, 44>,
                        std::integer_sequence<int, 18, 24, 20, 38>,
                        std::integer_sequence<int, 6, 4, 4, 10>>>();
+
+    execute<matrix_element_power_t<mp, 3>,
+            std::tuple<std::integer_sequence<int, 1, 0, 8, 1>,
+                       std::integer_sequence<int, 0, 8, 27, 1>,
+                       std::integer_sequence<int, 1, 8, 0, 27>,
+                       std::integer_sequence<int, 1, 0, 0, 1>>>();
+
+    execute<matrix_negate_t<mp>,
+            std::tuple<std::integer_sequence<int, -1, 0, -2, -1>,
+                       std::integer_sequence<int, 0, -2, -3, -1>,
+                       std::integer_sequence<int, -1, -2, 0, -3>,
+                       std::integer_sequence<int, -1, 0, 0, -1>>>();
 
     execute<get_matrix_diagonal_t<identity_matrix_t<3>>,  std::integer_sequence<int, 1, 1, 1>>();
 
