@@ -1504,6 +1504,22 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, 1, 2, 3>,
                        std::integer_sequence<int, 2, 1, 3>>>();
 
+    execute<matrix_row_pivot_t<2, list_n>,
+            std::tuple<std::integer_sequence<int, 2, 1, 3>,
+                       std::integer_sequence<int, 2, 3, 1>,
+                       std::integer_sequence<int, 3, 1, 2>,
+                       std::integer_sequence<int, 3, 2, 1>,
+                       std::integer_sequence<int, 1, 2, 3>,
+                       std::integer_sequence<int, 1, 3, 2>>>(),
+
+    execute<matrix_col_pivot_t<2, list_n>,
+            std::tuple<std::integer_sequence<int, 3, 1, 2>,
+                       std::integer_sequence<int, 2, 1, 3>,
+                       std::integer_sequence<int, 3, 2, 1>,
+                       std::integer_sequence<int, 1, 2, 3>,
+                       std::integer_sequence<int, 2, 3, 1>,
+                       std::integer_sequence<int, 1, 3, 2>>>();
+
     execute<matrix_row_reverse_t<3, list_n>,
             std::tuple<std::integer_sequence<int, 1, 2, 3>,
                        std::integer_sequence<int, 1, 3, 2>,
