@@ -1294,6 +1294,40 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, 3, 5, 1, 2>,
                        std::integer_sequence<int, 3, 6, 2, 1>>>();
 
+    execute<prepend_row_t<std::integer_sequence<int, 7, 8, 9>, list_n>,
+            std::tuple<std::integer_sequence<int, 7, 8, 9>,
+                       std::integer_sequence<int, 1, 2, 3>,
+                       std::integer_sequence<int, 1, 3, 2>,
+                       std::integer_sequence<int, 2, 1, 3>,
+                       std::integer_sequence<int, 2, 3, 1>,
+                       std::integer_sequence<int, 3, 1, 2>,
+                       std::integer_sequence<int, 3, 2, 1>>>();
+
+    execute<append_row_t<std::integer_sequence<int, 7, 8, 9>, list_n>,
+            std::tuple<std::integer_sequence<int, 1, 2, 3>,
+                       std::integer_sequence<int, 1, 3, 2>,
+                       std::integer_sequence<int, 2, 1, 3>,
+                       std::integer_sequence<int, 2, 3, 1>,
+                       std::integer_sequence<int, 3, 1, 2>,
+                       std::integer_sequence<int, 3, 2, 1>,
+                       std::integer_sequence<int, 7, 8, 9>>>();
+
+    execute<prepend_col_t<std::integer_sequence<int, 7, 8, 9, 4, 5, 6>, list_n>,
+            std::tuple<std::integer_sequence<int, 7, 1, 2, 3>,
+                       std::integer_sequence<int, 8, 1, 3, 2>,
+                       std::integer_sequence<int, 9, 2, 1, 3>,
+                       std::integer_sequence<int, 4, 2, 3, 1>,
+                       std::integer_sequence<int, 5, 3, 1, 2>,
+                       std::integer_sequence<int, 6, 3, 2, 1>>>();
+
+    execute<append_col_t<std::integer_sequence<int, 7, 8, 9, 4, 5, 6>, list_n>,
+            std::tuple<std::integer_sequence<int, 1, 2, 3, 7>,
+                       std::integer_sequence<int, 1, 3, 2, 8>,
+                       std::integer_sequence<int, 2, 1, 3, 9>,
+                       std::integer_sequence<int, 2, 3, 1, 4>,
+                       std::integer_sequence<int, 3, 1, 2, 5>,
+                       std::integer_sequence<int, 3, 2, 1, 6>>>();
+
     execute<add_matrix_row_t<2, std::integer_sequence<int, 4, 5, 6>, list_n>,
             std::tuple<std::integer_sequence<int, 1, 2, 3>,
                        std::integer_sequence<int, 1, 3, 2>,
@@ -1487,6 +1521,34 @@ int main(int argc, char* argv[])
             std::tuple<std::integer_sequence<int, 1, 3>,
                        std::integer_sequence<int, 3, 2>,
                        std::integer_sequence<int, 3, 1>>>();
+
+    execute<drop_row_up_t<2, list_n>,
+            std::tuple<std::integer_sequence<int, 2, 1, 3>,
+                       std::integer_sequence<int, 2, 3, 1>,
+                       std::integer_sequence<int, 3, 1, 2>,
+                       std::integer_sequence<int, 3, 2, 1>>>();
+
+    execute<drop_row_down_t<2, list_n>,
+            std::tuple<std::integer_sequence<int, 1, 2, 3>,
+                       std::integer_sequence<int, 1, 3, 2>,
+                       std::integer_sequence<int, 2, 1, 3>,
+                       std::integer_sequence<int, 2, 3, 1>>>();
+
+    execute<drop_col_left_t<1, list_n>,
+            std::tuple<std::integer_sequence<int, 2, 3>,
+                       std::integer_sequence<int, 3, 2>,
+                       std::integer_sequence<int, 1, 3>,
+                       std::integer_sequence<int, 3, 1>,
+                       std::integer_sequence<int, 1, 2>,
+                       std::integer_sequence<int, 2, 1>>>();
+
+    execute<drop_col_right_t<1, list_n>,
+            std::tuple<std::integer_sequence<int, 1, 2>,
+                       std::integer_sequence<int, 1, 3>,
+                       std::integer_sequence<int, 2, 1>,
+                       std::integer_sequence<int, 2, 3>,
+                       std::integer_sequence<int, 3, 1>,
+                       std::integer_sequence<int, 3, 2>>>();
 
     execute<matrix_row_rotate_t<1, 3, 5, list_n>,
             std::tuple<std::integer_sequence<int, 1, 2, 3>,

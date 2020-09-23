@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 98
+#define MONSTER_VERSION 99
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6052,6 +6052,38 @@ namespace monster
     template <auto N, typename T, typename U>
     using insert_matrix_col_t = typeof_t<insert_matrix_col<N, T, U>>;
 
+    template <typename T, typename U>
+    struct prepend_row : insert_matrix_row<0, T, U>
+    {
+    };
+
+    template <typename T, typename U>
+    using prepend_row_t = typeof_t<prepend_row<T, U>>;
+
+    template <typename T, typename U>
+    struct append_row : insert_matrix_row<matrix_row_size_v<U>, T, U>
+    {
+    };
+
+    template <typename T, typename U>
+    using append_row_t = typeof_t<append_row<T, U>>;
+
+    template <typename T, typename U>
+    struct prepend_col : insert_matrix_col<0, T, U>
+    {
+    };
+
+    template <typename T, typename U>
+    using prepend_col_t = typeof_t<prepend_col<T, U>>;
+
+    template <typename T, typename U>
+    struct append_col : insert_matrix_col<matrix_col_size_v<U>, T, U>
+    {
+    };
+
+    template <typename T, typename U>
+    using append_col_t = typeof_t<append_col<T, U>>;
+
     template <auto N, typename T>
     struct remove_matrix_row : drop<N, T>
     {
@@ -6487,6 +6519,38 @@ namespace monster
 
     template <auto lower, auto upper, typename T>
     using matrix_col_range_t = typeof_t<matrix_col_range<lower, upper, T>>;
+
+    template <auto N, typename T>
+    struct drop_row_up : matrix_row_range<N, matrix_row_size_v<T>, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using drop_row_up_t = typeof_t<drop_row_up<N, T>>;
+
+    template <auto N, typename T>
+    struct drop_row_down : matrix_row_range<0, matrix_row_size_v<T> - N, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using drop_row_down_t = typeof_t<drop_row_down<N, T>>;
+
+    template <auto N, typename T>
+    struct drop_col_left : matrix_col_range<N, matrix_col_size_v<T>, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using drop_col_left_t = typeof_t<drop_col_left<N, T>>;
+
+    template <auto N, typename T>
+    struct drop_col_right : matrix_col_range<0, matrix_col_size_v<T> - N, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using drop_col_right_t = typeof_t<drop_col_right<N, T>>;
 
     template <auto row_lower, auto row_upper, auto col_lower, auto col_upper, typename T>
     struct sub_matrix : matrix_col_range<col_lower, col_upper, matrix_row_range_t<row_lower, row_upper, T>>
