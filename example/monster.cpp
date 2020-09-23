@@ -1806,6 +1806,12 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, 0, 1, 0>,
                        std::integer_sequence<int, 0, 0, 1>>>();
 
+    execute<pascal_matrix_t<4>,
+            std::tuple<std::integer_sequence<int, 1, 1, 1, 1>,
+                       std::integer_sequence<int, 1, 2, 3, 4>,
+                       std::integer_sequence<int, 1, 3, 6, 10>,
+                       std::integer_sequence<int, 1, 4, 10, 20>>>();
+
     using mp = std::tuple<std::integer_sequence<int, 1, 0, 2, 1>,
                           std::integer_sequence<int, 0, 2, 3, 1>,
                           std::integer_sequence<int, 1, 2, 0, 3>,

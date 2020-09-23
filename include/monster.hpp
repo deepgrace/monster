@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 99
+#define MONSTER_VERSION 100
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6999,6 +6999,24 @@ namespace monster
 
     template <typename T, auto N>
     using matrix_element_power_t = typeof_t<matrix_element_power<T, N>>;
+
+    template <auto N>
+    struct pascal_matrix
+    {
+        template <int i, int j, typename T>
+        struct impl
+        {
+            using prev = type_if<i && j, get_matrix_element<i, j - 1, T>, c_0>;
+            using next = type_if<i && j, get_matrix_element<i - 1, j, T>, c_1>;
+
+            using type = set_matrix_element_t<i, j, plus_t<prev, next>, T>;
+        };
+
+        using type = matrix_operator_t<N, N, identity_matrix_t<N>, impl>;
+    };
+
+    template <auto N>
+    using pascal_matrix_t = typeof_t<pascal_matrix<N>>;
 
     template <typename T>
     struct matrix_negate
