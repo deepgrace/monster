@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 100
+#define MONSTER_VERSION 101
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -7033,6 +7033,38 @@ namespace monster
 
     template <typename T>
     using matrix_negate_t = typeof_t<matrix_negate<T>>;
+
+    template <typename T, bool B>
+    struct triangular_matrix
+    {
+        template <int i, int j, typename U>
+        struct impl
+        {
+            static constexpr auto value = B && i > j || !B && i < j;
+            using type = type_if<value, set_matrix_element<i, j, c_0, U>, std::type_identity<U>>;
+        };
+
+        using type = matrix_operator_t<matrix_row_size_v<T>, matrix_col_size_v<T>, T, impl>;
+    };
+
+    template <typename T, bool B>
+    using triangular_matrix_t = typeof_t<triangular_matrix<T, B>>;
+
+    template <typename T>
+    struct upper_triangular_matrix : triangular_matrix<T, true>
+    {
+    };
+
+    template <typename T>
+    using upper_triangular_matrix_t = typeof_t<upper_triangular_matrix<T>>;
+
+    template <typename T>
+    struct lower_triangular_matrix : triangular_matrix<T, false>
+    {
+    };
+
+    template <typename T>
+    using lower_triangular_matrix_t = typeof_t<lower_triangular_matrix<T>>;
 
     template <auto row, auto col, typename T, typename U>
     requires (matrix_col_size_v<T> == matrix_row_size_v<U>)
