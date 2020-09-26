@@ -1882,6 +1882,9 @@ int main(int argc, char* argv[])
     execute<matrix_row_minimum_t<matrix_>, std::integer_sequence<int, -1, 0, -3, 0>>();
     execute<matrix_col_minimum_t<matrix_>, std::integer_sequence<int, 1, 0, 0, -3>>();
 
+    execute<matrix_row_midpoint_t<matrix_>, std::integer_sequence<int, 0, 0, 1, 0>>();
+    execute<matrix_col_midpoint_t<matrix_>, std::integer_sequence<int, 3, 0, 0, 5>>();
+
     execute<next_permutation_list<std::integer_sequence<int, 1, 2, 3>>, list_n>();
     execute<prev_permutation_list<std::integer_sequence<int, 3, 2, 1>>, reverse_t<list_n>>();
 

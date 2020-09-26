@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 102
+#define MONSTER_VERSION 103
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6239,8 +6239,24 @@ namespace monster
     template <typename T>
     using matrix_col_mul_t = typeof_t<matrix_col_mul<T>>;
 
+    template <template <typename> typename F, typename T>
+    struct matrix_row_apply : line_summator<T, matrix_row_size, get_matrix_row, F>
+    {
+    };
+
+    template <template <typename> typename F, typename T>
+    using matrix_row_apply_t = typeof_t<matrix_row_apply<F, T>>;
+
+    template <template <typename> typename F, typename T>
+    struct matrix_col_apply : line_summator<T, matrix_col_size, get_matrix_col, F>
+    {
+    };
+
+    template <template <typename> typename F, typename T>
+    using matrix_col_apply_t = typeof_t<matrix_col_apply<F, T>>;
+
     template <typename T>
-    struct matrix_row_maximum : line_summator<T, matrix_row_size, get_matrix_row, max_element>
+    struct matrix_row_maximum : matrix_row_apply<max_element, T>
     {
     };
 
@@ -6248,7 +6264,7 @@ namespace monster
     using matrix_row_maximum_t = typeof_t<matrix_row_maximum<T>>;
 
     template <typename T>
-    struct matrix_col_maximum : line_summator<T, matrix_col_size, get_matrix_col, max_element>
+    struct matrix_col_maximum : matrix_col_apply<max_element, T>
     {
     };
 
@@ -6256,7 +6272,7 @@ namespace monster
     using matrix_col_maximum_t = typeof_t<matrix_col_maximum<T>>;
 
     template <typename T>
-    struct matrix_row_minimum : line_summator<T, matrix_row_size, get_matrix_row, min_element>
+    struct matrix_row_minimum : matrix_row_apply<min_element, T>
     {
     };
 
@@ -6264,12 +6280,28 @@ namespace monster
     using matrix_row_minimum_t = typeof_t<matrix_row_minimum<T>>;
 
     template <typename T>
-    struct matrix_col_minimum : line_summator<T, matrix_col_size, get_matrix_col, min_element>
+    struct matrix_col_minimum : matrix_col_apply<min_element, T>
     {
     };
 
     template <typename T>
     using matrix_col_minimum_t = typeof_t<matrix_col_minimum<T>>;
+
+    template <typename T>
+    struct matrix_row_midpoint : matrix_row_apply<midpoint, T>
+    {
+    };
+
+    template <typename T>
+    using matrix_row_midpoint_t = typeof_t<matrix_row_midpoint<T>>;
+
+    template <typename T>
+    struct matrix_col_midpoint : matrix_col_apply<midpoint, T>
+    {
+    };
+
+    template <typename T>
+    using matrix_col_midpoint_t = typeof_t<matrix_col_midpoint<T>>;
 
     template <auto row, typename T, typename U>
     struct row_multiply : inner_dot<get_matrix_row_t<row, T>, get_matrix_row_t<row, U>>
