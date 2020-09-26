@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 101
+#define MONSTER_VERSION 102
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6053,36 +6053,36 @@ namespace monster
     using insert_matrix_col_t = typeof_t<insert_matrix_col<N, T, U>>;
 
     template <typename T, typename U>
-    struct prepend_row : insert_matrix_row<0, T, U>
+    struct vertical_prepend : insert_matrix_row<0, T, U>
     {
     };
 
     template <typename T, typename U>
-    using prepend_row_t = typeof_t<prepend_row<T, U>>;
+    using vertical_prepend_t = typeof_t<vertical_prepend<T, U>>;
 
     template <typename T, typename U>
-    struct append_row : insert_matrix_row<matrix_row_size_v<U>, T, U>
+    struct vertical_append : insert_matrix_row<matrix_row_size_v<U>, T, U>
     {
     };
 
     template <typename T, typename U>
-    using append_row_t = typeof_t<append_row<T, U>>;
+    using vertical_append_t = typeof_t<vertical_append<T, U>>;
 
     template <typename T, typename U>
-    struct prepend_col : insert_matrix_col<0, T, U>
+    struct horizontal_prepend : insert_matrix_col<0, T, U>
     {
     };
 
     template <typename T, typename U>
-    using prepend_col_t = typeof_t<prepend_col<T, U>>;
+    using horizontal_prepend_t = typeof_t<horizontal_prepend<T, U>>;
 
     template <typename T, typename U>
-    struct append_col : insert_matrix_col<matrix_col_size_v<U>, T, U>
+    struct horizontal_append : insert_matrix_col<matrix_col_size_v<U>, T, U>
     {
     };
 
     template <typename T, typename U>
-    using append_col_t = typeof_t<append_col<T, U>>;
+    using horizontal_append_t = typeof_t<horizontal_append<T, U>>;
 
     template <auto N, typename T>
     struct remove_matrix_row : drop<N, T>
@@ -6238,6 +6238,38 @@ namespace monster
 
     template <typename T>
     using matrix_col_mul_t = typeof_t<matrix_col_mul<T>>;
+
+    template <typename T>
+    struct matrix_row_maximum : line_summator<T, matrix_row_size, get_matrix_row, max_element>
+    {
+    };
+
+    template <typename T>
+    using matrix_row_maximum_t = typeof_t<matrix_row_maximum<T>>;
+
+    template <typename T>
+    struct matrix_col_maximum : line_summator<T, matrix_col_size, get_matrix_col, max_element>
+    {
+    };
+
+    template <typename T>
+    using matrix_col_maximum_t = typeof_t<matrix_col_maximum<T>>;
+
+    template <typename T>
+    struct matrix_row_minimum : line_summator<T, matrix_row_size, get_matrix_row, min_element>
+    {
+    };
+
+    template <typename T>
+    using matrix_row_minimum_t = typeof_t<matrix_row_minimum<T>>;
+
+    template <typename T>
+    struct matrix_col_minimum : line_summator<T, matrix_col_size, get_matrix_col, min_element>
+    {
+    };
+
+    template <typename T>
+    using matrix_col_minimum_t = typeof_t<matrix_col_minimum<T>>;
 
     template <auto row, typename T, typename U>
     struct row_multiply : inner_dot<get_matrix_row_t<row, T>, get_matrix_row_t<row, U>>
@@ -7150,7 +7182,7 @@ namespace monster
 
     template <typename T, typename U>
     requires (matrix_row_size_v<T> == matrix_row_size_v<U>)
-    struct matrix_row_concat
+    struct matrix_horizontal_concat
     {
         template <int i, int j, typename V>
         struct impl
@@ -7165,16 +7197,16 @@ namespace monster
     };
 
     template <typename T, typename U>
-    using matrix_row_concat_t = typeof_t<matrix_row_concat<T, U>>;
+    using matrix_horizontal_concat_t = typeof_t<matrix_horizontal_concat<T, U>>;
 
     template <typename T, typename U>
     requires (matrix_col_size_v<T> == matrix_col_size_v<U>)
-    struct matrix_col_concat : append_range<T, U>
+    struct matrix_vertical_concat : append_range<T, U>
     {
     };
 
     template <typename T, typename U>
-    using matrix_col_concat_t = typeof_t<matrix_col_concat<T, U>>;
+    using matrix_vertical_concat_t = typeof_t<matrix_vertical_concat<T, U>>;
 
     template <template <size_t, typename ...> typename F, size_t N, typename T, typename... Args>
     struct do_while
