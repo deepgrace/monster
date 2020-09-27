@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 103
+#define MONSTER_VERSION 104
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -669,7 +669,10 @@ namespace monster
     };
 
     template <typename... Args>
-    inline constexpr auto is_variadic_pack_v = typev<is_variadic_pack<Args...>>;
+    using is_variadic_pack_t = typeof_t<is_variadic_pack<Args...>>;
+
+    template <typename... Args>
+    inline constexpr auto is_variadic_pack_v = typev<is_variadic_pack_t<Args...>>;
 
     template <typename T>
     struct is_group : std::false_type
@@ -7239,6 +7242,57 @@ namespace monster
 
     template <typename T, typename U>
     using matrix_vertical_concat_t = typeof_t<matrix_vertical_concat<T, U>>;
+
+    template <typename T>
+    struct is_variadic_tuple : unpack_t<is_variadic_pack, T>
+    {
+    };
+
+    template <typename T>
+    using is_variadic_tuple_t = typeof_t<is_variadic_tuple<T>>;
+
+    template <typename T>
+    inline constexpr auto is_variadic_tuple_v = typev<is_variadic_tuple_t<T>>;
+
+    template <typename indices, typename T>
+    requires (is_sequence_v<indices> && is_variadic_tuple_v<T> && sizeof_t_v<indices> == sizeof_t_v<T>)
+    struct elements
+    {
+        template <typename U, typename V, typename W>
+        struct impl;
+
+        template <template <typename, auto ...> typename U, typename V, auto n, auto... N,
+        template <typename ...> typename W, typename X, typename... Args, typename Y>
+        struct impl<U<V, n, N...>, W<X, Args...>, Y> : impl<U<V, N...>, W<Args...>, append_t<Y, element_t<n, X>>>
+        {
+        };
+
+        template <template <typename, auto ...> typename U, typename V, auto n,
+        template <typename ...> typename W, typename X, typename Y>
+        struct impl<U<V, n>, W<X>, Y> : append<Y, element_t<n, X>>
+        {
+        };
+
+        using type = typeof_t<impl<indices, T, row_type_t<T>>>;
+    };
+
+    template <typename indices, typename T>
+    using elements_t = typeof_t<elements<indices, T>>;
+
+    template <typename... Args>
+    requires (is_variadic_v<Args> && ...)
+    struct combinations
+    {
+        template <typename T, typename indices>
+        struct impl : append<T, elements_t<indices, tuple_t<Args...>>>
+        {
+        };
+
+        using type = loop_indices_t<std::integer_sequence<int, sizeof_t_v<Args>...>, tuple_t<>, impl, true>;
+    };
+
+    template <typename... Args>
+    using combinations_t = typeof_t<combinations<Args...>>;
 
     template <template <size_t, typename ...> typename F, size_t N, typename T, typename... Args>
     struct do_while

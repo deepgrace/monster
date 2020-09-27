@@ -1163,6 +1163,27 @@ int main(int argc, char* argv[])
     execute<cartesian_product_t<std::integer_sequence<int, 1, 2>, std::integer_sequence<int, 3, 4, 5>>,
             std::integer_sequence<int, 1, 3, 1, 4, 1, 5, 2, 3, 2, 4, 2, 5>>();
 
+    execute<elements_t<std::index_sequence<2, 0, 1, 3>,
+            std::tuple<std::tuple<int, char, int>,
+                       std::tuple<double, float>,
+                       std::tuple<short, int>,
+                       std::tuple<float, char, int, nullptr_t>>>,
+                       std::tuple<int, double, int, nullptr_t>>();
+
+    execute<combinations_t<std::tuple<int, double>, std::tuple<char, float>>,
+            std::tuple<std::tuple<int, char>,
+                       std::tuple<int, float>,
+                       std::tuple<double ,char>,
+                       std::tuple<double, float>>>();
+
+    execute<combinations_t<std::integer_sequence<int, 1, 2>, std::integer_sequence<int, 3, 4, 5>>,
+            std::tuple<std::integer_sequence<int, 1, 3>,
+                       std::integer_sequence<int, 1, 4>,
+                       std::integer_sequence<int, 1, 5>,
+                       std::integer_sequence<int, 2, 3>,
+                       std::integer_sequence<int, 2, 4>,
+                       std::integer_sequence<int, 2, 5>>>();
+
     execute<tokenize_t<19073>, std::integer_sequence<int, 1, 9, 0, 7, 3>>();
     execute<tokenize_t<19073, 100>, std::integer_sequence<int, 1, 90, 73>>();
     execute<tokenize_t<19073, 1000>, std::integer_sequence<int, 19, 73>>();
