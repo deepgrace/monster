@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 105
+#define MONSTER_VERSION 106
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4900,19 +4900,33 @@ namespace monster
     template <typename limit, typename T, template <typename ...> typename F, bool ASC = true>
     using loop_indices_t = typeof_t<loop_indices<limit, T, F, ASC>>;
 
+    template <typename limit, typename T, template <typename ...> typename F, bool ASC = true>
+    struct unique_indices
+    {
+        template <typename U, typename indices>
+        struct impl
+        {
+            static constexpr auto value = is_unique_v<indices>;
+            using type = type_if<value, F<U, indices>, std::type_identity<U>>;
+        };
+
+        using type = loop_indices_t<limit, T, impl, ASC>;
+    };
+
+    template <typename limit, typename T, template <typename ...> typename F, bool ASC = true>
+    using unique_indices_t = typeof_t<unique_indices<limit, T, F, ASC>>;
+
     template <typename T, auto N = sizeof_t_v<T>>
     struct loop_permutation
     {
         static constexpr auto depth = sizeof_t_v<T>;
 
         template <typename U, typename indices>
-        struct impl
+        struct impl : append<U, range_t<0, N, expand_t<element, T, indices>>>
         {
-            static constexpr auto value = is_unique_v<indices>;
-            using type = append_if_t<value, U, range_if_t<value, 0, N, expand_if_t<value, element, T, indices>>>;
         };
 
-        using type = loop_indices_t<fill_c<depth, depth>, tuple_t<>, impl, true>;
+        using type = unique_indices_t<fill_c<depth, depth>, tuple_t<>, impl, true>;
     };
 
     template <typename T, auto N = sizeof_t_v<T>>
