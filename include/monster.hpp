@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 106
+#define MONSTER_VERSION 107
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4977,6 +4977,12 @@ namespace monster
         return loop_indices_generator<std::common_type_t<Args...>, sizeof_v<Args...>, ASC>{indices...};
     }
 
+    template <typename T, typename... Args>
+    decltype(auto) call_apply(Args&&... args)
+    {
+        return T::template apply(std::forward<Args>(args)...);
+    }
+
     template <size_t i, size_t j, typename indices>
     struct next_cartesian_product;
 
@@ -4986,9 +4992,10 @@ namespace monster
         template <typename T, typename U>
         static auto apply(T&& t, U&& u)
         {
+            using next = next_cartesian_product<i + 1, j, std::index_sequence<N...>>;
+
             return std::tuple_cat(std::make_tuple(std::make_pair(std::get<i>(t), std::get<N>(u)))...,
-                   next_cartesian_product<i + 1, j, std::index_sequence<N...>>::template
-                   apply(std::forward<T>(t), std::forward<U>(u)));
+                   call_apply<next>(std::forward<T>(t), std::forward<U>(u)));
         }
     };
 
@@ -5005,9 +5012,10 @@ namespace monster
     template <typename T, typename U>
     auto tuple_cartesian_product(T&& t, U&& u)
     {
-        return next_cartesian_product<0, sizeof_t_v<std::remove_cvref_t<T>>,
-               index_sequence_of_t<std::remove_cvref_t<U>>>::template
-               apply(std::forward<T>(t), std::forward<U>(u));
+        using indices = index_sequence_of_t<std::remove_cvref_t<U>>;
+        using next = next_cartesian_product<0, sizeof_t_v<std::remove_cvref_t<T>>, indices>;
+
+        return call_apply<next>(std::forward<T>(t), std::forward<U>(u));
     }
 
     template <typename T, template <typename, bool> typename comp, bool b, typename... Args>
