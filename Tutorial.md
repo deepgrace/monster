@@ -1161,6 +1161,10 @@ int main(int argc, char* argv[])
                        std::tuple<float, char, int, nullptr_t>>>,
                        std::tuple<int, double, int, nullptr_t>>();
 
+    execute<apply_indices_t<std::tuple<std::index_sequence<0, 1>, std::index_sequence<1, 0>>,
+            std::tuple<std::index_sequence<1, 2, 3>, std::index_sequence<4, 5, 6>>>,
+            std::tuple<std::index_sequence<1, 5>, std::index_sequence<2, 4>>>();
+
     execute<combinations_t<std::tuple<int, double>, std::tuple<char, float>>,
             std::tuple<std::tuple<int, char>,
                        std::tuple<int, float>,
@@ -1174,6 +1178,18 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, 2, 3>,
                        std::integer_sequence<int, 2, 4>,
                        std::integer_sequence<int, 2, 5>>>();
+
+    using mat = std::tuple<std::index_sequence<1, 2, 3>,
+                           std::index_sequence<4, 5, 6>,
+                           std::index_sequence<7, 8, 9>>;
+
+    execute<matrix_combinations_t<mat>,
+            std::tuple<std::index_sequence<1, 5, 9>,
+                       std::index_sequence<1, 6, 8>,
+                       std::index_sequence<2, 4, 9>,
+                       std::index_sequence<2, 6, 7>,
+                       std::index_sequence<3, 4, 8>,
+                       std::index_sequence<3, 5, 7>>>();
 
     execute<tokenize_t<19073>, std::integer_sequence<int, 1, 9, 0, 7, 3>>();
     execute<tokenize_t<19073, 100>, std::integer_sequence<int, 1, 90, 73>>();

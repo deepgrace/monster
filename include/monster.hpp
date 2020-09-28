@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 104
+#define MONSTER_VERSION 105
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -7279,6 +7279,29 @@ namespace monster
     template <typename indices, typename T>
     using elements_t = typeof_t<elements<indices, T>>;
 
+    template <typename T, typename U>
+    requires (is_variadic_tuple_v<T> && is_variadic_tuple_v<U>)
+    struct apply_indices
+    {
+        template <typename V, typename W>
+        struct impl;
+
+        template <template <typename ...> typename V, typename W, typename... Args, typename X>
+        struct impl<V<W, Args...>, X> : impl<V<Args...>, append_t<X, elements_t<W, U>>>
+        {
+        };
+
+        template <template <typename ...> typename V, typename W, typename X>
+        struct impl<V<W>, X> : append<X, elements_t<W, U>>
+        {
+        };
+
+        using type = typeof_t<impl<T, tuple_t<>>>;
+    };
+
+    template <typename T, typename U>
+    using apply_indices_t = typeof_t<apply_indices<T, U>>;
+
     template <typename... Args>
     requires (is_variadic_v<Args> && ...)
     struct combinations
@@ -7642,6 +7665,15 @@ namespace monster
 
     template <size_t B, size_t E, typename T>
     using prev_hypercube_indices_list = indices_list_t<prev_hypercube_indices, B, E, T>;
+
+    template <typename T>
+    requires is_square_matrix_v<T>
+    struct matrix_combinations : apply_indices<next_permutation_list<index_sequence_of_t<T>>, T>
+    {
+    };
+
+    template <typename T>
+    using matrix_combinations_t = typeof_t<matrix_combinations<T>>;
 
     template <typename T, auto N = 1>
     struct increase
