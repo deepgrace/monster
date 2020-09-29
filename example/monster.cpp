@@ -1807,7 +1807,7 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, 3, 4>,
                        std::integer_sequence<int, 5, 9>>>();
 
-    execute<matrix_mul_t<rhs, mid>,
+    execute<matrix_multiply_t<rhs, mid>,
             std::tuple<std::integer_sequence<int, 5, -7>,
                        std::integer_sequence<int, 51, 8>>>();
 
@@ -1818,7 +1818,7 @@ int main(int argc, char* argv[])
     execute<row_multiply_t<1, lhs, rhs>, std::integer_sequence<int, 4, 30, -30, 21>>();
     execute<col_multiply_t<2, lhs, rhs>, std::integer_sequence<int, 8, -30>>();
 
-    execute<matrix_mul_t<col_matrix_t<std::integer_sequence<int, 5, 4, 3>>,
+    execute<matrix_multiply_t<col_matrix_t<std::integer_sequence<int, 5, 4, 3>>,
                          row_matrix_t<std::integer_sequence<int, 6, 7, 8>>>,
 
             std::tuple<std::integer_sequence<int, 30, 35, 40>,
@@ -1912,6 +1912,9 @@ int main(int argc, char* argv[])
 
     execute<matrix_row_mul_t<matrix_>, std::integer_sequence<int, 6, 0, 0, 0>>();
     execute<matrix_col_mul_t<matrix_>, std::integer_sequence<int, 0, 0, -24, 0>>();
+
+    execute<matrix_sum_v<matrix_>, 20>();
+    execute<matrix_mul_v<matrix_>, 0>();
 
     execute<matrix_row_maximum_t<matrix_>, std::integer_sequence<int, 2, 5, 4, 5>>();
     execute<matrix_col_maximum_t<matrix_>, std::integer_sequence<int, 3, 1, 5, 5>>();

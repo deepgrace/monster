@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 107
+#define MONSTER_VERSION 108
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6249,6 +6249,17 @@ namespace monster
     using matrix_col_sum_t = typeof_t<matrix_col_sum<T>>;
 
     template <typename T>
+    struct matrix_sum : sum<matrix_col_sum_t<T>>
+    {
+    };
+
+    template <typename T>
+    using matrix_sum_t = typeof_t<matrix_sum<T>>;
+
+    template <typename T>
+    inline constexpr auto matrix_sum_v = typev<matrix_sum_t<T>>;
+
+    template <typename T>
     struct matrix_row_mul : line_summator<T, matrix_col_size, get_matrix_col, mul>
     {
     };
@@ -6263,6 +6274,17 @@ namespace monster
 
     template <typename T>
     using matrix_col_mul_t = typeof_t<matrix_col_mul<T>>;
+
+    template <typename T>
+    struct matrix_mul : mul<matrix_col_mul_t<T>>
+    {
+    };
+
+    template <typename T>
+    using matrix_mul_t = typeof_t<matrix_mul<T>>;
+
+    template <typename T>
+    inline constexpr auto matrix_mul_v = typev<matrix_mul_t<T>>;
 
     template <template <typename> typename F, typename T>
     struct matrix_row_apply : line_summator<T, matrix_row_size, get_matrix_row, F>
@@ -7022,7 +7044,7 @@ namespace monster
 
     template <typename T, typename U>
     requires (matrix_col_size_v<T> == matrix_row_size_v<U>)
-    struct matrix_mul
+    struct matrix_multiply
     {
         static constexpr auto len = matrix_row_size_v<U>;
 
@@ -7049,15 +7071,15 @@ namespace monster
     };
 
     template <typename T, typename U>
-    using matrix_mul_t = typeof_t<matrix_mul<T, U>>;
+    using matrix_multiply_t = typeof_t<matrix_multiply<T, U>>;
 
     template <typename T, auto N>
     struct matrix_power
     {
         using half = typeof_t<matrix_power<T, N / 2>>;
-        using curr = matrix_mul_t<half, half>;
+        using curr = matrix_multiply_t<half, half>;
 
-        using type = type_if<N % 2, matrix_mul<T, curr>, std::type_identity<curr>>;
+        using type = type_if<N % 2, matrix_multiply<T, curr>, std::type_identity<curr>>;
     };
 
     template <typename T>
@@ -7193,7 +7215,7 @@ namespace monster
 
     template <auto col, auto row, typename T, typename U>
     requires (matrix_row_size_v<T> == matrix_col_size_v<U>)
-    struct matrix_col_row_dot : matrix_mul<col_matrix_t<get_matrix_col_t<col, T>>, row_matrix_t<get_matrix_row_t<row, U>>>
+    struct matrix_col_row_dot : matrix_multiply<col_matrix_t<get_matrix_col_t<col, T>>, row_matrix_t<get_matrix_row_t<row, U>>>
     {
     };
 
