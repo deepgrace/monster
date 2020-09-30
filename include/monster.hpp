@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 109
+#define MONSTER_VERSION 110
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -7225,6 +7225,29 @@ namespace monster
 
     template <typename T>
     using lower_triangular_matrix_t = typeof_t<lower_triangular_matrix<T>>;
+
+    template <typename T, typename U>
+    requires (matrix_row_size_v<T> == matrix_row_size_v<U>)
+    struct toeplitz_matrix
+    {
+        using w = reverse_t<U>;
+        static constexpr auto N = matrix_row_size_v<T>;
+
+        template <int i, int j, typename V>
+        struct impl : impl<i + 1, j, append_t<V, concat_t<subset_t<N - i - 1, i, w>, drop_back_t<i, T>>>>
+        {
+        };
+
+        template <int j, typename V>
+        struct impl<j, j, V> : std::type_identity<V>
+        {
+        };
+
+        using type = typeof_t<impl<1, N, tuple_t<T>>>;
+    };
+
+    template <typename T, typename U>
+    using toeplitz_matrix_t = typeof_t<toeplitz_matrix<T, U>>;
 
     template <auto row, auto col, typename T, typename U>
     requires (matrix_col_size_v<T> == matrix_row_size_v<U>)

@@ -1854,6 +1854,16 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, 1, 3, 6, 0>,
                        std::integer_sequence<int, 1, 4, 10, 20>>>();
 
+    using row = std::integer_sequence<int, 1, 2, 3, 4, 5>;
+    using col = std::integer_sequence<int, 1, 6, 7, 8, 9>;
+
+    execute<toeplitz_matrix_t<row, col>,
+            std::tuple<std::integer_sequence<int, 1, 2, 3, 4, 5>,
+                       std::integer_sequence<int, 6, 1, 2, 3, 4>,
+                       std::integer_sequence<int, 7, 6, 1, 2, 3>,
+                       std::integer_sequence<int, 8, 7, 6, 1, 2>,
+                       std::integer_sequence<int, 9, 8, 7, 6, 1>>>();
+
     using mp = std::tuple<std::integer_sequence<int, 1, 0, 2, 1>,
                           std::integer_sequence<int, 0, 2, 3, 1>,
                           std::integer_sequence<int, 1, 2, 0, 3>,
