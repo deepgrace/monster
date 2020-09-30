@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 108
+#define MONSTER_VERSION 109
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -879,6 +879,17 @@ namespace monster
 
     template <typename T>
     inline constexpr auto mul_v = typev<mul_t<T>>;
+
+    template <typename T>
+    struct means : c_<sum_v<T> / sizeof_t_v<T>>
+    {
+    };
+
+    template <typename T>
+    using means_t = typeof_t<means<T>>;
+
+    template <typename T>
+    inline constexpr auto means_v = typev<means_t<T>>;
 
     template <typename L, typename R>
     struct rename : std::type_identity<L>
@@ -5849,6 +5860,17 @@ namespace monster
     inline constexpr auto matrix_col_size_v = typev<matrix_col_size<T>>;
 
     template <typename T>
+    struct matrix_dim : c_<matrix_row_size_v<T> * matrix_col_size_v<T>>
+    {
+    };
+
+    template <typename T>
+    using matrix_dim_t = typeof_t<matrix_dim<T>>;
+
+    template <typename T>
+    inline constexpr auto matrix_dim_v = typev<matrix_dim_t<T>>;
+
+    template <typename T>
     struct is_square_matrix : bool_<matrix_row_size_v<T> && matrix_col_size_v<T>>
     {
     };
@@ -6249,6 +6271,22 @@ namespace monster
     using matrix_col_sum_t = typeof_t<matrix_col_sum<T>>;
 
     template <typename T>
+    struct matrix_row_means : line_summator<T, matrix_col_size, get_matrix_col, means>
+    {
+    };
+
+    template <typename T>
+    using matrix_row_means_t = typeof_t<matrix_row_means<T>>;
+
+    template <typename T>
+    struct matrix_col_means : line_summator<T, matrix_row_size, get_matrix_row, means>
+    {
+    };
+
+    template <typename T>
+    using matrix_col_means_t = typeof_t<matrix_col_means<T>>;
+
+    template <typename T>
     struct matrix_sum : sum<matrix_col_sum_t<T>>
     {
     };
@@ -6258,6 +6296,17 @@ namespace monster
 
     template <typename T>
     inline constexpr auto matrix_sum_v = typev<matrix_sum_t<T>>;
+
+    template <typename T>
+    struct matrix_means : c_<matrix_sum_v<T> / matrix_dim_v<T>>
+    {
+    };
+
+    template <typename T>
+    using matrix_means_t = typeof_t<matrix_means<T>>;
+
+    template <typename T>
+    inline constexpr auto matrix_means_v = typev<matrix_means_t<T>>;
 
     template <typename T>
     struct matrix_row_mul : line_summator<T, matrix_col_size, get_matrix_col, mul>
