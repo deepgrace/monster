@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
 
     execute<replace_subtype_t<std::tuple<int, double, int, double>, std::tuple<char, int, char>,
             std::tuple<int, int, double, int, double, double, char, int, double, int, double, int>>,
-            std::tuple<int, char, int, char, double, char, char, int, char, int>>(); 
+            std::tuple<int, char, int, char, double, char, char, int, char, int>>();
 
     execute<replace_subtype_t<std::integer_sequence<int, 1, 3, 1, 3, 1>, std::integer_sequence<int, 7, 9>,
             std::integer_sequence<int, -8, 2, -1, 1, 3, 1, 3, 1, 0, -4, 1, 3, 1, 3, 1, -5>>,
@@ -2115,6 +2115,9 @@ int main(int argc, char* argv[])
             std::tuple<char, double, short, int, char, short>>, std::tuple<char, short, char, short>>();
     execute<lcs_t<std::index_sequence<2, 5, 3, 1, 6, 7, 4, 8>, std::index_sequence<7, 2, 9, 3, 8, 6, 0, 4, 9, 8>>,
             std::index_sequence<2, 3, 6, 4, 8>>();
+
+    execute<lps_t<std::tuple<int, short, int, int, short, int, double>>, pair_v<0, 6>>();
+    execute<lps_t<std::index_sequence<1, 2, 3, 4, 5, 4, 3, 6, 6, 3>>, pair_v<2, 7>>();
 
     execute<stable_sort_t<std::tuple<double, uint64_t, double, float, int, char, float, char, double>>,
             std::tuple<char, char, float, int, float, double, uint64_t, double, double>>();

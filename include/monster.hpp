@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 110
+#define MONSTER_VERSION 111
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -204,6 +204,9 @@ namespace monster
 
     template <typename T>
     inline constexpr auto second_v = T::second;
+
+    template <typename T>
+    inline constexpr auto pair_diff = second_v<T> - first_v<T>;
 
     template <auto p, auto q, typename T>
     struct triple : std::type_identity<T>
@@ -9595,6 +9598,94 @@ namespace monster
 
     template <typename T, typename U>
     using lcs_t = typeof_t<lcs<T, U>>;
+
+    template <typename T>
+    struct lps
+    {
+        static constexpr auto N = sizeof_t_v<T>;
+
+        template <int i, int j, int l, int r, typename U>
+        struct odd
+        {
+            static constexpr auto p = type_if_v<j <= r, get<l + r - j + i, U>, c_0>;
+            static constexpr auto q = (j > r ? 0 : min_v<p, r - j + i>) + 1;
+
+            template <int n, bool b>
+            struct impl
+            {
+                static constexpr auto m = n + 1;
+                static constexpr auto value = std::is_same_v<element_t<j - n, T>, element_t<j + n - i, T>>;
+
+                using type = type_if<value, impl<m, j + m - i < N && j - m >= 0>, c_<n - 1>>;
+            };
+
+            template <int n>
+            struct impl<n, false> : c_<n - 1>
+            {
+            };
+
+            static constexpr auto mid = typeof_v<impl<q, j + q - i < N && j - q >= 0>>;
+            static constexpr auto value = j + mid - i > r;
+
+            static constexpr auto lhs = value ? j - mid : l;
+            static constexpr auto rhs = value ? j + mid - i : r;
+
+            using type = pair_t<index_type<j, exchange_c<j, mid, U>>, triple<lhs, rhs, pair_v<j - mid, j + mid + !i>>>;
+        };
+
+        template <int i, int l, int r, typename U>
+        struct even
+        {
+            template <int p, int q, int m, int n, typename V>
+            struct impl
+            {
+                using call = typeof_t<odd<1, p, m, n, V>>;
+                using curr = second_t<call>;
+
+                using maps = typeof_t<first_t<call>>;
+                static constexpr auto value = get_v<p, maps> != 0;
+
+                using type = type_if<value, std::type_identity<call>, impl<p + 1, q, first_v<curr>, second_v<curr>, maps>>;
+            };
+
+            template <int q, int m, int n, typename V>
+            struct impl<q, q, m, n, V>
+            {
+                using type = pair_t<index_type<q, V>, triple<m, n, pair_v<N, N>>>;
+            };
+
+            using type = typeof_t<impl<i, N, l, r, U>>;
+        };
+
+        using table = fill_c<N, 0>;
+
+        template <int i, int j, int l, int r, typename U, typename V>
+        struct impl
+        {
+            using call = type_if<i == 0, odd<0, j, l, r, U>, even<j, l, r, U>>;
+            using curr = first_t<call>;
+
+            using trip = second_t<call>;
+            using part = typeof_t<trip>;
+
+            static constexpr auto lhs = pair_diff<V>;
+            static constexpr auto rhs = pair_diff<part>;
+
+            using dest = std::conditional_t<lhs < rhs, part, V>;
+            static constexpr auto value = typev<curr> + 1 == N;
+
+            using maps = type_if<value, std::type_identity<table>, curr>;
+            using prev = impl<i + value, 0, 0, -1, maps, dest>;
+
+            using next = impl<i + value, typev<curr> + 1, first_v<trip>, second_v<trip>, maps, dest>;
+            using type = type_if<rhs == 0, std::type_identity<dest>, std::conditional_t<value, prev, next>>;
+        };
+
+        using type = typeof_t<impl<0, 0, 0, -1, table, pair_v<0, 0>>>;
+    };
+
+    template <typename T>
+    using lps_t = typeof_t<lps<T>>;
 }
 
 #endif
