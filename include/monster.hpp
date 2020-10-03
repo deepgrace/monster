@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 111
+#define MONSTER_VERSION 112
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -9599,8 +9599,8 @@ namespace monster
     template <typename T, typename U>
     using lcs_t = typeof_t<lcs<T, U>>;
 
-    template <typename T>
-    struct lps
+    template <typename T, bool B = false>
+    struct manacker
     {
         static constexpr auto N = sizeof_t_v<T>;
 
@@ -9668,10 +9668,12 @@ namespace monster
             using trip = second_t<call>;
             using part = typeof_t<trip>;
 
-            static constexpr auto lhs = pair_diff<V>;
+            static constexpr auto lhs = pair_diff<std::conditional_t<B, V, part>>;
             static constexpr auto rhs = pair_diff<part>;
 
-            using dest = std::conditional_t<lhs < rhs, part, V>;
+            using rang = range_if_t<!B, first_v<part>, second_v<part>, T>;
+            using dest = type_if<B, std::conditional<lhs < rhs, part, V>, append_if<rhs != 0, V, rang>>;
+
             static constexpr auto value = typev<curr> + 1 == N;
 
             using maps = type_if<value, std::type_identity<table>, curr>;
@@ -9681,7 +9683,15 @@ namespace monster
             using type = type_if<rhs == 0, std::type_identity<dest>, std::conditional_t<value, prev, next>>;
         };
 
-        using type = typeof_t<impl<0, 0, 0, -1, table, pair_v<0, 0>>>;
+        using type = typeof_t<impl<0, 0, 0, -1, table, std::conditional_t<B, pair_v<0, 0>, std::tuple<>>>>;
+    };
+
+    template <typename T, bool B = false>
+    using manacker_t = typeof_t<manacker<T, B>>;
+
+    template <typename T>
+    struct lps : manacker<T, true>
+    {
     };
 
     template <typename T>
