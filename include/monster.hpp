@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 112
+#define MONSTER_VERSION 113
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -2915,6 +2915,14 @@ namespace monster
 
     template <template <typename> typename F, typename T>
     using transform_t = typeof_t<transform<F, T>>;
+
+    template <template <typename> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    struct generate : concat<range_t<0, B, T>, transform_t<F, range_t<B, E, T>>, range_t<E, sizeof_t_v<T>, T>>
+    {
+    };
+
+    template <template <typename> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    using generate_t = typeof_t<generate<F, T, B, E>>;
 
     template <template <typename, typename> typename F, typename T,
     typename init = element_t<0, T>, auto B = 0, auto E = sizeof_t_v<T>>
@@ -9696,6 +9704,9 @@ namespace monster
 
     template <typename T>
     using lps_t = typeof_t<lps<T>>;
+
+    template <typename T>
+    inline constexpr auto lps_v = pair_diff<lps_t<T>>;
 }
 
 #endif
