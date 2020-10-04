@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 113
+#define MONSTER_VERSION 114
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -2210,7 +2210,7 @@ namespace monster
     template <template <auto, typename> typename F, typename T, auto V>
     struct expand<F, T, std::index_sequence<>, V>
     {
-        using type = std::integer_sequence<int>;
+        using type = tuple_t<>;
     };
 
     template <template <auto, typename> typename F, typename T, typename U, auto V = 0>
@@ -9332,7 +9332,7 @@ namespace monster
     template <typename P, typename T, template <typename, typename> typename searcher = bmh>
     inline constexpr auto number_of_v = typev<number_of<P, T, searcher>>;
 
-    template <typename T, bool B1, bool B2, bool B3 = false>
+    template <typename T, bool B1, bool B2, bool B3 = false, bool B4 = false>
     struct arrange
     {
         using uniq = unique_t<T>;
@@ -9356,19 +9356,20 @@ namespace monster
             using next = append_t<base, curr>;
 
             static constexpr auto size = number_of_v<next, T>;
+            static constexpr auto only = size == 1;
 
             using lhs = std::conditional_t<B1, std::type_identity<base>, next>;
-            using rhs = std::conditional_t<B1, fill<size, curr>, base>;
+            using rhs = std::conditional_t<B1, fill<B4 && !only ? 0 : size, curr>, base>;
 
-            using type = typeof_t<call<B1, size == 1, lhs, rhs>>;
+            using type = typeof_t<call<B1, only, lhs, rhs>>;
         };
 
         using curr = expand_t<impl, uniq, index_sequence_of_t<uniq>>;
         using type = type_if<B3, unpack<tuple_t, curr>, unpack<concat_t, curr>>;
     };
 
-    template <typename T, bool B1, bool B2, bool B3 = false>
-    using arrange_t = typeof_t<arrange<T, B1, B2, B3>>;
+    template <typename T, bool B1, bool B2, bool B3 = false, bool B4 = false>
+    using arrange_t = typeof_t<arrange<T, B1, B2, B3, B4>>;
 
     template <typename T>
     struct group : arrange<T, true, false, true>
@@ -9429,6 +9430,14 @@ namespace monster
 
     template <typename T>
     using remove_unique_t = typeof_t<remove_unique<T>>;
+
+    template <typename T>
+    struct remove_duplicate : arrange<T, true, false, false, true>
+    {
+    };
+
+    template <typename T>
+    using remove_duplicate_t = typeof_t<remove_duplicate<T>>;
 
     template <typename T>
     struct unique_elements : arrange<T, false, false>

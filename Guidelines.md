@@ -784,6 +784,12 @@ using ru2 = remove_unique_t<std::index_sequence<8, 4, 2, 0, 7, 0, 7, 0, 2, 8, 9,
 // ru1 == std::tuple<int, int, int, int, double, double>
 // ru2 == std::index_sequence<8, 8, 2, 2, 0, 0, 0, 7, 7>
 
+// remove duplicate elements, keep the relative order
+using rd1 = remove_duplicate_t<std::tuple<short, int, double, int, double, int, char, int>>;
+using rd2 = remove_duplicate_t<std::index_sequence<8, 4, 2, 0, 7, 0, 7, 0, 2, 8, 9, 6>>;
+// rd1 == std::tuple<short, char>
+// rd2 == std::index_sequence<4, 9, 6>
+
 // delete all indices with duplicate elements, keep the last appearance
 using u3 = unique_index_t<std::tuple<int, char, int, double, float, double>>;
 using u4 = unique_index_t<std::integer_sequence<int, 2, 1, 2, 3, 4, 3>>;

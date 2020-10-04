@@ -156,6 +156,7 @@ int main(int argc, char* argv[])
     using adjacent_type = std::tuple<char, char, char, double, double, int, float>;
     execute<adjacent_t<not_adjacent_type>, adjacent_type>();
     execute<remove_unique_t<not_adjacent_type>, std::tuple<char, char, char, double, double>>();
+    execute<remove_duplicate_t<not_adjacent_type>, std::tuple<int, float>>();
     execute<group_t<not_adjacent_type>, std::tuple<std::tuple<char, char, char>,
             std::tuple<double, double>, std::tuple<int>, std::tuple<float>>>();
 
@@ -163,6 +164,7 @@ int main(int argc, char* argv[])
     using adjacent_value = std::index_sequence<2, 2, 1, 3, 3, 5, 5, 5, 8, 8, 7, 9>;
     execute<adjacent_t<not_adjacent_value>, adjacent_value>();
     execute<remove_unique_t<not_adjacent_value>, std::index_sequence<2, 2, 3, 3, 5, 5, 5, 8, 8>>();
+    execute<remove_duplicate_t<not_adjacent_value>, std::index_sequence<1, 7, 9>>();
     execute<group_t<not_adjacent_value>, std::tuple<std::index_sequence<2, 2>,
             std::index_sequence<3, 3>, std::index_sequence<5, 5, 5>, std::index_sequence<8, 8>>>();
 
