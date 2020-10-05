@@ -428,6 +428,9 @@ int main(int argc, char* argv[])
             std::integer_sequence<int, 3, 4, 5, 6, 7>>,
             std::integer_sequence<int, 1, 2, 3, 4, 5, 5, 5, 6, 7>>();
 
+    execute<intersect_t<std::tuple<int, char>, std::tuple<char, double>, std::tuple<short, char>>,
+            std::tuple<char>>();
+
     execute<mismatch_t<equal_t, std::integer_sequence<int, 1, 2, 3, 4, 5, 5, 5>,
             std::integer_sequence<int, 1, 2, 3, 5, 6, 7>>, pair_v<3, 3>>();
 

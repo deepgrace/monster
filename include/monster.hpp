@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 114
+#define MONSTER_VERSION 115
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -9454,6 +9454,29 @@ namespace monster
 
     template <typename T>
     using duplicate_elements_t = typeof_t<duplicate_elements<T>>;
+
+    template <typename... Args>
+    requires is_variadic_pack_v<Args...>
+    struct intersect
+    {
+        template <typename... args>
+        struct impl;
+
+        template <typename T>
+        struct impl<T> : std::type_identity<T>
+        {
+        };
+
+        template <typename T, typename U, typename... args>
+        struct impl<T, U, args...> : impl<duplicate_elements_t<concat_t<unique_t<T>, unique_t<U>>>, args...>
+        {
+        };
+
+        using type = typeof_t<impl<Args...>>;
+    };
+
+    template <typename... Args>
+    using intersect_t = typeof_t<intersect<Args...>>;
 
     template <int n = 3>
     struct hanoi
