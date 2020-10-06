@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 116
+#define MONSTER_VERSION 117
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -2333,18 +2333,6 @@ namespace monster
     template <auto M, auto N, typename V>
     using replace_with_c = replace_with_t<c_<M>, c_<N>, V>;
 
-    template <auto i, auto j, template <typename ...> typename F, typename T, typename U>
-    struct gsub_if
-    {
-        template <typename V, typename W>
-        using apply = F<W>;
-
-        using type = gsub_t<i, j, T, T, U, apply>;
-    };
-
-    template <auto i, auto j, template <typename ...> typename F, typename T, typename U>
-    using gsub_if_t = typeof_t<gsub_if<i, j, F, T, U>>;
-
     template <auto i, auto j, typename T, typename U, template <typename ...> typename F, template <typename ...> typename G = std::is_same>
     struct adjust
     {
@@ -3395,6 +3383,21 @@ namespace monster
 
     template <auto i, auto j, typename T, auto... values>
     using replace_c = replace_t<i, j, T, c_<values>...>;
+
+    template <auto i, auto j, template <typename ...> typename F, typename T, typename U>
+    struct replace_if
+    {
+        template <typename V, typename W>
+        using apply = F<W>;
+
+        using type = gsub_t<i, j, T, T, U, apply>;
+    };
+
+    template <auto i, auto j, template <typename ...> typename F, typename T, typename U>
+    using replace_if_t = typeof_t<replace_if<i, j, F, T, U>>;
+
+    template <auto i, auto j, template <typename ...> typename F, auto N, typename U>
+    using replace_if_c = replace_if_t<i, j, F, c_<N>, U>;
 
     template <auto i, auto j, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     requires is_variadic_pack_v<T, U>
@@ -5696,15 +5699,23 @@ namespace monster
     using remove_t = typeof_t<remove<F, T>>;
 
     template <typename T, typename U>
-    struct eliminate : remove<bind_front<std::is_same, T>::template apply, U>
+    struct remove_copy : remove<bind_front<std::is_same, T>::template apply, U>
     {
     };
 
     template <typename T, typename U>
-    using eliminate_t = typeof_t<eliminate<T, U>>;
+    using remove_copy_t = typeof_t<remove_copy<T, U>>;
 
     template <auto N, typename T>
-    using eliminate_c = eliminate_t<c_<N>, T>;
+    using remove_copy_c = remove_copy_t<c_<N>, T>;
+
+    template <template <typename ...> typename F, typename T>
+    struct remove_copy_if : remove<negaf<F>::template apply, T>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T>
+    using remove_copy_if_t = typeof_t<remove_copy_if<F, T>>;
 
     template <typename T, typename U>
     struct cartesian_product
@@ -9335,7 +9346,7 @@ namespace monster
     template <typename P, typename T, template <typename, typename> typename searcher = bmh>
     inline constexpr auto number_of_v = typev<number_of<P, T, searcher>>;
 
-    template <typename T, bool B1, bool B2, bool B3 = false, bool B4 = false>
+    template <typename T, bool B1, bool B2, bool B3 = false>
     struct arrange
     {
         using uniq = unique_t<T>;
@@ -9362,7 +9373,7 @@ namespace monster
             static constexpr auto only = size == 1;
 
             using lhs = std::conditional_t<B1, std::type_identity<base>, next>;
-            using rhs = std::conditional_t<B1, fill<B4 && !only ? 0 : size, curr>, base>;
+            using rhs = std::conditional_t<B1, fill<size, curr>, base>;
 
             using type = typeof_t<call<B1, only, lhs, rhs>>;
         };
@@ -9371,8 +9382,8 @@ namespace monster
         using type = type_if<B3, unpack<tuple_t, curr>, unpack<concat_t, curr>>;
     };
 
-    template <typename T, bool B1, bool B2, bool B3 = false, bool B4 = false>
-    using arrange_t = typeof_t<arrange<T, B1, B2, B3, B4>>;
+    template <typename T, bool B1, bool B2, bool B3 = false>
+    using arrange_t = typeof_t<arrange<T, B1, B2, B3>>;
 
     template <typename T>
     struct group : arrange<T, true, false, true>
@@ -9435,7 +9446,7 @@ namespace monster
     using remove_unique_t = typeof_t<remove_unique<T>>;
 
     template <typename T>
-    struct remove_duplicate : arrange<T, true, false, false, true>
+    struct remove_duplicate : arrange<T, false, false>
     {
     };
 
@@ -9443,7 +9454,7 @@ namespace monster
     using remove_duplicate_t = typeof_t<remove_duplicate<T>>;
 
     template <typename T>
-    struct unique_elements : arrange<T, false, false>
+    struct unique_elements : remove_duplicate<T>
     {
     };
 

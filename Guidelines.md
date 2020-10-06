@@ -723,9 +723,9 @@ using d2 = drop_t<1, std::integer_sequence<int, 1, 2, -2, 4, 5>>;
 // d2 == std::integer_sequence<int, 1, -2, 4, 5>
 
 // delete an element of specific type or value
-using d3 = eliminate_t<char, std::tuple<int, char, double, float, char>>;
-using d4 = eliminate_t<c_3, std::integer_sequence<int, 0, 3, 2, 4, 7, 3>>;
-using d5 = eliminate_c<4, std::integer_sequence<int, 4, 3, 2, 4, 7, 3>>;
+using d3 = remove_copy_t<char, std::tuple<int, char, double, float, char>>;
+using d4 = remove_copy_t<c_3, std::integer_sequence<int, 0, 3, 2, 4, 7, 3>>;
+using d5 = remove_copy_c<4, std::integer_sequence<int, 4, 3, 2, 4, 7, 3>>;
 // d3 == std::tuple<int, double, float>
 // d4 == std::integer_sequence<int, 0, 2, 4, 7>
 // d5 == std::integer_sequence<int, 3, 2, 7, 3>
@@ -1627,8 +1627,8 @@ using g3 = gsub_c<1, 5, -2, -6, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4,
 // g3 == std::integer_sequence<int, 1, 3, -6, 1, 7, 1, 4, 6>
 
 // replace elements in the range [begin, end) satisfying specific criteria
-using g4 = gsub_if_t<1, 4, is_tuple, int, std::tuple<int, char, std::tuple<>, double, std::tuple<>>>;
-using g5 = gsub_if_t<1, 5, is_even, c_<-6>, std::integer_sequence<int, 1, 3, -2, 4, 7, 0, 4, 6>>;
+using g4 = replace_if_t<1, 4, is_tuple, int, std::tuple<int, char, std::tuple<>, double, std::tuple<>>>;
+using g5 = replace_if_c<1, 5, is_even, -6, std::integer_sequence<int, 1, 3, -2, 4, 7, 0, 4, 6>>;
 // g4 == std::tuple<int, char, int, double, std::tuple<>>
 // g5 == std::integer_sequence<int, 1, 3, -6, -6, 7, 0, 4, 6>
 

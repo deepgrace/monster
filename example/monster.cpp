@@ -604,19 +604,18 @@ int main(int argc, char* argv[])
             std::tuple<int, short>>();
 
     execute<remove_t<is_tuple, type>, std::tuple<int, char, double, float, char>>();
-    execute<remove_t<negaf<is_tuple>::template apply, type>,
-            std::tuple<std::tuple<char>, std::tuple<double>>>();
+    execute<remove_copy_if_t<is_tuple, type>, std::tuple<std::tuple<char>, std::tuple<double>>>();
 
     execute<remove_t<is_odd, std::integer_sequence<int, 0, 3, 2, 4, 7, 3>>,
             std::integer_sequence<int, 0, 2, 4>>();
     execute<remove_t<is_even, std::integer_sequence<int, 0, 3, 2, 4, 7, 3>>,
             std::integer_sequence<int, 3, 7, 3>>();
 
-    execute<eliminate_t<char, std::tuple<int, char, double, float, char>>,
+    execute<remove_copy_t<char, std::tuple<int, char, double, float, char>>,
             std::tuple<int, double, float>>();
-    execute<eliminate_t<c_3, std::integer_sequence<int, 0, 3, 2, 4, 7, 3>>,
+    execute<remove_copy_t<c_3, std::integer_sequence<int, 0, 3, 2, 4, 7, 3>>,
             std::integer_sequence<int, 0, 2, 4, 7>>();
-    execute<eliminate_c<4, std::integer_sequence<int, 4, 3, 2, 4, 7, 3>>,
+    execute<remove_copy_c<4, std::integer_sequence<int, 4, 3, 2, 4, 7, 3>>,
             std::integer_sequence<int, 3, 2, 7, 3>>();
 
     execute<max_element_t<std::tuple<short, int, char>>, int>();
@@ -715,9 +714,9 @@ int main(int argc, char* argv[])
     execute<replace_with_c<1, -6, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>,
             std::integer_sequence<int, -6, 3, -2, -6, 7, -6, 4, 6>>();
 
-    execute<gsub_if_t<1, 5, is_tuple, int, std::tuple<int, char, std::tuple<>, double,
+    execute<replace_if_t<1, 5, is_tuple, int, std::tuple<int, char, std::tuple<>, double,
             std::tuple<>, float, char>>, std::tuple<int, char, int, double, int, float, char>>();
-    execute<gsub_if_t<1, 5, is_even, c_<-6>, std::integer_sequence<int, 1, 3, -2, 4, 7, 0, 4, 6>>,
+    execute<replace_if_c<1, 5, is_even, -6, std::integer_sequence<int, 1, 3, -2, 4, 7, 0, 4, 6>>,
             std::integer_sequence<int, 1, 3, -6, -6, 7, 0, 4, 6>>();
 
     execute<adjust_t<1, 5, int, std::tuple<int, char, int, double, int, float, char>, std::add_pointer>,
