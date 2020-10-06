@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 115
+#define MONSTER_VERSION 116
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1655,7 +1655,10 @@ namespace monster
     using range_generator_t = typeof_t<range_generator<T, lower, upper>>;
 
     template <size_t lower, size_t upper>
-    using index_range = typeof_t<range_generator<size_t, lower, upper>>;
+    using index_range = range_generator_t<size_t, lower, upper>;
+
+    template <int lower, int upper>
+    using integer_range = rename_t<range_generator_t<int, lower, upper>, std::integer_sequence<int>>;
     
     template <size_t N, typename T>
     struct base
