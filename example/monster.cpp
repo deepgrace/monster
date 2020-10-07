@@ -552,7 +552,8 @@ int main(int argc, char* argv[])
     execute<index_sequence_for<int, char, double>, index_sequence<0, 1, 2>>();
 
     execute<range_generator_t<size_t, 1, 4>, index_list<size_t, 1, 2, 3>>();
-    execute<index_range<2, 5>, index_list<size_t, 2, 3, 4>>();
+    execute<index_range<2, 5>, std::index_sequence<2, 3, 4>>();
+    execute<repeat_range_t<3>, std::index_sequence<1, 2, 2, 3, 3, 3>>();
     execute<integer_range<-2, 3>, std::integer_sequence<int, -2, -1, 0, 1, 2>>();
 
     fmap([](auto& v)

@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 117
+#define MONSTER_VERSION 118
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1655,7 +1655,7 @@ namespace monster
     using range_generator_t = typeof_t<range_generator<T, lower, upper>>;
 
     template <size_t lower, size_t upper>
-    using index_range = range_generator_t<size_t, lower, upper>;
+    using index_range = rename_t<range_generator_t<size_t, lower, upper>, std::index_sequence<>>;
 
     template <int lower, int upper>
     using integer_range = rename_t<range_generator_t<int, lower, upper>, std::integer_sequence<int>>;
@@ -1682,8 +1682,8 @@ namespace monster
     template <typename T, typename... Outer>
     void fmap(T&& t, Outer&&... outer)
     {
-        []<typename F, size_t... N, typename... Args>
-        (F&& f, const index_list<size_t, N...>&, Args&&... args)
+        []<typename F, template <typename U, auto ...> typename V, size_t... N, typename... Args>
+        (F&& f, const V<size_t, N...>&, Args&&... args)
         {
             invoker<index_type<N, nth_type_t<N, Args...>>...>(std::forward<F>(f), (nth_value_v<N>(std::forward<Args>(args)...))...);
         }
@@ -4466,6 +4466,27 @@ namespace monster
 
     template <auto n, auto v>
     using fill_c = typeof_t<fill<n, c_<v>>>;
+
+    template <size_t N>
+    struct repeat_range
+    {
+        using base = std::index_sequence<>;
+
+        template <size_t i, size_t j, typename T>
+        struct impl : impl<i + 1, j, concat_t<T, rename_t<fill_c<i + 1, i + 1>, base>>>
+        {
+        };
+
+        template <size_t j, typename T>
+        struct impl<j, j, T> : std::type_identity<T>
+        {
+        };
+
+        using type = typeof_t<impl<0, N, base>>;
+    };
+
+    template <size_t N>
+    using repeat_range_t = typeof_t<repeat_range<N>>;
 
     template <auto n, auto v>
     using index_sequence_c = rename_t<fill_c<n, v>, std::index_sequence<>>;
