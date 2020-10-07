@@ -357,6 +357,11 @@ int main(int argc, char* argv[])
 
     execute<equal<3>::template apply<c_3>::value>();
 
+    execute<compose_left_t<std::tuple<int, char, short, double>, pop_front, reverse, pop_back>,
+            std::tuple<double, short>>();
+    execute<compose_right_t<std::tuple<int, char, short, double>, pop_front, reverse, pop_back>,
+            std::tuple<char, int>>();
+
     execute<is_variadic_type_v<std::tuple<>>>();
     execute<is_variadic_value_v<std::index_sequence<>>>();
     execute<!is_variadic_type_v<nullptr_t>>();

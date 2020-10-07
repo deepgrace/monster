@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 118
+#define MONSTER_VERSION 119
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1264,6 +1264,38 @@ namespace monster
 
     template <template <typename ...> typename F, typename... Args>
     using currying_t = typeof_t<currying<F, Args...>>;
+
+    template <typename T, template <typename ...> typename... F>
+    struct compose_left;
+
+    template <typename T, template <typename ...> typename F>
+    struct compose_left<T, F> : typeof<F<T>>
+    {
+    };
+
+    template <typename T, template <typename ...> typename F, template <typename ...> typename... G>
+    struct compose_left<T, F, G...> : compose_left<typeof_t<F<T>>, G...>
+    {
+    };
+
+    template <typename T, template <typename ...> typename... F>
+    using compose_left_t = typeof_t<compose_left<T, F...>>;
+
+    template <typename T, template <typename ...> typename... F>
+    struct compose_right;
+
+    template <typename T, template <typename ...> typename F>
+    struct compose_right<T, F> : typeof<F<T>>
+    {
+    };
+
+    template <typename T, template <typename ...> typename F, template <typename ...> typename... G>
+    struct compose_right<T, F, G...> : compose_right<typeof_t<compose_right<T, G...>>, F>
+    {
+    };
+
+    template <typename T, template <typename ...> typename... F>
+    using compose_right_t = typeof_t<compose_right<T, F...>>;
 
     template <template <template <typename ...> typename, typename ...> typename F, template <typename ...> typename f, typename... Args>
     struct eval
