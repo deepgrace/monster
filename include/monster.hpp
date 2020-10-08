@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 119
+#define MONSTER_VERSION 120
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3288,6 +3288,14 @@ namespace monster
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using remove_if_t = typeof_t<remove_if<F, T, B, E>>;
 
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    struct remove_if_not : remove_if<negaf<F>::template apply, T, B, E>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    using remove_if_not_t = typeof_t<remove_if_not<F, T, B, E>>;
+
     template <template <typename ...> typename F, typename T, auto B, auto E, bool value>
     struct copy
     {
@@ -5732,27 +5740,35 @@ namespace monster
     using filter_t = typeof_t<filter<F, T, U>>;
 
     template <template <typename ...> typename F, typename T>
-    struct remove;
+    struct erase_if;
 
     template <template <typename ...> typename F, template <typename ...> typename T, typename... Args>
-    struct remove<F, T<Args...>>
+    struct erase_if<F, T<Args...>>
     {
         using base = base_type_t<T<Args...>>;
         using type = concat_t<filter_t<F, Args, base>...>;
     };
 
     template <template <typename ...> typename F, template <typename, auto ...> typename T, typename U, auto... Args>
-    struct remove<F, T<U, Args...>>
+    struct erase_if<F, T<U, Args...>>
     {
         using base = base_type_t<T<U, Args...>>;
         using type = concat_t<filter_t<F, c_<Args, U>, base>...>;
     };
 
     template <template <typename ...> typename F, typename T>
-    using remove_t = typeof_t<remove<F, T>>;
+    using erase_if_t = typeof_t<erase_if<F, T>>;
+
+    template <template <typename ...> typename F, typename T>
+    struct erase_if_not : erase_if<negaf<F>::template apply, T>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T>
+    using erase_if_not_t = typeof_t<erase_if_not<F, T>>;
 
     template <typename T, typename U>
-    struct remove_copy : remove<bind_front<std::is_same, T>::template apply, U>
+    struct remove_copy : erase_if<bind_front<std::is_same, T>::template apply, U>
     {
     };
 
@@ -5763,7 +5779,7 @@ namespace monster
     using remove_copy_c = remove_copy_t<c_<N>, T>;
 
     template <template <typename ...> typename F, typename T>
-    struct remove_copy_if : remove<negaf<F>::template apply, T>
+    struct remove_copy_if : erase_if<negaf<F>::template apply, T>
     {
     };
 

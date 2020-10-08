@@ -595,8 +595,8 @@ int main(int argc, char* argv[])
     execute<remove_if_t<is_odd, value, 1, 6>, std::integer_sequence<int, 4, 0, 6, 4, 9, 21>>();
     execute<remove_if_t<is_even, value, 1, 6>, std::integer_sequence<int, 4, 5, 1, 9, 21>>();
     execute<remove_if_t<is_tuple, type, 1, 5>, std::tuple<int, char, double, float, char>>();
-    execute<remove_if_t<negaf<is_tuple>::template apply, type, 1, 5>,
-            std::tuple<int, std::tuple<char>, std::tuple<double>, float, char>>();
+    execute<remove_if_not_t<is_tuple, type, 1, 5>, std::tuple<int, std::tuple<char>,
+            std::tuple<double>, float, char>>();
 
     execute<copy_if_t<is_even, value>, std::integer_sequence<int, 4, 0, 6, 4>>();
     execute<copy_if_t<is_tuple, type>, std::tuple<std::tuple<char>, std::tuple<double>>>();
@@ -609,12 +609,12 @@ int main(int argc, char* argv[])
     execute<exclude_t<std::tuple<char, int, double, int, short>, std::index_sequence<0, 2, 3>>,
             std::tuple<int, short>>();
 
-    execute<remove_t<is_tuple, type>, std::tuple<int, char, double, float, char>>();
+    execute<erase_if_t<is_tuple, type>, std::tuple<int, char, double, float, char>>();
     execute<remove_copy_if_t<is_tuple, type>, std::tuple<std::tuple<char>, std::tuple<double>>>();
 
-    execute<remove_t<is_odd, std::integer_sequence<int, 0, 3, 2, 4, 7, 3>>,
+    execute<erase_if_t<is_odd, std::integer_sequence<int, 0, 3, 2, 4, 7, 3>>,
             std::integer_sequence<int, 0, 2, 4>>();
-    execute<remove_t<is_even, std::integer_sequence<int, 0, 3, 2, 4, 7, 3>>,
+    execute<erase_if_not_t<is_odd, std::integer_sequence<int, 0, 3, 2, 4, 7, 3>>,
             std::integer_sequence<int, 3, 7, 3>>();
 
     execute<remove_copy_t<char, std::tuple<int, char, double, float, char>>,

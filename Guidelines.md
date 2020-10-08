@@ -805,10 +805,10 @@ using u5 = unique_if_t<is_pointer_of, std::tuple<int*, int*, int, double, char, 
 using value = std::integer_sequence<int, 4, 0, 5, 6, 4, 1, 9, 21>;
 using type = std::tuple<int, char, std::tuple<char>, double, std::tuple<double>, float, char>;
 
-using r1 = remove_t<is_tuple, type>;
-using r2 = remove_t<negaf<is_tuple>::template apply, type>;
-using r3 = remove_t<is_odd, value>;
-using r4 = remove_t<is_even, value>;
+using r1 = erase_if_t<is_tuple, type>;
+using r2 = erase_if_not_t<is_tuple, type>;
+using r3 = erase_if_t<is_odd, value>;
+using r4 = erase_if_t<is_even, value>;
 // r1 == std::tuple<int, char, double, float, char>
 // r2 == std::tuple<std::tuple<char>, std::tuple<double>>
 // r3 == std::integer_sequence<int, 4, 0, 6, 4>
@@ -818,7 +818,7 @@ using r4 = remove_t<is_even, value>;
 using r5 = remove_if_t<is_odd, value, 1, 6>;
 using r6 = remove_if_t<is_even, value, 1, 6>;
 using r7 = remove_if_t<is_tuple, type, 1, 5>;
-using r8 == remove_if_t<negaf<is_tuple>::template apply, type, 1, 5>;
+using r8 = remove_if_not_t<is_tuple, type, 1, 5>;
 // r7 == std::tuple<int, char, double, float, char>
 // r8 == std::tuple<int, std::tuple<char>, std::tuple<double>, float, char>
 // r5 == std::integer_sequence<int, 4, 0, 6, 4, 9, 21>
