@@ -1080,6 +1080,9 @@ int main(int argc, char* argv[])
             std::integer_sequence<int, -2, 1, 0, 3>, 0, 3>,
             std::integer_sequence<int, 4, -2, 1, 0, -2>>();
 
+    execute<copy_backward_t<std::tuple<int, char, double>, std::tuple<short, char, int, char>>,
+            std::tuple<short, int, char, double>>();
+
     execute<insert_t<2, std::tuple<float, double, int>, float, char>,
             std::tuple<float, double, float, char, int>>();
     execute<insert_t<1, std::integer_sequence<int, 1, 2, -2>, c_0, c_4>,

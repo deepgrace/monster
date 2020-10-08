@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 120
+#define MONSTER_VERSION 121
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -779,6 +779,9 @@ namespace monster
 
     template <typename T, typename U>
     inline constexpr auto greater_v = typev<greater_t<T, U>>;
+
+    template <typename T, typename U>
+    inline constexpr auto size_diff = sizeof_t_v<T> - sizeof_t_v<U>;
 
     template <typename T>
     struct base_type : std::type_identity<T>
@@ -3451,6 +3454,25 @@ namespace monster
 
     template <auto i, auto j, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     using replace_range_t = typeof_t<replace_range<i, j, T, U, B, E>>;
+
+    template <typename T, typename U>
+    struct copy_backward
+    {
+        template <bool, typename V>
+        struct impl : concat<range_t<0, size_diff<U, V>, U>, V>
+        {
+        };
+
+        template <typename V>
+        struct impl<false, V> : std::type_identity<V>
+        {
+        };
+
+        using type = typeof_t<impl<less_v<T, U>, T>>;
+    };
+
+    template <typename T, typename U>
+    using copy_backward_t = typeof_t<copy_backward<T, U>>;
 
     template <auto i, auto j, typename T>
     struct reverse_range
