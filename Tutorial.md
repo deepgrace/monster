@@ -2080,6 +2080,9 @@ int main(int argc, char* argv[])
     execute<element_t<4, nth_element_t<4, std::tuple<int, char, short, double, char>>>, double>();
     execute<element_v<3, nth_element_t<3, std::integer_sequence<int, -2, 1, 0, -7, 4, 3>>>, 1>();
 
+    execute<median_v<std::integer_sequence<int, 2, -3, 4, 0, 7, 6>>, 3>();
+    execute<median_v<std::integer_sequence<int, 2, -3, 4, 0, 7, 6, 8>>, 4>();
+
     execute<partial_sort_t<0, 4, std::integer_sequence<int, 6, -2, 8, 0, -7, 1, 7, -5, 4, 7, 3>>,
             std::integer_sequence<int, -7, -5, -2, 0, 6, 1, 7, 3, 4, 7, 8>>();
     execute<partial_sort_t<4, 6, std::tuple<int, uint64_t, short, char, short, double, int, short>>,

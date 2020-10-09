@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 121
+#define MONSTER_VERSION 122
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -8210,6 +8210,32 @@ namespace monster
 
     template <size_t n, typename T, template <typename, typename> typename comparator = less_equal_t>
     using nth_element_t = typeof_t<nth_element<n, T, comparator>>;
+
+    template <typename T>
+    struct median
+    {
+        static constexpr auto N = sizeof_t_v<T>;
+
+        template <bool, typename U>
+        struct impl
+        {
+            using curr = nth_element_t<(N - 1) / 2, U>;
+            using type = c_<(element_v<(N - 1) / 2, curr> + element_v<N / 2, curr>) / 2>;
+        };
+
+        template <typename U>
+        struct impl<false, U> : c_<element_v<N / 2, U>>
+        {
+        };
+
+        using type = typeof_t<impl<N % 2 == 0, nth_element_t<N / 2, T>>>;
+    };
+
+    template <typename T>
+    using median_t = typeof_t<median<T>>;
+
+    template <typename T>
+    inline constexpr auto median_v = typev<median_t<T>>;
 
     template <size_t p, size_t q, typename T, template <typename, typename> typename comparator = less_equal_t>
     struct partial_sort
