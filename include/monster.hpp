@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 122
+#define MONSTER_VERSION 123
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -9870,6 +9870,42 @@ namespace monster
 
     template <typename T>
     inline constexpr auto lps_v = pair_diff<lps_t<T>>;
+
+    template <typename T>
+    struct lcp
+    {
+        using base = row_type_t<T>;
+
+        template <int i, int j, typename U, typename V, typename W, bool = i < j>
+        struct next
+        {
+            using curr = element_t<i, U>;
+            static constexpr auto value = std::is_same_v<curr, element_t<i, V>>;
+
+            using type = type_if<value, next<i + 1, j, U, V, append_if_t<value, W, curr>>, std::type_identity<W>>;
+        };
+
+        template <int i, int j, typename U, typename V, typename W>
+        struct next<i, j, U, V, W, false> : std::type_identity<W>
+        {
+        };
+
+        template <int i, int j>
+        struct impl
+        {
+            static constexpr auto m = i + (j - i) / 2;
+
+            using lhs = type_if<i + 1 == m, element<i, T>, impl<i, m>>;
+            using rhs = type_if<m + 1 == j, element<m, T>, impl<m, j>>;
+
+            using type = typeof_t<next<0, min_v<sizeof_t_v<lhs>, sizeof_t_v<rhs>>, lhs, rhs, base>>;
+        };
+
+        using type = typeof_t<impl<0, sizeof_t_v<T>>>;
+    };
+
+    template <typename T>
+    using lcp_t = typeof_t<lcp<T>>;
 }
 
 #endif

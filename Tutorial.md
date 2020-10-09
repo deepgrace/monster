@@ -2142,6 +2142,11 @@ int main(int argc, char* argv[])
     execute<lps_t<std::index_sequence<1, 2, 3, 4, 5, 4, 3, 6, 6, 3>>, pair_v<2, 7>>();
     execute<lps_v<std::index_sequence<1, 2, 3, 4, 5, 4, 3, 6, 6, 3>>, 5>();
 
+    execute<lcp_t<std::tuple<std::tuple<int, char>, std::tuple<int, char, short>, std::tuple<int, char, double, int>>>,
+            std::tuple<int, char>>();
+    execute<lcp_t<std::tuple<std::index_sequence<7, 6, 8, 1>, std::index_sequence<7, 6, 8, 4, 2>>>,
+            std::index_sequence<7, 6, 8>>();
+
     execute<manacker_t<std::tuple<int, char, double, char, int, char>>,
             std::tuple<std::tuple<int>, std::tuple<char>, std::tuple<int, char, double, char, int>,
             std::tuple<char>, std::tuple<char, int, char>, std::tuple<char>>>();
