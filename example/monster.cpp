@@ -875,6 +875,9 @@ int main(int argc, char* argv[])
     execute<binary_search_v<double, std::tuple<short, int, double>>>();
     execute<binary_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>>();
 
+    execute<ternary_search_v<double, std::tuple<short, int, double>>>();
+    execute<ternary_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>>();
+
     execute<exponential_search_v<double, std::tuple<short, int, double>>>();
     execute<exponential_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>>();
 

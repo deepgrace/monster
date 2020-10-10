@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 124
+#define MONSTER_VERSION 125
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3782,6 +3782,49 @@ namespace monster
 
     template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     inline constexpr auto binary_search_v = typev<binary_search_t<T, U, B, E>>;
+
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    struct ternary_search
+    {
+        static constexpr auto key = sizeof_t_v<T>;
+
+        template <size_t l, size_t m, size_t r, auto lower, template <size_t, size_t> typename search>
+        struct impl
+        {
+             static constexpr auto mid = r - (r - l) / 3;
+             static constexpr auto upper = element_size_v<mid, U>;
+
+             using left = search<l, m - 1>;
+             using middle = search<m + 1, mid - 1>;
+
+             using right = search<mid + 1, r>;
+             using next = ternary_conditional_t<key < upper, key < lower, left, middle, right>;
+
+             using type = type_if<upper == key, std::true_type, next>;
+        };
+
+        template <size_t l, size_t r, bool = l <= r>
+        struct search
+        {
+             static constexpr auto mid = l + (r - l) / 3;
+             static constexpr auto lower = element_size_v<mid, U>;
+
+             using type = type_if<lower == key, std::true_type, impl<l, mid, r, lower, search>>;
+        };
+
+        template <size_t l, size_t r>
+        struct search<l, r, false> : std::false_type
+        {
+        };
+
+        using type = typeof_t<search<B, E - 1>>;
+    };
+
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    using ternary_search_t = typeof_t<ternary_search<T, U, B, E>>;
+
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    inline constexpr auto ternary_search_v = typev<ternary_search_t<T, U, B, E>>;
 
     template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     struct exponential_search
