@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 125
+#define MONSTER_VERSION 126
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -8505,7 +8505,7 @@ namespace monster
         using B = fill_t<N, std::conditional_t<is_tuple_v<call>, int, c_0>>;
 
         template <size_t i, typename V, bool = true>
-        struct count : inc<tuple_element_size_v<i, call> / p % q, V>
+        struct count : inc<element_size_v<i, call> / p % q, V>
         {
         };
 
@@ -9994,7 +9994,7 @@ namespace monster
         template <int i, int j, int k, int m>
         struct impl
         {
-            static constexpr auto sum = tuple_element_size_v<i, lis> + tuple_element_size_v<i, lds> - 1;
+            static constexpr auto sum = element_size_v<i, lis> + element_size_v<i, lds> - 1;
             using type = typeof_t<impl<i + 1, j, (sum > m) ? i : k, max_v<m, sum>>>;
         };
 
