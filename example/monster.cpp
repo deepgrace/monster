@@ -2156,6 +2156,9 @@ int main(int argc, char* argv[])
     execute<lcp_t<std::tuple<std::index_sequence<7, 6, 8, 1>, std::index_sequence<7, 6, 8, 4, 2>>>,
             std::index_sequence<7, 6, 8>>();
 
+    execute<lbs_t<std::integer_sequence<int, 1, 11, 2, 10, 4, 5, 2, 1>>,
+            std::integer_sequence<int, 1, 11, 10, 5, 2, 1>>();
+
     execute<manacker_t<std::tuple<int, char, double, char, int, char>>,
             std::tuple<std::tuple<int>, std::tuple<char>, std::tuple<int, char, double, char, int>,
             std::tuple<char>, std::tuple<char, int, char>, std::tuple<char>>>();

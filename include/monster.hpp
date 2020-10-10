@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 123
+#define MONSTER_VERSION 124
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -8462,7 +8462,7 @@ namespace monster
         using B = fill_t<N, std::conditional_t<is_tuple_v<call>, int, c_0>>;
 
         template <size_t i, typename V, bool = true>
-        struct count : inc<sizeof_t_v<element_t<i, call>> / p % q, V>
+        struct count : inc<tuple_element_size_v<i, call> / p % q, V>
         {
         };
 
@@ -9906,6 +9906,69 @@ namespace monster
 
     template <typename T>
     using lcp_t = typeof_t<lcp<T>>;
+
+    template <typename T>
+    struct lbs
+    {
+        static constexpr auto N = sizeof_t_v<T>;
+
+        template <int i, int j, int k, int l, typename U>
+        struct next
+        {
+            using lhs = element_t<j, T>;
+            using rhs = element_t<i, T>;
+
+            using curr = element_t<j, U>;
+            static constexpr auto value = typev<lhs> < typev<rhs> && less_v<element_t<i, U>, curr>;
+
+            using type = typeof_t<next<i, j + l, k, l, exchange_if_t<value, i, curr, U>>>;
+        };
+
+        template <int i, int k, int l, typename U>
+        struct next<i, i, k, l, U>
+        {
+            using lhs = element_t<i, U>;
+            using rhs = element_t<i, T>;
+
+            using curr = type_if<l == 1, append<lhs, rhs>, prepend<lhs, rhs>>;
+            using type = typeof_t<next<i + l, l == 1 ? 0 : N - 1, k, l, exchange_t<i, curr, U>>>;
+        };
+
+        template <int j, int k, int l, typename U>
+        struct next<k, j, k, l, U> : std::type_identity<U>
+        {
+        };
+
+        using base = base_type_t<T>;
+        using init = fill_t<N - 1, base>;
+
+        template <template <typename ...> typename F, auto M>
+        using call = typeof_t<F<init, append_t<base, element_t<M, T>>>>;
+
+        using lis = typeof_t<next<1, 0, N, 1, call<prepend, 0>>>;
+        using lds = typeof_t<next<N - 2, N - 1, -1, -1, call<append, N - 1>>>;
+
+        template <int i, int j, int k, int m>
+        struct impl
+        {
+            static constexpr auto sum = tuple_element_size_v<i, lis> + tuple_element_size_v<i, lds> - 1;
+            using type = typeof_t<impl<i + 1, j, (sum > m) ? i : k, max_v<m, sum>>>;
+        };
+
+        template <int j, int k, int m>
+        struct impl<j, j, k, m>
+        {
+            using lhs = element_t<k, lis>;
+            using rhs = element_t<k, lds>;
+
+            using type = concat_t<range_t<0, sizeof_t_v<lhs> - 1, lhs>, range_t<0, sizeof_t_v<rhs>, rhs>>;
+        };
+
+        using type = typeof_t<impl<0, N, 0, 0>>;
+    };
+
+    template <typename T>
+    using lbs_t = typeof_t<lbs<T>>;
 }
 
 #endif
