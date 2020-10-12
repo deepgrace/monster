@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 126
+#define MONSTER_VERSION 127
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5473,18 +5473,13 @@ namespace monster
     template <template <typename> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     using transform_while_t = typeof_t<transform_while<F, P, T, U, B, E>>;
 
-    template <auto i, auto j, typename T, typename U, bool B>
+    template <auto i, auto j, typename T, typename U>
     struct is_same : std::is_same<element_t<i, T>, element_t<j, U>>
     {
     };
 
     template <auto i, auto j, typename T, typename U>
-    struct is_same<i, j, T, U, false> : bool_<get_v<i, T> == get_v<j, U>>
-    {
-    };
-
-    template <auto i, auto j, typename T, typename U, bool B>
-    inline constexpr auto is_same_v = typev<is_same<i, j, T, U, B>>;
+    inline constexpr auto is_same_v = typev<is_same<i, j, T, U>>;
 
     template <typename T>
     struct majority_search
@@ -5497,7 +5492,7 @@ namespace monster
             template <int p, int q>
             struct impl
             {
-                static constexpr auto n = 2 * is_same_v<p, q, T, T, B> - 1;
+                static constexpr auto n = 2 * is_same_v<p, q, T, T> - 1;
                 using type = typeof_t<search<i + n, j, k + 1, l>>;
             };
 
@@ -5554,7 +5549,7 @@ namespace monster
     struct is_palindrome
     {
         template <auto i, typename U>
-        using impl = is_same<i, N - i - 1, T, U, is_tuple_v<T>>;
+        using impl = is_same<i, N - i - 1, T, U>;
 
         static constexpr auto value = and_v<expand_t<impl, T, index_sequence_of_c<N / 2>>>;
     };
@@ -8618,7 +8613,7 @@ namespace monster
                 using type = sub_t<k, 1 + min_v<value, get_v<k - n - 1, W>>, W>;
             };
 
-            using type = typeof_t<impl<V, is_same_v<i - 1, j - 1, T, U, B>>>;
+            using type = typeof_t<impl<V, is_same_v<i - 1, j - 1, T, U>>>;
         };
 
         template <size_t i, size_t j, size_t k, typename V>
@@ -9269,7 +9264,7 @@ namespace monster
         template <typename U, typename V, typename W, int k, int q>
         struct next
         {
-            using nega = std::negation<is_same<k, q, U, V, value>>;
+            using nega = std::negation<is_same<k, q, U, V>>;
             using cond = std::conditional_t<0 < k, nega, std::false_type>;
 
             using curr = conditional_of<cond, get<k, W>, c_<k>>;
@@ -9283,7 +9278,7 @@ namespace monster
             using rhs = std::conditional_t<B, V, T>;
 
             static constexpr auto m = typev<typeof_t<next<lhs, rhs, W, k, q>>>;
-            static constexpr int n = m + is_same_v<m, q, lhs, rhs, value>;
+            static constexpr int n = m + is_same_v<m, q, lhs, rhs>;
 
             using curr = append_if_t<!B && n == N, U, c_<q - N + 1>>;
             using dest = type_if<B, sub<q, n, W>, std::type_identity<W>>;
@@ -9374,7 +9369,7 @@ namespace monster
         struct impl
         {
             using next = ternary_conditional_t<j == 0, B1, append<U, c_<i>>, erase<i, i + N, U>, impl<i, j - 1, U>>;
-            using type = type_if<is_same_v<j, i + j, P, std::conditional_t<B1, T, U>, 1>, next, std::type_identity<U>>;
+            using type = type_if<is_same_v<j, i + j, P, std::conditional_t<B1, T, U>>, next, std::type_identity<U>>;
         };
 
         using maps = typeof_t<table<N != 1, N - 1, 1, tuple_t<offset<element_t<0, P>, N - 1>>>>;
@@ -9770,7 +9765,7 @@ namespace monster
         template <int i, int j, int m, int n, typename V, typename W>
         struct next
         {
-            using pair = typeof_t<search<i, m, W, std::is_same_v<element_t<i, T>, element_t<m, U>>>>;
+            using pair = typeof_t<search<i, m, W, is_same_v<i, m, T, U>>>;
             using lhst = set_matrix_element_t<i, m, first_t<pair>, V>;
 
             using rhst = set_matrix_element_t<i + 1, m + 1, second_t<pair>, W>;
@@ -9828,7 +9823,7 @@ namespace monster
             struct impl
             {
                 static constexpr auto m = n + 1;
-                static constexpr auto value = std::is_same_v<element_t<j - n, T>, element_t<j + n - i, T>>;
+                static constexpr auto value = is_same_v<j - n, j + n - i, T, T>;
 
                 using type = type_if<value, impl<m, j + m - i < N && j - m >= 0>, c_<n - 1>>;
             };
