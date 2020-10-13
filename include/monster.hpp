@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 128
+#define MONSTER_VERSION 129
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -2395,6 +2395,14 @@ namespace monster
     template <auto i, auto j, typename U, template <typename ...> typename F, template <typename ...> typename G>
     using adjust_if_t = typeof_t<adjust_if<i, j, U, F, G>>;
 
+    template <auto i, auto j, typename U, template <typename ...> typename F, template <typename ...> typename G>
+    struct adjust_if_not : adjust_if<i, j, U, F, negaf<G>::template apply>
+    {
+    };
+
+    template <auto i, auto j, typename U, template <typename ...> typename F, template <typename ...> typename G>
+    using adjust_if_not_t = typeof_t<adjust_if_not<i, j, U, F, G>>;
+
     template <auto i, auto j, typename T, typename U>
     struct substitute
     {
@@ -3258,6 +3266,14 @@ namespace monster
     using unique_if_t = typeof_t<unique_if<F, T, B, E>>;
 
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    struct unique_if_not : unique_if<negaf<F>::template apply, T, B, E>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    using unique_if_not_t = typeof_t<unique_if_not<F, T, B, E>>;
+
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     struct remove_if
     {
         static constexpr auto N = find_if_v<F, T, B, E>;
@@ -3449,6 +3465,17 @@ namespace monster
 
     template <auto i, auto j, template <typename ...> typename F, auto N, typename U>
     using replace_if_c = replace_if_t<i, j, F, c_<N>, U>;
+
+    template <auto i, auto j, template <typename ...> typename F, typename T, typename U>
+    struct replace_if_not : replace_if<i, j, negaf<F>::template apply, T, U>
+    {
+    };
+
+    template <auto i, auto j, template <typename ...> typename F, typename T, typename U>
+    using replace_if_not_t = typeof_t<replace_if_not<i, j, F, T, U>>;
+
+    template <auto i, auto j, template <typename ...> typename F, auto N, typename U>
+    using replace_if_not_c = replace_if_not_t<i, j, F, c_<N>, U>;
 
     template <auto i, auto j, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     requires is_variadic_pack_v<T, U>
@@ -5472,6 +5499,14 @@ namespace monster
 
     template <template <typename> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     using transform_if_t = typeof_t<transform_if<F, P, T, U, B, E>>;
+
+    template <template <typename> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    struct transform_if_not : transform_if<F, negaf<P>::template apply, T, U, B, E>
+    {
+    };
+
+    template <template <typename> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    using transform_if_not_t = typeof_t<transform_if_not<F, P, T, U, B, E>>;
 
     template <template <typename> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     struct transform_while : transform_of<F, P, T, U, B, E, false>

@@ -584,6 +584,8 @@ int main(int argc, char* argv[])
 
     execute<unique_if_t<is_pointer_of, std::tuple<int*, int*, int, double, char, double*, double, float>>,
             std::tuple<int*, int*, double, char, double*, float>>();
+    execute<unique_if_not_t<is_pointer_of, std::tuple<int*, int*, int, double, char, double*, double, float>>,
+            std::tuple<int*, int>>();
 
     using value = std::integer_sequence<int, 4, 0, 5, 6, 4, 1, 9, 21>;
     using type = std::tuple<int, char, std::tuple<char>, double, std::tuple<double>, float, char>;
@@ -724,6 +726,8 @@ int main(int argc, char* argv[])
             std::tuple<>, float, char>>, std::tuple<int, char, int, double, int, float, char>>();
     execute<replace_if_c<1, 5, is_even, -6, std::integer_sequence<int, 1, 3, -2, 4, 7, 0, 4, 6>>,
             std::integer_sequence<int, 1, 3, -6, -6, 7, 0, 4, 6>>();
+    execute<replace_if_not_c<1, 5, is_odd, -6, std::integer_sequence<int, 1, 3, -2, 4, 7, 0, 4, 6>>,
+            std::integer_sequence<int, 1, 3, -6, -6, 7, 0, 4, 6>>();
 
     execute<adjust_t<1, 5, int, std::tuple<int, char, int, double, int, float, char>, std::add_pointer>,
             std::tuple<int, char, int*, double, int*, float, char>>();
@@ -734,6 +738,8 @@ int main(int argc, char* argv[])
             std::tuple<float>, char>, std::add_pointer, is_tuple>,
             std::tuple<int, std::tuple<int>*, double, std::tuple<float>*, char>>();
     execute<adjust_if_t<1, 5, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>, succ, is_odd>,
+            std::integer_sequence<int, 1, 4, -2, 2, 8, 1, 4, 6>>();
+    execute<adjust_if_not_t<1, 5, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>, succ, is_even>,
             std::integer_sequence<int, 1, 4, -2, 2, 8, 1, 4, 6>>();
 
     execute<substitute_t<2, 5, int, std::tuple<int, char, int, double, int, float, char>>,
@@ -1165,6 +1171,8 @@ int main(int argc, char* argv[])
             std::integer_sequence<int, 8, 6, -1, 4, 2>>();
 
     execute<transform_if_t<succ, is_even, std::integer_sequence<int>,
+            std::integer_sequence<int, 0, 3, 1, 2, 8, 4>>, std::integer_sequence<int, 1, 3, 9, 5>>();
+    execute<transform_if_not_t<succ, is_odd, std::integer_sequence<int>,
             std::integer_sequence<int, 0, 3, 1, 2, 8, 4>>, std::integer_sequence<int, 1, 3, 9, 5>>();
 
     execute<transform_while_t<succ, is_even, std::integer_sequence<int>,
