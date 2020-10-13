@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 127
+#define MONSTER_VERSION 128
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3319,6 +3319,14 @@ namespace monster
 
     template <template <typename ...> typename F, typename T, auto B, auto E, bool value>
     using copy_t = typeof_t<copy<F, T, B, E, value>>;
+
+    template <auto N, auto K, typename T, typename U>
+    struct copy_n : concat<T, subset_t<N, K, U>>
+    {
+    };
+
+    template <auto N, auto K, typename T, typename U>
+    using copy_n_t = typeof_t<copy_n<N, K, T, U>>;
 
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     struct copy_if : copy<F, T, B, E, true>

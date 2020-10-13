@@ -765,6 +765,11 @@ int main(int argc, char* argv[])
     execute<subset_t<1, 3, std::integer_sequence<int, 1, 2, -2, 4, 3, 5>>,
             std::integer_sequence<int, 2, -2, 4>>();
 
+    execute<copy_n_t<1, 3, std::tuple<short, int, char>, std::tuple<int, char, float, double>>,
+            std::tuple<short, int, char, char, float, double>>();
+    execute<copy_n_t<1, 3, std::integer_sequence<int, 6, 0, 1, 4>, std::integer_sequence<int, 8, 3, 4, 0>>,
+            std::integer_sequence<int, 6, 0, 1, 4, 3, 4, 0>>();
+
     execute<pivot_t<3, std::tuple<int, char, char, int, int>>, std::tuple<int, int, int, char, char>>();
     execute<pivot_t<3, std::index_sequence<0, 1, 2, 3, 4, 5>>, std::index_sequence<3, 4, 5, 0, 1, 2>>();
 
