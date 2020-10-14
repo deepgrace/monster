@@ -2163,6 +2163,11 @@ int main(int argc, char* argv[])
     execute<lcp_t<std::tuple<std::index_sequence<7, 6, 8, 1>, std::index_sequence<7, 6, 8, 4, 2>>>,
             std::index_sequence<7, 6, 8>>();
 
+    execute<longest_common_suffix_t<std::tuple<std::tuple<char, int>, std::tuple<short, char, int>,
+            std::tuple<int, double, char, int>>>, std::tuple<char, int>>();
+    execute<longest_common_suffix_t<std::tuple<std::index_sequence<1, 8, 6, 7>,
+            std::index_sequence<2, 4, 8, 6, 7>>>, std::index_sequence<8, 6, 7>>();
+
     execute<lbs_t<std::integer_sequence<int, 1, 11, 2, 10, 4, 5, 2, 1>>,
             std::integer_sequence<int, 1, 11, 10, 5, 2, 1>>();
 

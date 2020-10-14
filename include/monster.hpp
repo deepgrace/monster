@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 129
+#define MONSTER_VERSION 130
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -9987,6 +9987,14 @@ namespace monster
 
     template <typename T>
     using lcp_t = typeof_t<lcp<T>>;
+
+    template <typename T>
+    struct longest_common_suffix : reverse<lcp_t<reverse_recursive_t<T>>>
+    {
+    };
+
+    template <typename T>
+    using longest_common_suffix_t = typeof_t<longest_common_suffix<T>>;
 
     template <typename T>
     struct lbs
