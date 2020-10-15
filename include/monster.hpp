@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 131
+#define MONSTER_VERSION 132
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -9083,6 +9083,41 @@ namespace monster
 
     template <typename T, template <typename, typename> typename comparator = less_t>
     using insertion_sort_t = sort_t<insertion_sort, T, comparator>;
+
+    template <int N, typename T, typename U, template <typename, typename> typename comparator = less_t>
+    requires is_variadic_pack_v<T, U>
+    struct merge_advance
+    {
+        template <int i, int j, int p, int q, int m, typename V>
+        struct impl
+        {
+            using lhs = element_t<i, T>;
+            using rhs = element_t<p, U>;
+
+            static constexpr auto value = typev<comparator<lhs, rhs>>;
+            using type = typeof_t<impl<i + value, j, p + !value, q, m - 1, append_t<V, std::conditional_t<value, lhs, rhs>>>>;
+        };
+
+        template <int i, int j, int p, int q, typename V>
+        struct impl<i, j, p, q, 0, V> : std::type_identity<V>
+        {
+        };
+
+        template <int j, int p, int q, int m, typename V>
+        struct impl<j, j, p, q, m, V> : concat<V, range_t<p, p + m, U>>
+        {
+        };
+
+        template <int i, int j, int q, int m, typename V>
+        struct impl<i, j, q, q, m, V> : concat<V, range_t<i, i + m, T>>
+        {
+        };
+
+        using type = typeof_t<impl<0, sizeof_t_v<T>, 0, sizeof_t_v<U>, N, base_type_t<T>>>;
+    };
+
+    template <int N, typename T, typename U, template <typename, typename> typename comparator = less_t>
+    using merge_advance_t = typeof_t<merge_advance<N, T, U, comparator>>;
 
     template <template <typename ...> typename F, template <typename ...> typename C, typename T, typename U>
     requires is_variadic_pack_v<T, U>

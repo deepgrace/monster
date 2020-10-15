@@ -2192,6 +2192,8 @@ int main(int argc, char* argv[])
                              pair_v<7, 15>, pair_v<9, 10>, pair_v<11, 5>>;
 
     execute<merge_combine_t<comp, comb, pack1, pack2>, pack3>();
+    execute<merge_advance_t<4, std::index_sequence<1, 3, 4, 7>, std::index_sequence<0, 2, 3, 4>>,
+            std::index_sequence<0, 1, 2, 3>>();
 
     execute<stable_sort_t<std::tuple<double, uint64_t, double, float, int, char, float, char, double>>,
             std::tuple<char, char, float, int, float, double, uint64_t, double, double>>();
