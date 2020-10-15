@@ -16,6 +16,17 @@
 
 using namespace monster;
 
+template <typename T, typename U>
+struct comp
+{
+    static constexpr auto value = first_v<T> - first_v<U>;
+};
+
+template <typename T, typename U>
+struct comb : std::type_identity<pair_v<first_v<T>, second_v<T> + second_v<U>>>
+{
+};
+
 template <bool B>
 void execute()
 {
@@ -2183,6 +2194,13 @@ int main(int argc, char* argv[])
     execute<manacker_t<std::tuple<int, char, double, char, int, char>>,
             std::tuple<std::tuple<int>, std::tuple<char>, std::tuple<int, char, double, char, int>,
             std::tuple<char>, std::tuple<char, int, char>, std::tuple<char>>>();
+
+    using pack1 = std::tuple<pair_v<1, 10>, pair_v<2, 10>, pair_v<5, 10>, pair_v<7, 10>, pair_v<9, 10>>;
+    using pack2 = std::tuple<pair_v<0, 5>, pair_v<2, 5>, pair_v<6, 5>, pair_v<7, 5>, pair_v<11, 5>>;
+    using pack3 = std::tuple<pair_v<0, 5>, pair_v<1, 10>, pair_v<2, 15>, pair_v<5, 10>, pair_v<6, 5>,
+                             pair_v<7, 15>, pair_v<9, 10>, pair_v<11, 5>>;
+
+    execute<merge_combine_t<comp, comb, pack1, pack2>, pack3>();
 
     execute<stable_sort_t<std::tuple<double, uint64_t, double, float, int, char, float, char, double>>,
             std::tuple<char, char, float, int, float, double, uint64_t, double, double>>();

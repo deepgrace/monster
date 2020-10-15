@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 130
+#define MONSTER_VERSION 131
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -667,7 +667,29 @@ namespace monster
     inline constexpr auto is_variadic_v = typev<is_variadic<T>>;
 
     template <typename... Args>
-    struct is_variadic_pack : bool_<(is_variadic_v<Args> && ...)>
+    struct is_variadic_type_pack : bool_<(is_variadic_type_v<Args> && ...)>
+    {
+    };
+
+    template <typename... Args>
+    using is_variadic_type_pack_t = typeof_t<is_variadic_type_pack<Args...>>;
+
+    template <typename... Args>
+    inline constexpr auto is_variadic_type_pack_v = typev<is_variadic_type_pack_t<Args...>>;
+
+    template <typename... Args>
+    struct is_variadic_value_pack : bool_<(is_variadic_value_v<Args> && ...)>
+    {
+    };
+
+    template <typename... Args>
+    using is_variadic_value_pack_t = typeof_t<is_variadic_value_pack<Args...>>;
+
+    template <typename... Args>
+    inline constexpr auto is_variadic_value_pack_v = typev<is_variadic_value_pack_t<Args...>>;
+
+    template <typename... Args>
+    struct is_variadic_pack : bool_<is_variadic_type_pack_v<Args...> || is_variadic_value_pack_v<Args...>>
     {
     };
 
@@ -9061,6 +9083,42 @@ namespace monster
 
     template <typename T, template <typename, typename> typename comparator = less_t>
     using insertion_sort_t = sort_t<insertion_sort, T, comparator>;
+
+    template <template <typename ...> typename F, template <typename ...> typename C, typename T, typename U>
+    requires is_variadic_pack_v<T, U>
+    struct merge_combine
+    {
+        template <int i, int j, int p, int q, typename V>
+        struct impl
+        {
+            using lhs = element_t<i, T>;
+            using rhs = element_t<p, U>;
+
+            static constexpr auto value = typev<F<lhs, rhs>>;
+            static constexpr auto B1 = value == 0;
+
+            static constexpr auto B2 = value < 0;
+            static constexpr auto B3 = value > 0;
+
+            using next = ternary_conditional_t<!B1, B2, lhs, rhs, C<lhs, rhs>>;
+            using type = typeof_t<impl<i + B1 + B2, j, p + B1 + B3, q, append_t<V, typeof_t<next>>>>;
+        };
+
+        template <int j, int p, int q, typename V>
+        struct impl<j, j, p, q, V> : concat<V, range_t<p, q, U>>
+        {
+        };
+
+        template <int i, int j, int q, typename V>
+        struct impl<i, j, q, q, V> : concat<V, range_t<i, j, T>>
+        {
+        };
+
+        using type = typeof_t<impl<0, sizeof_t_v<T>, 0, sizeof_t_v<U>, base_type_t<T>>>;
+    };
+
+    template <template <typename ...> typename F, template <typename ...> typename C, typename T, typename U>
+    using merge_combine_t = typeof_t<merge_combine<F, C, T, U>>;
 
     template <size_t p, size_t q, size_t r, typename T, template <typename, typename> typename comparator = less_equal_t>
     struct merge
