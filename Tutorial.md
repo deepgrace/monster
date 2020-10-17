@@ -517,6 +517,9 @@ int main(int argc, char* argv[])
     execute<flat_t<std::tuple<>>, std::tuple<>>();
     execute<flat_t<nested>, std::tuple<char, short, double, char, char, int, double, short>>();
 
+    execute<combine_t<nullptr_t, int, char, std::tuple<>, double, short, std::tuple<char>>,
+            std::tuple<nullptr_t, int, char, double, short, char>>();
+
     using reversed = reverse_recursive_t<nested>;
     execute<reversed, reverse_t<std::tuple<reverse_t<std::tuple<char, short>>, double,
             reverse_t<std::tuple<char, reverse_t<std::tuple<char, int, double>>>>, short>>>();

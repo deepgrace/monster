@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 132
+#define MONSTER_VERSION 133
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1800,6 +1800,14 @@ namespace monster
 
     template <typename T>
     using flat_t = typeof_t<flat<T>>;
+
+    template <typename... Args>
+    struct combine : flat<std::tuple<Args...>>
+    {
+    };
+
+    template <typename... Args>
+    using combine_t = typeof_t<combine<Args...>>;
 
     template <typename T, typename U, typename V>
     struct dedup
