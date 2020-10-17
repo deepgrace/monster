@@ -662,6 +662,11 @@ int main(int argc, char* argv[])
     execute<expand_of_t<std::integer_sequence<int, -1, 3, 7, 0, 5>,
             std::index_sequence<1, 3, 0, 4>>, std::integer_sequence<int, 3, 0, -1, 5>>();
 
+    execute<slice_t<std::index_sequence<3, 2, 1, 0>, std::tuple<int, float, char, double>>,
+            std::tuple<double, char, float, int>>();
+    execute<slice_t<std::index_sequence<3, 1, 4>, std::integer_sequence<int, -1, 3, 7, 0, 5>>,
+            std::integer_sequence<int, 0, 3, 5>>();
+
     execute<apply_permutation_t<std::tuple<char, int, float, double, short>,
             std::index_sequence<0, 2, 4, 1, 3>>, std::tuple<char, float, short, int, double>>();
     execute<apply_permutation_t<std::integer_sequence<int, 8, 3, 5, -2, 7>,

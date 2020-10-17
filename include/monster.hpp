@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 133
+#define MONSTER_VERSION 134
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -2295,6 +2295,15 @@ namespace monster
 
     template <typename T, typename U, auto V = 0>
     using expand_of_t = typeof_t<expand_of<T, U, V>>;
+
+    template <typename T, typename U>
+    requires (is_variadic_value_v<T> && is_variadic_v<U>)
+    struct slice : expand_of<U, T>
+    {
+    };
+
+    template <typename T, typename U>
+    using slice_t = typeof_t<slice<T, U>>;
 
     template <typename T, bool B, typename indices = index_sequence_of_t<T>>
     struct convert : std::conditional_t<is_tuple_v<T> == B, expand_of<T, indices, true>, std::type_identity<T>>
