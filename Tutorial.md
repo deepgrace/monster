@@ -1064,6 +1064,8 @@ int main(int argc, char* argv[])
     std::cout << "tuple_splat " << std::get<2>(tuple_splat<2, 5>(tuple)) << std::endl;
     auto dupt = std::make_tuple(1, 's', 7.0, 1, 's');
     std::cout << "tuple_unique " << std::get<0>(tuple_unique(dupt)) << std::endl;
+    using indices_ = std::index_sequence<0, 3, 4>;
+    std::cout << "tuple_slice " << std::get<2>(tuple_slice<indices_>(tuple)) << std::endl;
 
     execute<infinite_call_t<4, int, std::add_pointer>, int****>();
     execute<multi_level_pointer_t<4, int>, int****>();
