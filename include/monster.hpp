@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 135
+#define MONSTER_VERSION 136
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5565,12 +5565,12 @@ namespace monster
     template <template <typename> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     using transform_while_t = typeof_t<transform_while<F, P, T, U, B, E>>;
 
-    template <auto i, auto j, typename T, typename U>
+    template <auto i, auto j, typename T, typename U = T>
     struct is_same : std::is_same<element_t<i, T>, element_t<j, U>>
     {
     };
 
-    template <auto i, auto j, typename T, typename U>
+    template <auto i, auto j, typename T, typename U = T>
     inline constexpr auto is_same_v = typev<is_same<i, j, T, U>>;
 
     template <typename T>
@@ -5584,7 +5584,7 @@ namespace monster
             template <int p, int q>
             struct impl
             {
-                static constexpr auto n = 2 * is_same_v<p, q, T, T> - 1;
+                static constexpr auto n = 2 * is_same_v<p, q, T> - 1;
                 using type = typeof_t<search<i + n, j, k + 1, l>>;
             };
 
@@ -5683,13 +5683,24 @@ namespace monster
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     inline constexpr auto one_of_v = typev<one_of<F, T, B, E>>;
 
+    template <template <typename, typename> typename comparator, auto i, auto j, typename T, typename U = T>
+    struct predicate : comparator<element_t<i, T>, element_t<j, U>>
+    {
+    };
+
+    template <template <typename, typename> typename comparator, auto i, auto j, typename T, typename U = T>
+    using predicate_t = typeof_t<predicate<comparator, i, j, T, U>>;
+
+    template <template <typename, typename> typename comparator, auto i, auto j, typename T, typename U = T>
+    inline constexpr auto predicate_v = typev<predicate_t<comparator, i, j, T, U>>;
+
     template <typename T, template <typename, typename> typename comparator = less_t>
     struct is_sorted_until
     {
         static constexpr auto N = sizeof_t_v<T>;
 
         template <size_t i, size_t j>
-        struct impl : std::conditional_t<typev<comparator<element_t<i, T>, element_t<i - 1, T>>>, c_<i>, impl<i + 1, j>>
+        struct impl : std::conditional_t<predicate_v<comparator, i, i - 1, T>, c_<i>, impl<i + 1, j>>
         {
         };
 
@@ -8107,19 +8118,6 @@ namespace monster
     template <size_t N, typename T>
     using slide_list_t = typeof_t<slide_list<N, T>>;
 
-    template <size_t i, size_t j, typename T, template <typename, typename> typename comparator>
-    struct compare : comparator<element_t<i, T>, element_t<j, T>>
-    {
-    };
-
-    template <size_t i, typename T, template <typename, typename> typename comparator>
-    struct compare<i, i, T, comparator> : std::false_type
-    {
-    };
-
-    template <size_t i, size_t j, typename T, template <typename, typename> typename comparator>
-    inline constexpr auto compare_v = typev<compare<i, j, T, comparator>>;
-
     template <typename T, template <typename> typename F, int B = 0, int E = sizeof_t_v<T>>
     struct partition_point
     {
@@ -8672,10 +8670,8 @@ namespace monster
         };
 
         template <size_t i, size_t j, typename U>
-        struct sort<i, j, U, false>
+        struct sort<i, j, U, false> : swap_if<predicate_v<comparator, j, i, U>, i, j, U>
         {
-            static constexpr auto value = compare_v<j, i, U, comparator>;
-            using type = swap_if_t<value, i, j, U>;
         };
 
         using type = typeof_t<sort<0, sizeof_t_v<T> - 1, T>>;
@@ -8781,12 +8777,8 @@ namespace monster
     struct bubble_sort
     {
         template <size_t i, size_t j, size_t k, typename U>
-        struct sort
+        struct sort : sort<i, j - 1, k, swap_if_t<predicate_v<comparator, j, j - 1, U>, j, j - 1, U>>
         {
-            static constexpr auto value = compare_v<j, j - 1, U, comparator>;
-            using cond = swap_if_t<value, j, j - 1, U>;
-
-            using type = typeof_t<sort<i, j - 1, k, cond>>;
         };
 
         template <size_t i, size_t k, typename U>
@@ -8812,7 +8804,7 @@ namespace monster
         template <int i, int j, int k, typename U, bool B>
         struct next
         {
-            static constexpr auto value = compare_v<i + 1, i, U, comparator>;
+            static constexpr auto value = predicate_v<comparator, i + 1, i, U>;
 
             using cond = swap_if_t<value, i, i + 1, U>;
             using type = typeof_t<next<i + k, j, k, cond, B || value>>;
@@ -8862,7 +8854,7 @@ namespace monster
         template <int i, typename U, bool B, bool = i <= N - 2>
         struct next
         {
-            static constexpr auto value = compare_v<i + 1, i, U, comparator>;
+            static constexpr auto value = predicate_v<comparator, i + 1, i, U>;
 
             using cond = swap_if_t<value, i, i + 1, U>;
             using type = typeof_t<next<i + 2, cond, B || value>>;
@@ -8911,7 +8903,7 @@ namespace monster
         template <int i, int j, typename U>
         struct sort
         {
-            static constexpr auto value = compare_v<i - 1, i, U, comparator>;
+            static constexpr auto value = predicate_v<comparator, i - 1, i, U>;
             using next = swap_if_t<!value, i - 1, i, U>;
 
             using type = typeof_t<sort<value ? i + 1 : i == 1 ? i : i - 1, j, next>>;
@@ -8932,12 +8924,8 @@ namespace monster
     struct selection_sort
     {
         template <size_t i, size_t j, size_t k, typename U>
-        struct sort
+        struct sort : sort<i, j + 1, k, swap_if_t<predicate_v<comparator, j, i, U>, i, j, U>>
         {
-            static constexpr auto value = compare_v<j, i, U, comparator>;
-            using cond = swap_if_t<value, i, j, U>;
-
-            using type = typeof_t<sort<i, j + 1, k, cond>>;
         };
 
         template <size_t i, size_t k, typename U>
@@ -9301,8 +9289,8 @@ namespace monster
             static constexpr auto l = 2 * i + 1;
             static constexpr auto r = 2 * (i + 1);
 
-            static constexpr auto k = compare_v<i, l <= j ? l : i, U, comparator> ? l : i;
-            static constexpr auto m = compare_v<k, r <= j ? r : k, U, comparator> ? r : k;
+            static constexpr auto k = predicate_v<comparator, i, l <= j ? l : i, U> ? l : i;
+            static constexpr auto m = predicate_v<comparator, k, r <= j ? r : k, U> ? r : k;
 
             using type = typeof_t<max_heapify<m, j, swap_t<i, m, U>, m != i>>;
         };
@@ -9986,7 +9974,7 @@ namespace monster
             struct impl
             {
                 static constexpr auto m = n + 1;
-                static constexpr auto value = is_same_v<j - n, j + n - i, T, T>;
+                static constexpr auto value = is_same_v<j - n, j + n - i, T>;
 
                 using type = type_if<value, impl<m, j + m - i < N && j - m >= 0>, c_<n - 1>>;
             };
