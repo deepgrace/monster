@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 136
+#define MONSTER_VERSION 137
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -638,7 +638,10 @@ namespace monster
     };
 
     template <typename T>
-    inline constexpr auto is_variadic_type_v = typev<is_variadic_type<T>>;
+    using is_variadic_type_t = typeof_t<is_variadic_type<T>>;
+
+    template <typename T>
+    inline constexpr auto is_variadic_type_v = typev<is_variadic_type_t<T>>;
 
     template <typename T>
     struct is_variadic_value : std::false_type
@@ -656,7 +659,10 @@ namespace monster
     };
 
     template <typename T>
-    inline constexpr auto is_variadic_value_v = typev<is_variadic_value<T>>;
+    using is_variadic_value_t = typeof_t<is_variadic_value<T>>;
+
+    template <typename T>
+    inline constexpr auto is_variadic_value_v = typev<is_variadic_value_t<T>>;
 
     template <typename T>
     struct is_variadic : bool_<is_variadic_type_v<T> || is_variadic_value_v<T>>
@@ -664,7 +670,10 @@ namespace monster
     };
 
     template <typename T>
-    inline constexpr auto is_variadic_v = typev<is_variadic<T>>;
+    using is_variadic_t = typeof_t<is_variadic<T>>;
+
+    template <typename T>
+    inline constexpr auto is_variadic_v = typev<is_variadic_t<T>>;
 
     template <typename... Args>
     struct is_variadic_type_pack : bool_<(is_variadic_type_v<Args> && ...)>
@@ -1393,6 +1402,15 @@ namespace monster
         };
     };
 
+    template <template <typename ...> typename F, auto N, typename T>
+    using visit = F<element_t<N, T>>;
+
+    template <template <typename ...> typename F, auto N, typename T>
+    using visit_t = typeof_t<visit<F, N, T>>;
+
+    template <template <typename ...> typename F, auto N, typename T>
+    inline constexpr auto visit_v = typev<visit<F, N, T>>;
+
     template <template <typename ...> typename F, int N, int B, int E, bool>
     struct index_if;
 
@@ -1400,7 +1418,7 @@ namespace monster
     struct index_if<F, N, B, E, false>
     {
         template <typename T>
-        using apply = call<index_if<F, N, B + N, E, typev<F<element_t<B, T>>>>, T>;
+        using apply = call<index_if<F, N, B + N, E, visit_v<F, B, T>>, T>;
     };
 
     template <template <typename ...> typename F, int N, int B, int E>
@@ -1532,7 +1550,7 @@ namespace monster
     struct any_of
     {
         template <size_t i, size_t j>
-        struct impl : conditional_of<F<element_t<i, T>>, std::true_type, impl<i + 1, j>>
+        struct impl : conditional_of<visit<F, i, T>, std::true_type, impl<i + 1, j>>
         {
         };
 
@@ -2020,13 +2038,24 @@ namespace monster
     template <template <typename, typename> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using adjacent_difference_t = typeof_t<adjacent_difference<F, T, B, E>>;
 
+    template <template <typename, typename> typename comparator, auto i, auto j, typename T, typename U = T>
+    struct predicate : comparator<element_t<i, T>, element_t<j, U>>
+    {
+    };
+
+    template <template <typename, typename> typename comparator, auto i, auto j, typename T, typename U = T>
+    using predicate_t = typeof_t<predicate<comparator, i, j, T, U>>;
+
+    template <template <typename, typename> typename comparator, auto i, auto j, typename T, typename U = T>
+    inline constexpr auto predicate_v = typev<predicate_t<comparator, i, j, T, U>>;
+
     template <template <typename, typename> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     struct adjacent_find
     {
         template <int i, int j>
         struct impl
         {
-            static constexpr auto value = typev<F<element_t<i - 1, T>, element_t<i, T>>>;
+            static constexpr auto value = predicate_v<F, i - 1, i, T>;
             using type = type_if<value, c_<i - 1>, impl<i + 1, j>>;
         };
 
@@ -3044,14 +3073,14 @@ namespace monster
     using exclusive_scan_t = typeof_t<exclusive_scan<F, T, init, B, E>>;
 
     template <template <typename, typename> typename F, typename T, template <typename> typename U,
-    typename init = typeof_t<U<element_t<0, T>>>, auto B = 0, auto E = sizeof_t_v<T>>
+    typename init = visit_t<U, 0, T>, auto B = 0, auto E = sizeof_t_v<T>>
     struct transform_inclusive_scan
     {
         using type = inclusive_scan_t<F, transform_t<U, range_t<B, E, T>>, init, B, E>;
     };
 
     template <template <typename, typename> typename F, typename T, template <typename> typename U,
-    typename init = typeof_t<U<element_t<0, T>>>, auto B = 0, auto E = sizeof_t_v<T>>
+    typename init = visit_t<U, 0, T>, auto B = 0, auto E = sizeof_t_v<T>>
     using transform_inclusive_scan_t = typeof_t<transform_inclusive_scan<F, T, U, init, B, E>>;
 
     template <template <typename, typename> typename F, typename T, template <typename> typename U,
@@ -5653,10 +5682,8 @@ namespace monster
     struct for_each
     {
         template <auto i, typename U>
-        struct impl
+        struct impl : bool_<B == visit_v<F, i, U>>
         {
-            static constexpr auto value = typev<F<element_t<i, U>>>;
-            using type = bool_<B == value>;
         };
 
         using type = tuple_and<expand_t<impl, T, index_sequence_of_t<T>>>;
@@ -5682,17 +5709,6 @@ namespace monster
 
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     inline constexpr auto one_of_v = typev<one_of<F, T, B, E>>;
-
-    template <template <typename, typename> typename comparator, auto i, auto j, typename T, typename U = T>
-    struct predicate : comparator<element_t<i, T>, element_t<j, U>>
-    {
-    };
-
-    template <template <typename, typename> typename comparator, auto i, auto j, typename T, typename U = T>
-    using predicate_t = typeof_t<predicate<comparator, i, j, T, U>>;
-
-    template <template <typename, typename> typename comparator, auto i, auto j, typename T, typename U = T>
-    inline constexpr auto predicate_v = typev<predicate_t<comparator, i, j, T, U>>;
 
     template <typename T, template <typename, typename> typename comparator = less_t>
     struct is_sorted_until
@@ -5729,7 +5745,7 @@ namespace monster
         static constexpr auto N = sizeof_t_v<T>;
 
         template <bool B, size_t i, size_t j>
-        struct impl : std::conditional_t<typev<F<element_t<i, T>>> == B, impl<B, i + 1, j>, c_<i>>
+        struct impl : std::conditional_t<visit_v<F, i, T> == B, impl<B, i + 1, j>, c_<i>>
         {
         };
 
@@ -5796,7 +5812,7 @@ namespace monster
     struct find_first_of
     {
         template <int i, int j, int k>
-        struct inner : std::conditional_t<typev<F<element_t<k, T>, element_t<i, U>>>, index_upper<1, c_<k>>, inner<i + 1, j, k>>
+        struct inner : std::conditional_t<predicate_v<F, k, i, T, U>, index_upper<1, c_<k>>, inner<i + 1, j, k>>
         {
         };
 
@@ -8125,7 +8141,7 @@ namespace monster
         struct impl
         {
             static constexpr auto half = i / 2;
-            static constexpr auto value = typev<F<element_t<j + half, T>>>;
+            static constexpr auto value = visit_v<F, j + half, T>;
 
             static constexpr auto delta = value * half + value;
             using type = typeof_t<impl<value ? i - delta : half, j + delta>>;
