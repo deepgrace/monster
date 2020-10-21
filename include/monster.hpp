@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 137
+#define MONSTER_VERSION 138
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1263,6 +1263,19 @@ namespace monster
 
     template <template <typename, typename> typename F, typename... Args>
     using folded_t = typeof_t<folded<F, Args...>>;
+
+    template <template <template <typename ...> typename, typename ...> typename F>
+    struct ycombinator
+    {
+        template <typename... Args>
+        struct apply
+        {
+            using type = typename F<apply, Args...>::type;
+        };
+    };
+
+    template <template <template <typename ...> typename, typename ...> typename F, typename... Args>
+    using ycombinator_t = typename ycombinator<F>::template apply<Args...>::type;
 
     template <template <typename ...> typename F, template <typename ...> typename T, typename... Args>
     struct recurse : std::type_identity<T<Args...>>

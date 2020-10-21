@@ -18,6 +18,15 @@ struct comb : std::type_identity<pair_v<first_v<T>, second_v<T> + second_v<U>>>
 {
 };
 
+template <template <typename ...> typename f, typename T, typename... Args>
+struct nest
+{
+    static constexpr auto value = sizeof...(Args) == 0;
+
+    using curr = std::conditional_t<value, std::type_identity<T>, f<Args...>>;
+    using type = std::conditional_t<value, std::tuple<T>, std::tuple<T, typename curr::type>>;
+};
+
 template <bool B>
 void execute()
 {
@@ -351,6 +360,8 @@ int main(int argc, char* argv[])
     execute<currying_t<std::add_pointer, int*, double, char>, std::tuple<int**, double*, char*>>();
     execute<curry_t<recurse<std::add_pointer, std::tuple>, int*, double, short>,
             std::tuple<int**, double*, short*>>();
+
+    execute<ycombinator_t<nest, int, char, double>, std::tuple<int, std::tuple<char, std::tuple<double>>>>();
 
     execute<negav<eval_t<folded_t, std::conjunction, std::tuple<std::false_type, std::true_type>,
             std::true_type>>>();
