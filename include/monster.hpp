@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 138
+#define MONSTER_VERSION 139
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -831,6 +831,14 @@ namespace monster
 
     template <typename T>
     using base_type_t = typeof_t<base_type<T>>;
+
+    template <bool B, typename T>
+    struct base_type_if : std::conditional_t<B, base_type<T>, std::type_identity<T>>
+    {
+    };
+
+    template <bool B, typename T>
+    using base_type_if_t = typeof_t<base_type_if<B, T>>;
 
     template <auto value, decltype(value)... values>
     struct homogeneous
@@ -3311,6 +3319,48 @@ namespace monster
 
     template <auto n, typename T>
     using take_back_t = typeof_t<take_back<n, T>>;
+
+    template <template <typename ...> typename F, typename T, bool B>
+    struct apply_while
+    {
+        template <int i, int j, bool = true>
+        struct impl
+        {
+            static constexpr auto value = visit_v<F, i, T>;
+            using type = typeof_t<impl<i + value, j, value>>;
+        };
+
+        template <int j, bool b>
+        struct impl<j, j, b> : base_type_if<B, T>
+        {
+        };
+
+        template <int i, int j>
+        struct impl<i, j, false> : std::conditional_t<B, drop_front<i, T>, take_front<i, T>>
+        {
+        };
+
+        using type = typeof_t<impl<0, sizeof_t_v<T>>>;
+    };
+
+    template <template <typename ...> typename F, typename T, bool B>
+    using apply_while_t = typeof_t<apply_while<F, T, B>>;
+
+    template <template <typename ...> typename F, typename T>
+    struct drop_while : apply_while<F, T, true>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T>
+    using drop_while_t = typeof_t<drop_while<F, T>>;
+
+    template <template <typename ...> typename F, typename T>
+    struct take_while : apply_while<F, T, false>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T>
+    using take_while_t = typeof_t<take_while<F, T>>;
 
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     struct unique_if
@@ -10195,6 +10245,7 @@ namespace monster
 
     template <typename T>
     using lbs_t = typeof_t<lbs<T>>;
+
 }
 
 #endif

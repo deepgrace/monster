@@ -848,6 +848,9 @@ int main(int argc, char* argv[])
     execute<take_back_t<2, std::integer_sequence<int, 1, 2, -2, 4, 5>>,
             std::integer_sequence<int, 4, 5>>();
 
+    execute<drop_while_t<std::is_pointer, std::tuple<int*, double*, int, char>>, std::tuple<int, char>>();
+    execute<take_while_t<std::is_pointer, std::tuple<int*, double*, int, char>>, std::tuple<int*, double*>>();
+
     execute<degree_t<1, 4, std::tuple<int, char, float, double, int, char>>,
             std::tuple<int, double, float>>();
     execute<degree_t<1, 4, std::integer_sequence<int, 1, 2, -2, 4, 3, 5>>,
