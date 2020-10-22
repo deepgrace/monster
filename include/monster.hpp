@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 139
+#define MONSTER_VERSION 140
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3069,6 +3069,14 @@ namespace monster
     template <template <typename, typename> typename F, typename T,
     typename init = element_t<0, T>, auto B = 0, auto E = sizeof_t_v<T>>
     using inclusive_scan_t = typeof_t<inclusive_scan<F, T, init, B, E>>;
+
+    template <typename T>
+    struct partial_sum : inclusive_scan<plus_t, T>
+    {
+    };
+
+    template <typename T>
+    using partial_sum_t = typeof_t<partial_sum<T>>;
 
     template <template <typename, typename> typename F, typename T,
     typename init, auto B = 0, auto E = sizeof_t_v<T>>
@@ -10245,7 +10253,6 @@ namespace monster
 
     template <typename T>
     using lbs_t = typeof_t<lbs<T>>;
-
 }
 
 #endif
