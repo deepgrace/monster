@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 140
+#define MONSTER_VERSION 141
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -8134,6 +8134,33 @@ namespace monster
 
     template <typename T>
     using matrix_combinations_t = typeof_t<matrix_combinations<T>>;
+
+    template <typename T>
+    struct power_set
+    {
+        using base = base_type_t<T>;
+        static constexpr auto N = sizeof_t_v<T>;
+
+        using indices = index_sequence_of_c<N>;
+        using counter = next_hypercube_indices_list<0, 2, index_sequence_c<N, 0>>;
+
+        template <typename U, typename V>
+        struct call;
+
+        template <auto... m, auto... n>
+        struct call<std::index_sequence<m...>, std::index_sequence<n...>>
+        {
+            using type = reverse_t<concat_t<base, rename_t<element_if_t<n != 0, N - m - 1, T, base_type<T>>, base>...>>;
+        };
+
+        template <auto n, typename U>
+        using impl = call<indices, element_t<n, U>>;
+
+        using type = expand_t<impl, counter, index_sequence_of_t<counter>>;
+    };
+
+    template <typename T>
+    using power_set_t = typeof_t<power_set<T>>;
 
     template <typename T, auto N = 1>
     struct increase

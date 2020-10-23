@@ -1263,6 +1263,16 @@ int main(int argc, char* argv[])
                        std::index_sequence<3, 4, 8>,
                        std::index_sequence<3, 5, 7>>>();
 
+    execute<power_set_t<std::index_sequence<1, 2, 3, 4>>,
+            std::tuple<std::index_sequence<>, std::index_sequence<1>,
+            std::index_sequence<2>, std::index_sequence<1, 2>,
+            std::index_sequence<3>, std::index_sequence<1, 3>,
+            std::index_sequence<2, 3>, std::index_sequence<1, 2, 3>,
+            std::index_sequence<4>, std::index_sequence<1, 4>,
+            std::index_sequence<2, 4>, std::index_sequence<1, 2, 4>,
+            std::index_sequence<3, 4>, std::index_sequence<1, 3, 4>,
+            std::index_sequence<2, 3, 4>, std::index_sequence<1, 2, 3, 4>>>();
+
     execute<tokenize_t<19073>, std::integer_sequence<int, 1, 9, 0, 7, 3>>();
     execute<tokenize_t<19073, 100>, std::integer_sequence<int, 1, 90, 73>>();
     execute<tokenize_t<19073, 1000>, std::integer_sequence<int, 19, 73>>();
