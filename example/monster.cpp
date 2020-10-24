@@ -1148,6 +1148,9 @@ int main(int argc, char* argv[])
     execute<fill_t<5, c_2>, std::integer_sequence<int, 2, 2, 2, 2, 2>>();
     execute<fill_c<5, 2>, std::integer_sequence<int, 2, 2, 2, 2, 2>>();
 
+    execute<assign_t<std::tuple<char, short, double>, int>, std::tuple<int, int, int>>();
+    execute<assign_t<std::index_sequence<1, 2, 3, 4>, c_0>, std::index_sequence<0, 0, 0, 0>>();
+
     execute<cycle_t<3, int, double>, std::tuple<int, double, int, double, int, double>>();
     execute<cycle_t<3, c_2, c_4>, std::integer_sequence<int, 2, 4, 2, 4, 2, 4>>();
     execute<cycle_c<3, 2, 4>, std::integer_sequence<int, 2, 4, 2, 4, 2, 4>>();

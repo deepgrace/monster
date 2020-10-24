@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 143
+#define MONSTER_VERSION 144
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4739,6 +4739,14 @@ namespace monster
 
     template <auto n, auto v>
     using fill_c = typeof_t<fill<n, c_<v>>>;
+
+    template <typename T, typename U>
+    struct assign : rename<fill_t<sizeof_t_v<T>, U>, base_type_t<T>>
+    {
+    };
+
+    template <typename T, typename U>
+    using assign_t = typeof_t<assign<T, U>>;
 
     template <size_t N>
     struct repeat_range
