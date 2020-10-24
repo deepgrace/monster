@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 141
+#define MONSTER_VERSION 142
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -2213,7 +2213,7 @@ namespace monster
     template <typename T>
     inline constexpr auto is_bool_type_v = typev<is_bool_type<T>>;
 
-    template <template <auto, typename> typename F, typename T, typename U, auto V = 0>
+    template <template <auto, typename> typename F, typename T, typename U = index_sequence_of_t<T>, auto V = 0>
     struct expand;
 
     template <template <auto, typename> typename F, template <typename ...> typename T, typename... Args, auto... N, auto V>
@@ -2331,19 +2331,19 @@ namespace monster
         using type = tuple_t<>;
     };
 
-    template <template <auto, typename> typename F, typename T, typename U, auto V = 0>
+    template <template <auto, typename> typename F, typename T, typename U = index_sequence_of_t<T>, auto V = 0>
     using expand_t = typeof_t<expand<F, T, U, V>>;
 
-    template <bool B, template <auto, typename> typename F, typename T, typename U, auto V = 0>
+    template <bool B, template <auto, typename> typename F, typename T, typename U = index_sequence_of_t<T>, auto V = 0>
     using expand_if = std::conditional_t<B, expand<F, T, U, V>, std::type_identity<T>>;
 
-    template <bool B, template <auto, typename> typename F, typename T, typename U, auto V = 0>
+    template <bool B, template <auto, typename> typename F, typename T, typename U = index_sequence_of_t<T>, auto V = 0>
     using expand_if_t = typeof_t<expand_if<B, F, T, U, V>>;
 
-    template <typename T, typename U, auto V = 0>
+    template <typename T, typename U = index_sequence_of_t<T>, auto V = 0>
     using expand_of = expand<element, T, U, V>;
 
-    template <typename T, typename U, auto V = 0>
+    template <typename T, typename U = index_sequence_of_t<T>, auto V = 0>
     using expand_of_t = typeof_t<expand_of<T, U, V>>;
 
     template <typename T, typename U>
@@ -2399,7 +2399,7 @@ namespace monster
         template <auto N, typename U>
         using impl = element<swap_v<i, j, N>, U>;
 
-        using type = invoke_of<T, expand<impl, T, index_sequence_of_t<T>>>;
+        using type = invoke_of<T, expand<impl, T>>;
     };
 
     template <auto i, auto j, typename T>
@@ -2439,7 +2439,7 @@ namespace monster
         template <auto N, typename W>
         using impl = element_if_t<!within_v<N, i, j>, N, W, cond<N, W>>;
 
-        using type = expand_t<impl, V, index_sequence_of_t<V>>;
+        using type = expand_t<impl, V>;
     };
 
     template <auto i, auto j, typename T, typename U, typename V, template <typename ...> typename F = std::is_same>
@@ -2466,7 +2466,7 @@ namespace monster
         template <auto N, typename W>
         using impl = element_if_t<!within_v<N, i, j>, N, W, cond<N, W>>;
 
-        using type = expand_t<impl, U, index_sequence_of_t<U>>;
+        using type = expand_t<impl, U>;
     };
 
     template <auto i, auto j, typename T, typename U, template <typename ...> typename F, template <typename ...> typename G = std::is_same>
@@ -2498,7 +2498,7 @@ namespace monster
         template <auto N, typename V>
         using impl = element_if_t<!within_v<N, i, j>, N, V, T>;
 
-        using type = expand_t<impl, U, index_sequence_of_t<U>>;
+        using type = expand_t<impl, U>;
     };
 
     template <auto i, auto j, typename T, typename U>
@@ -4232,7 +4232,7 @@ namespace monster
         template <auto i, typename U>
         using impl = c_<get_v<i, U> * n>;
 
-        using type = expand_t<impl, T, index_sequence_of_t<T>>;
+        using type = expand_t<impl, T>;
     };
 
     template <auto n, typename T>
@@ -4782,7 +4782,7 @@ namespace monster
     struct rotate
     {
         template <typename indices, auto V = 0>
-        using impl = expand_t<element, T, indices, V>;
+        using impl = expand_of_t<T, indices, V>;
 
         template <size_t p, size_t q>
         using extend = impl<index_sequence_of_c<q - p>, p>;
@@ -5260,7 +5260,7 @@ namespace monster
         static constexpr auto depth = sizeof_t_v<T>;
 
         template <typename U, typename indices>
-        struct impl : append<U, range_t<0, N, expand_t<element, T, indices>>>
+        struct impl : append<U, range_t<0, N, expand_of_t<T, indices>>>
         {
         };
 
@@ -5757,7 +5757,7 @@ namespace monster
         {
         };
 
-        using type = tuple_and<expand_t<impl, T, index_sequence_of_t<T>>>;
+        using type = tuple_and<expand_t<impl, T>>;
     };
 
     template <bool B, template <typename ...> typename F, typename T>
@@ -6115,7 +6115,7 @@ namespace monster
         template <auto i, typename U>
         using impl = store_t<Args..., element_t<i, U>>;
 
-        using type = unpack_t<concat_t, expand_t<impl, T, index_sequence_of_t<T>>>;
+        using type = unpack_t<concat_t, expand_t<impl, T>>;
     };
 
     template <typename T, typename... Args>
@@ -6130,7 +6130,7 @@ namespace monster
         template <auto i, typename U>
         using impl = store_t<element_t<i, U>, Args...>;
 
-        using type = unpack_t<concat_t, expand_t<impl, T, index_sequence_of_t<T>>>;
+        using type = unpack_t<concat_t, expand_t<impl, T>>;
     };
 
     template <typename T, typename... Args>
@@ -8138,11 +8138,10 @@ namespace monster
     template <typename T>
     struct power_set
     {
-        using base = base_type_t<T>;
         static constexpr auto N = sizeof_t_v<T>;
 
+        using base = base_type_t<T>;
         using indices = index_sequence_of_c<N>;
-        using counter = next_hypercube_indices_list<0, 2, index_sequence_c<N, 0>>;
 
         template <typename U, typename V>
         struct call;
@@ -8150,13 +8149,16 @@ namespace monster
         template <auto... m, auto... n>
         struct call<std::index_sequence<m...>, std::index_sequence<n...>>
         {
-            using type = reverse_t<concat_t<base, rename_t<element_if_t<n != 0, N - m - 1, T, base_type<T>>, base>...>>;
+            template <auto p, auto q>
+            using next = rename_t<element_if_t<q != 0, N - p - 1, T, std::type_identity<base>>, base>;
+
+            using type = reverse_t<concat_t<base, next<m, n>...>>;
         };
 
         template <auto n, typename U>
         using impl = call<indices, element_t<n, U>>;
 
-        using type = expand_t<impl, counter, index_sequence_of_t<counter>>;
+        using type = expand_t<impl, next_hypercube_indices_list<0, 2, index_sequence_c<N, 0>>>;
     };
 
     template <typename T>
@@ -8168,7 +8170,7 @@ namespace monster
         template <auto n, typename U>
         using impl = c_<add_v<n, N, U>>;
 
-        using type = expand_t<impl, T, index_sequence_of_t<T>>;
+        using type = expand_t<impl, T>;
     };
 
     template <typename T, auto N = 1>
@@ -8224,9 +8226,9 @@ namespace monster
         using indices = next_slide_indices_list<0, sizeof_t_v<T>, sequence>;
 
         template <auto i, typename U>
-        using impl = expand_t<element, T, to_index_sequence_t<element_t<i, U>>>;
+        using impl = expand_of_t<T, to_index_sequence_t<element_t<i, U>>>;
 
-        using type = expand_t<impl, indices, index_sequence_of_t<indices>>;
+        using type = expand_t<impl, indices>;
     };
 
     template <size_t N, typename T>
@@ -9290,7 +9292,7 @@ namespace monster
         using max = max_element_t<T>;
 
         template <auto i, auto j, typename U>
-        using split = append_t<expand_t<element, U, index_sequence_of_c<i>, j>, max>;
+        using split = append_t<expand_of_t<U, index_sequence_of_c<i>, j>, max>;
 
         using left = split<q - p + 1, p, T>;
         using right = split<r - q, q + 1, T>;
@@ -9798,7 +9800,7 @@ namespace monster
             using type = typeof_t<call<B1, only, lhs, rhs>>;
         };
 
-        using curr = expand_t<impl, uniq, index_sequence_of_t<uniq>>;
+        using curr = expand_t<impl, uniq>;
         using type = type_if<B3, unpack<tuple_t, curr>, unpack<concat_t, curr>>;
     };
 
