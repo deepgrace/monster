@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 142
+#define MONSTER_VERSION 143
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4578,16 +4578,10 @@ namespace monster
     template <typename indices>
     inline constexpr auto sequence_and_v = typev<sequence_and<indices>>;
 
-    template <auto value, auto... values>
-    inline constexpr auto value_v = value;
-
     template <typename ...>
     struct wrong : std::false_type
     {
     };
-
-    template <typename T>
-    inline constexpr T* nullptr_v = nullptr;
 
     template <typename T, typename... Args>
     using type_t = T;
@@ -7776,6 +7770,22 @@ namespace monster
 
     template <typename... Args>
     using combinations_t = typeof_t<combinations<Args...>>;
+
+    template <template <typename ...> typename F, typename... Args>
+    struct product
+    {
+        template <auto N, typename T>
+        struct impl
+        {
+            using curr = element_t<N, T>;
+            using type = typeof_t<F<element_t<0, curr>, element_t<1, curr>>>;
+        };
+
+        using type = expand_t<impl, combinations_t<Args...>>;
+    };
+
+    template <template <typename ...> typename F, typename... Args>
+    using product_t = typeof_t<product<F, Args...>>;
 
     template <template <size_t, typename ...> typename F, size_t N, typename T, typename... Args>
     struct do_while

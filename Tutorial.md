@@ -1251,6 +1251,11 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, 2, 4>,
                        std::integer_sequence<int, 2, 5>>>();
 
+    execute<product_t<plus_t, std::integer_sequence<int, 1, 2>, std::integer_sequence<int, 3, 4, 5>>,
+            std::tuple<c_4, c_5, c_6, c_5, c_6, c_7>>();
+    execute<product_t<max, std::tuple<int, char>, std::tuple<short, uint64_t>>,
+            std::tuple<int, uint64_t, short, uint64_t>>();
+
     using mat = std::tuple<std::index_sequence<1, 2, 3>,
                            std::index_sequence<4, 5, 6>,
                            std::index_sequence<7, 8, 9>>;
