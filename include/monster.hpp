@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 146
+#define MONSTER_VERSION 147
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3797,18 +3797,8 @@ namespace monster
     template <auto value, typename T>
     struct value_index;
 
-    template <auto value, template <typename, auto ...> typename T, typename U>
-    struct value_index<value, T<U>> : index_t<0>
-    {
-    };
-
-    template <auto value, template <typename, auto ...> typename T, typename U, auto... values>
-    struct value_index<value, T<U, value, values...>> : index_t<0>
-    {
-    };
-
-    template <auto value, template <typename, auto ...> typename T, typename U, auto V, auto... values>
-    struct value_index<value, T<U, V, values...>> : index_t<typev<value_index<value, T<U, values...>>> + 1>
+    template <auto value, template <typename, auto ...> typename T, typename U, auto... Args>
+    struct value_index<value, T<U, Args...>> : type_index<c_<value, U>, std::tuple<c_<Args, U>...>>
     {
     };
 
@@ -3818,18 +3808,8 @@ namespace monster
     template <auto value, typename T>
     struct value_index_not;
 
-    template <auto value, template <typename, auto ...> typename T, typename U>
-    struct value_index_not<value, T<U>> : index_t<0>
-    {
-    };
-
-    template <auto value, template <typename, auto ...> typename T, typename U, auto V, auto... values>
-    struct value_index_not<value, T<U, V, values...>> : index_t<0>
-    {
-    };
-
-    template <auto value, template <typename, auto ...> typename T, typename U, auto... values>
-    struct value_index_not<value, T<U, value, values...>> : index_t<typev<value_index_not<value, T<U, values...>>> + 1>
+    template <auto value, template <typename, auto ...> typename T, typename U, auto... Args>
+    struct value_index_not<value, T<U, Args...>> : type_index_not<c_<value, U>, std::tuple<c_<Args, U>...>>
     {
     };
 
@@ -3905,6 +3885,30 @@ namespace monster
 
     template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
     inline constexpr auto find_not_backward_v = typev<find_not_backward<T, U, B, E>>;
+
+    template <typename T, typename U>
+    struct reverse_subrange
+    {
+        static constexpr auto N = sizeof_t_v<U>;
+
+        template <int i, int j, typename V>
+        struct impl
+        {
+            using curr = reverse_range_t<i, j, V>;
+            using type = typeof_t<impl<j + 1, find_v<T, curr, j + 1>, curr>>;
+        };
+
+        template <int i, typename V>
+        struct impl<i, N, V> : reverse_range<i, N, V>
+        {
+        };
+
+        using init = reverse_t<U>;
+        using type = typeof_t<impl<0, find_v<T, init, 0>, init>>;
+    };
+
+    template <typename T, typename U>
+    using reverse_subrange_t = typeof_t<reverse_subrange<T, U>>;
 
     template <auto N, typename T>
     struct tuple_element_size

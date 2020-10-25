@@ -853,6 +853,11 @@ int main(int argc, char* argv[])
     execute<reverse_range_t<1, 4, std::integer_sequence<int, 1, 2, -2, 4, 3, 5>>,
             std::integer_sequence<int, 1, 4, -2, 2, 3, 5>>();
 
+    execute<reverse_subrange_t<int, std::tuple<short, char, int, double, char, int, char>>,
+            std::tuple<char, int, double, char, int, short, char>>();
+    execute<reverse_subrange_t<c_2, std::index_sequence<0, 3, 1, 2, 4, 5, 2, 7, 8, 2>>,
+            std::index_sequence<2, 7, 8, 2, 4, 5, 2, 0, 3, 1>>();
+
     execute<typeindex<char, float, double, int, char>(), 4>();
     execute<typeindex<short, float, double, int, char>(), 5>();
 
