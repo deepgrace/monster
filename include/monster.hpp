@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 144
+#define MONSTER_VERSION 145
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1266,10 +1266,10 @@ namespace monster
     template <typename F, typename... Args>
     using fold_t = typeof_t<fold<F, Args...>>;
 
-    template <template <typename, typename> typename F, typename... Args>
+    template <template <typename ...> typename F, typename... Args>
     using folded = fold<bind_front<F>, Args...>;
 
-    template <template <typename, typename> typename F, typename... Args>
+    template <template <typename ...> typename F, typename... Args>
     using folded_t = typeof_t<folded<F, Args...>>;
 
     template <template <template <typename ...> typename, typename ...> typename F>
@@ -7794,6 +7794,30 @@ namespace monster
 
     template <template <typename ...> typename F, typename... Args>
     using product_t = typeof_t<product<F, Args...>>;
+
+    template <template <typename ...> typename F, typename T>
+    struct pairwise_fold
+    {
+        using base = base_type_t<T>;
+
+        template <int i, int j, typename U, typename V>
+        struct impl
+        {
+            using curr = element_t<i, T>;
+            using type = typeof_t<impl<i + 1, j, curr, append_t<V, typeof_t<F<U, curr>>>>>;
+        };
+
+        template <int j, typename U, typename V>
+        struct impl<j, j, U, V> : std::type_identity<V>
+        {
+        };
+
+        static constexpr auto N = sizeof_t_v<T>;
+        using type = typeof_t<impl<N < 2 ? N : 1, N, element_if_t<!(N < 2), 0, T, std::type_identity<base>>, base>>;
+    };
+
+    template <template <typename ...> typename F, typename T>
+    using pairwise_fold_t = typeof_t<pairwise_fold<F, T>>;
 
     template <template <size_t, typename ...> typename F, size_t N, typename T, typename... Args>
     struct do_while

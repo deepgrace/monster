@@ -1259,6 +1259,11 @@ int main(int argc, char* argv[])
     execute<product_t<max, std::tuple<int, char>, std::tuple<short, uint64_t>>,
             std::tuple<int, uint64_t, short, uint64_t>>();
 
+    execute<pairwise_fold_t<std::is_same, std::tuple<int, int, char, int, int>>,
+            std::tuple<std::true_type, std::false_type, std::false_type, std::true_type>>();
+    execute<pairwise_fold_t<plus_t, std::integer_sequence<int, 1, 2, 3, -4, 5, 6>>,
+            std::integer_sequence<int, 3, 5, -1, 1, 11>>();
+
     using mat = std::tuple<std::index_sequence<1, 2, 3>,
                            std::index_sequence<4, 5, 6>,
                            std::index_sequence<7, 8, 9>>;
