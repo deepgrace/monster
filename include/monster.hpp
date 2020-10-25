@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 145
+#define MONSTER_VERSION 146
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -245,19 +245,6 @@ namespace monster
 
     template <auto N, typename T>
     using index_upper = wrapper_t<1, index_type<N, T>>;
-
-    template <typename T, typename... Args>
-    struct last : last<Args...>
-    {
-    };
-
-    template <typename T>
-    struct last<T> : std::type_identity<T>
-    {
-    };
-
-    template <typename... Args>
-    using last_t = typeof_t<last<Args...>>;
 
     template <typename T, typename ...>
     struct alias
@@ -815,30 +802,30 @@ namespace monster
     inline constexpr auto size_diff = sizeof_t_v<T> - sizeof_t_v<U>;
 
     template <typename T>
-    struct base_type : std::type_identity<T>
+    struct clear : std::type_identity<T>
     {
     };
 
     template <template <typename... > typename T, typename... Args>
-    struct base_type<T<Args...>> : std::type_identity<T<>>
+    struct clear<T<Args...>> : std::type_identity<T<>>
     {
     };
 
     template <template <typename, auto ...> typename T, typename U, auto... Args>
-    struct base_type<T<U, Args...>> : std::type_identity<T<U>>
+    struct clear<T<U, Args...>> : std::type_identity<T<U>>
     {
     };
 
     template <typename T>
-    using base_type_t = typeof_t<base_type<T>>;
+    using clear_t = typeof_t<clear<T>>;
 
     template <bool B, typename T>
-    struct base_type_if : std::conditional_t<B, base_type<T>, std::type_identity<T>>
+    struct clear_if : std::conditional_t<B, clear<T>, std::type_identity<T>>
     {
     };
 
     template <bool B, typename T>
-    using base_type_if_t = typeof_t<base_type_if<B, T>>;
+    using clear_if_t = typeof_t<clear_if<B, T>>;
 
     template <auto value, decltype(value)... values>
     struct homogeneous
@@ -1851,7 +1838,7 @@ namespace monster
     template <typename T, typename U, typename V>
     struct dedup
     {
-        using uniq = std::conditional_t<negav<T>, U, base_type_t<U>>;
+        using uniq = std::conditional_t<negav<T>, U, clear_t<U>>;
         using type = concat_t<uniq, typeof_t<V>>;
     };
 
@@ -2032,7 +2019,7 @@ namespace monster
     template <template <typename, typename> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     struct adjacent_difference
     {
-        using base = base_type_t<T>;
+        using base = clear_t<T>;
 
         template <int i, int j, typename U, typename V>
         struct next
@@ -2297,13 +2284,13 @@ namespace monster
     template <template <auto, typename> typename F, template <typename ...> typename T, typename... Args, auto V>
     struct expand<F, T<Args...>, std::index_sequence<>, V>
     {
-        using type = base_type_t<T<Args...>>;
+        using type = clear_t<T<Args...>>;
     };
 
     template <template <auto, typename> typename F, template <typename, auto ...> typename T, typename U, auto... values, auto V>
     struct expand<F, T<U, values...>, std::index_sequence<>, V>
     {
-        using type = base_type_t<T<U, values...>>;
+        using type = clear_t<T<U, values...>>;
     };
 
     template <template <auto, typename> typename F, typename T, auto... N, auto V>
@@ -2676,7 +2663,7 @@ namespace monster
         {
         };
 
-        using type = typeof_t<impl<B1, E1, B2, E2, base_type_t<T>>>;
+        using type = typeof_t<impl<B1, E1, B2, E2, clear_t<T>>>;
     };
 
     template <template <typename, typename> typename F, typename T, typename U,
@@ -2716,7 +2703,7 @@ namespace monster
         {
         };
 
-        using type = typeof_t<impl<B1, E1, B2, E2, base_type_t<T>>>;
+        using type = typeof_t<impl<B1, E1, B2, E2, clear_t<T>>>;
     };
 
     template <template <typename, typename> typename F, typename T, typename U,
@@ -2756,7 +2743,7 @@ namespace monster
         {
         };
 
-        using type = typeof_t<impl<B1, E1, B2, E2, base_type_t<T>>>;
+        using type = typeof_t<impl<B1, E1, B2, E2, clear_t<T>>>;
     };
 
     template <template <typename, typename> typename F, typename T, typename U,
@@ -2796,7 +2783,7 @@ namespace monster
         {
         };
 
-        using type = typeof_t<impl<B1, E1, B2, E2, base_type_t<T>>>;
+        using type = typeof_t<impl<B1, E1, B2, E2, clear_t<T>>>;
     };
 
     template <template <typename, typename> typename F, typename T, typename U,
@@ -3063,7 +3050,7 @@ namespace monster
         {
         };
 
-        using type = typeof_t<impl<B + 1, E, init, append_t<base_type_t<T>, init>>>;
+        using type = typeof_t<impl<B + 1, E, init, append_t<clear_t<T>, init>>>;
     };
 
     template <template <typename, typename> typename F, typename T,
@@ -3094,7 +3081,7 @@ namespace monster
         {
         };
 
-        using type = typeof_t<impl<B, E - 1, init, append_t<base_type_t<T>, init>>>;
+        using type = typeof_t<impl<B, E - 1, init, append_t<clear_t<T>, init>>>;
     };
 
     template <template <typename, typename> typename F, typename T,
@@ -3142,7 +3129,7 @@ namespace monster
         {
         };
 
-        using type = typeof_t<impl<B1, E1, B2, base_type_t<T>>>;
+        using type = typeof_t<impl<B1, E1, B2, clear_t<T>>>;
     };
 
     template <template <typename, typename> typename F, typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0>
@@ -3339,7 +3326,7 @@ namespace monster
         };
 
         template <int j, bool b>
-        struct impl<j, j, b> : base_type_if<B, T>
+        struct impl<j, j, b> : clear_if<B, T>
         {
         };
 
@@ -3469,7 +3456,7 @@ namespace monster
         {
         };
 
-        using type = typeof_t<impl<B, E, base_type_t<T>>>;
+        using type = typeof_t<impl<B, E, clear_t<T>>>;
     };
 
     template <template <typename ...> typename F, typename T, auto B, auto E, bool value>
@@ -3666,7 +3653,7 @@ namespace monster
         template <size_t N, bool E>
         struct impl<N, false, E>
         {
-            using cond = type_if<E, base_type<T>, range<j, N, T>>;
+            using cond = type_if<E, clear<T>, range<j, N, T>>;
             using type = concat_t<range_t<0, i, T>, reversed, cond>;
         };
 
@@ -3740,6 +3727,12 @@ namespace monster
 
     template <typename T>
     using pop_back_t = typeof_t<pop_back<T>>;
+
+    template <typename T>
+    using rest = pop_front<T>;
+
+    template <typename T>
+    using rest_t = typeof_t<rest<T>>;
 
     template <typename T, typename U = T, typename... Args>
     constexpr size_t typeindex()
@@ -4741,7 +4734,7 @@ namespace monster
     using fill_c = typeof_t<fill<n, c_<v>>>;
 
     template <typename T, typename U>
-    struct assign : rename<fill_t<sizeof_t_v<T>, U>, base_type_t<T>>
+    struct assign : rename<fill_t<sizeof_t_v<T>, U>, clear_t<T>>
     {
     };
 
@@ -5974,7 +5967,7 @@ namespace monster
         {
         };
 
-        using type = typeof_t<impl<0, N, base_type_t<store_t<alias_t<Args...>>>>>;
+        using type = typeof_t<impl<0, N, clear_t<store_t<alias_t<Args...>>>>>;
     };
 
     template <auto N, typename... Args>
@@ -5997,14 +5990,14 @@ namespace monster
     template <template <typename ...> typename F, template <typename ...> typename T, typename... Args>
     struct erase_if<F, T<Args...>>
     {
-        using base = base_type_t<T<Args...>>;
+        using base = clear_t<T<Args...>>;
         using type = concat_t<filter_t<F, Args, base>...>;
     };
 
     template <template <typename ...> typename F, template <typename, auto ...> typename T, typename U, auto... Args>
     struct erase_if<F, T<U, Args...>>
     {
-        using base = base_type_t<T<U, Args...>>;
+        using base = clear_t<T<U, Args...>>;
         using type = concat_t<filter_t<F, c_<Args, U>, base>...>;
     };
 
@@ -6054,7 +6047,7 @@ namespace monster
         template <size_t j, auto... N>
         struct impl<j, j, std::index_sequence<N...>>
         {
-            using type = base_type_t<T>;
+            using type = clear_t<T>;
         };
 
         using type = typeof_t<impl<0, sizeof_t_v<T>, index_sequence_of_t<U>>>;
@@ -6105,7 +6098,7 @@ namespace monster
         {
         };
 
-        using type = typeof_t<impl<0, 0, M, N, base_type_t<T>>>;
+        using type = typeof_t<impl<0, 0, M, N, clear_t<T>>>;
     };
 
     template <typename T, typename U>
@@ -6174,7 +6167,7 @@ namespace monster
     using zip_with_t = typeof_t<zip_with<F, T, U>>;
 
     template <typename T>
-    struct row_type : base_type<element_t<0, T>>
+    struct row_type : clear<element_t<0, T>>
     {
     };
 
@@ -7671,7 +7664,7 @@ namespace monster
         {
         };
 
-        using type = typeof_t<impl<0, matrix_row_size_v<T>, 0, matrix_col_size_v<T>, base, base_type_t<T>>>;
+        using type = typeof_t<impl<0, matrix_row_size_v<T>, 0, matrix_col_size_v<T>, base, clear_t<T>>>;
     };
 
     template <typename T>
@@ -7798,7 +7791,7 @@ namespace monster
     template <template <typename ...> typename F, typename T>
     struct pairwise_fold
     {
-        using base = base_type_t<T>;
+        using base = clear_t<T>;
 
         template <int i, int j, typename U, typename V>
         struct impl
@@ -8182,7 +8175,7 @@ namespace monster
     {
         static constexpr auto N = sizeof_t_v<T>;
 
-        using base = base_type_t<T>;
+        using base = clear_t<T>;
         using indices = index_sequence_of_c<N>;
 
         template <typename U, typename V>
@@ -8306,7 +8299,7 @@ namespace monster
     template <template <typename ...> typename F, typename T>
     struct partition_copy
     {
-        using base = base_type_t<T>;
+        using base = clear_t<T>;
 
         template <size_t i, size_t j, typename U, typename V>
         struct impl
@@ -8404,7 +8397,7 @@ namespace monster
         template <int m, bool b>
         struct impl
         {
-            using base = base_type_t<T>;
+            using base = clear_t<T>;
             using type = typeof_t<next<p + 1, r, p, base, append_t<base, element_t<p, T>>>>;
         };
 
@@ -8625,7 +8618,7 @@ namespace monster
         {
         };
 
-        using type = typeof_t<impl<1, sizeof_t_v<T> + 1, base_type_t<T>>>;
+        using type = typeof_t<impl<1, sizeof_t_v<T> + 1, clear_t<T>>>;
     };
 
     template <typename T, template <typename, typename> typename comparator = less_equal_t>
@@ -9286,7 +9279,7 @@ namespace monster
         {
         };
 
-        using type = typeof_t<impl<0, sizeof_t_v<T>, 0, sizeof_t_v<U>, N, base_type_t<T>>>;
+        using type = typeof_t<impl<0, sizeof_t_v<T>, 0, sizeof_t_v<U>, N, clear_t<T>>>;
     };
 
     template <int N, typename T, typename U, template <typename, typename> typename comparator = less_t>
@@ -9322,7 +9315,7 @@ namespace monster
         {
         };
 
-        using type = typeof_t<impl<0, sizeof_t_v<T>, 0, sizeof_t_v<U>, base_type_t<T>>>;
+        using type = typeof_t<impl<0, sizeof_t_v<T>, 0, sizeof_t_v<U>, clear_t<T>>>;
     };
 
     template <template <typename ...> typename F, template <typename ...> typename C, typename T, typename U>
@@ -9390,7 +9383,7 @@ namespace monster
     template <typename T, template <typename, typename> typename comparator = less_t>
     struct strand_sort
     {
-        using base = base_type_t<T>;
+        using base = clear_t<T>;
 
         template <int i, int j, int k, typename U, typename V>
         struct next
@@ -9814,7 +9807,7 @@ namespace monster
     struct arrange
     {
         using uniq = unique_t<T>;
-        using base = base_type_t<T>;
+        using base = clear_t<T>;
 
         template <bool B, bool only, typename U, typename V>
         struct call
@@ -10111,7 +10104,7 @@ namespace monster
         };
 
         using maps = typeof_t<next<0, row, 0, col, indices_table<row, col>, indices_table<row + 1, col + 1>>>;
-        using type = typeof_t<impl<row - 1, col - 1, maps, base_type_t<T>>>;
+        using type = typeof_t<impl<row - 1, col - 1, maps, clear_t<T>>>;
     };
 
     template <typename T, typename U>
@@ -10294,7 +10287,7 @@ namespace monster
         {
         };
 
-        using base = base_type_t<T>;
+        using base = clear_t<T>;
         using init = fill_t<N - 1, base>;
 
         template <template <typename ...> typename F, auto M>

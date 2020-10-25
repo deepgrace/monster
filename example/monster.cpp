@@ -209,7 +209,7 @@ int main(int argc, char* argv[])
     execute<identity_t<0, int>, int>();
     execute<wrapper_t<3, int>, std::type_identity<std::type_identity<std::type_identity<int>>>>();
 
-    execute<last_t<int, double, char>, char>();
+    execute<rest_t<std::tuple<int, double, char>>, std::tuple<double, char>>();
     execute<alias_t<int>, int>();
 
     execute<wrapin_t<std::type_identity, int, double>,
@@ -274,9 +274,9 @@ int main(int argc, char* argv[])
     execute<greater_equal_v<double, float>>();
     execute<greater_v<double, int>>();
 
-    execute<base_type_t<int>, int>();
-    execute<base_type_t<std::tuple<int, char>>, std::tuple<>>();
-    execute<base_type_t<std::integer_sequence<int, 1, 2, 4>>, std::integer_sequence<int>>();
+    execute<clear_t<int>, int>();
+    execute<clear_t<std::tuple<int, char>>, std::tuple<>>();
+    execute<clear_t<std::integer_sequence<int, 1, 2, 4>>, std::integer_sequence<int>>();
 
     execute<homogeneous<0, 1, 2, 4>::size(), 4>();
     execute<sizeof_t_v<homogeneous<0, 1, 2, 4>>, 4>();
