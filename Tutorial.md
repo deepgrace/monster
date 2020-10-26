@@ -1207,6 +1207,11 @@ int main(int argc, char* argv[])
     execute<transform_t<succ, std::integer_sequence<int, 7, 5, -2, 3, 1>>,
             std::integer_sequence<int, 8, 6, -1, 4, 2>>();
 
+    execute<transform_nth_t<1, std::add_pointer, std::tuple<int, double, char*>>,
+            std::tuple<int, double*, char*>>();
+    execute<transform_nth_t<2, succ, std::integer_sequence<int, 7, 5, -2, 3, 1>>,
+            std::integer_sequence<int, 7, 5, -1, 3, 1>>();
+
     execute<transform_if_t<succ, is_even, std::integer_sequence<int>,
             std::integer_sequence<int, 0, 3, 1, 2, 8, 4>>, std::integer_sequence<int, 1, 3, 9, 5>>();
     execute<transform_if_not_t<succ, is_odd, std::integer_sequence<int>,

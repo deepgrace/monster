@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 148
+#define MONSTER_VERSION 149
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3008,30 +3008,38 @@ namespace monster
     template <typename T, typename U>
     inline constexpr auto lca_v = typev<lca_t<T, U>>;
 
-    template <template <typename> typename F, typename T>
+    template <template <typename ...> typename F, typename T>
     struct transform;
 
-    template <template <typename> typename F, template <typename ...> typename T, typename... Args>
+    template <template <typename ...> typename F, template <typename ...> typename T, typename... Args>
     struct transform<F, T<Args...>>
     {
         using type = T<typeof_t<F<Args>>...>;
     };
 
-    template <template <typename> typename F, template <typename, auto ...> typename T, typename U, auto... Args>
+    template <template <typename ...> typename F, template <typename, auto ...> typename T, typename U, auto... Args>
     struct transform<F, T<U, Args...>>
     {
         using type = T<U, typev<F<c_<Args, U>>>...>;
     };
 
-    template <template <typename> typename F, typename T>
+    template <template <typename ...> typename F, typename T>
     using transform_t = typeof_t<transform<F, T>>;
 
-    template <template <typename> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    template <auto N, template <typename ...> typename F, typename T>
+    struct transform_nth : exchange<N, visit_t<F, N, T>, T>
+    {
+    };
+
+    template <auto N, template <typename ...> typename F, typename T>
+    using transform_nth_t = typeof_t<transform_nth<N, F, T>>;
+
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     struct generate : concat<range_t<0, B, T>, transform_t<F, range_t<B, E, T>>, range_t<E, sizeof_t_v<T>, T>>
     {
     };
 
-    template <template <typename> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using generate_t = typeof_t<generate<F, T, B, E>>;
 
     template <template <typename, typename> typename F, typename T,
@@ -3192,7 +3200,7 @@ namespace monster
     template <template <typename, typename> typename F, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     inline constexpr auto accumulate_v = typev<accumulate_t<F, T, U, B, E>>;
 
-    template <template <typename> typename F, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    template <template <typename ...> typename F, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     struct iota
     {
         template <int i, int j, typename V, typename W>
@@ -3210,7 +3218,7 @@ namespace monster
         using type = typeof_t<impl<B, E, T, U>>;
     };
 
-    template <template <typename> typename F, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    template <template <typename ...> typename F, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     using iota_t = typeof_t<iota<F, T, U, B, E>>;
 
     template <typename T>
@@ -5617,7 +5625,7 @@ namespace monster
     requires is_variadic_value_v<T>
     inline constexpr auto mode_v = typev<mode<T>>;
 
-    template <template <typename> typename F, template <typename> typename P, typename T, typename U, auto B, auto E, bool W>
+    template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B, auto E, bool W>
     struct transform_of
     {
         template <int i, int j, typename V>
@@ -5640,28 +5648,28 @@ namespace monster
         using type = typeof_t<impl<B, E, T>>;
     };
 
-    template <template <typename> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     struct transform_if : transform_of<F, P, T, U, B, E, true>
     {
     };
 
-    template <template <typename> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     using transform_if_t = typeof_t<transform_if<F, P, T, U, B, E>>;
 
-    template <template <typename> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     struct transform_if_not : transform_if<F, negaf<P>::template apply, T, U, B, E>
     {
     };
 
-    template <template <typename> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     using transform_if_not_t = typeof_t<transform_if_not<F, P, T, U, B, E>>;
 
-    template <template <typename> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     struct transform_while : transform_of<F, P, T, U, B, E, false>
     {
     };
 
-    template <template <typename> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     using transform_while_t = typeof_t<transform_while<F, P, T, U, B, E>>;
 
     template <auto i, auto j, typename T, typename U = T>
@@ -8273,7 +8281,7 @@ namespace monster
     template <size_t N, typename T>
     using slide_list_t = typeof_t<slide_list<N, T>>;
 
-    template <typename T, template <typename> typename F, int B = 0, int E = sizeof_t_v<T>>
+    template <typename T, template <typename ...> typename F, int B = 0, int E = sizeof_t_v<T>>
     struct partition_point
     {
         template <int i, int j, bool = (i > 0)>
@@ -8294,10 +8302,10 @@ namespace monster
         using type = typeof_t<impl<E - B, B>>;
     };
 
-    template <typename T, template <typename> typename F, int B = 0, int E = sizeof_t_v<T>>
+    template <typename T, template <typename ...> typename F, int B = 0, int E = sizeof_t_v<T>>
     using partition_point_t = typeof_t<partition_point<T, F, B, E>>;
 
-    template <typename T, template <typename> typename F, int B = 0, int E = sizeof_t_v<T>>
+    template <typename T, template <typename ...> typename F, int B = 0, int E = sizeof_t_v<T>>
     inline constexpr auto partition_point_v = typev<partition_point_t<T, F, B, E>>;
 
     template <template <typename ...> typename F, typename T>
