@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 147
+#define MONSTER_VERSION 148
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -9612,21 +9612,32 @@ namespace monster
     };
 
     template <typename T, typename U>
-    struct find_index;
+    struct map_find;
+
+    template <typename T, template <typename ...> typename U, typename... Args>
+    struct map_find<T, U<Args...>>
+    {
+        template <typename V>
+        struct impl : std::is_same<T, element_t<0, V>>
+        {
+        };
+
+        static constexpr auto value = find_if_v<impl, U<Args...>>;
+    };
 
     template <typename T, template <typename ...> typename U, template <typename, auto> typename V, typename... Args, auto... args>
-    struct find_index<T, U<V<Args, args>...>>
+    struct map_find<T, U<V<Args, args>...>>
     {
         static constexpr auto value = index_of<T, U<Args...>>();
     };
 
     template <typename T, typename U>
-    inline constexpr auto find_index_v = typev<find_index<T, U>>;
+    inline constexpr auto map_find_v = typev<map_find<T, U>>;
 
     template <typename T, typename U>
     struct shift_value
     {
-        static constexpr auto index = find_index_v<T, U>;
+        static constexpr auto index = map_find_v<T, U>;
         static constexpr auto last = index == sizeof_t_v<U>;
 
         using type = std::conditional_t<last, c_<index>, element<index, U>>;
@@ -9657,7 +9668,7 @@ namespace monster
         {
             using curr = element_t<i, P>;
 
-            static constexpr auto index = find_index_v<curr, U>;
+            static constexpr auto index = map_find_v<curr, U>;
             static constexpr auto last = index == k;
 
             using dest = offset<curr, N - i - 1>;

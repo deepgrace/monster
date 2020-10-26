@@ -872,6 +872,9 @@ int main(int argc, char* argv[])
     execute<find_v<char, std::tuple<float, char, double, int, char>>, 1>();
     execute<find_v<c_6, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>, 2>();
 
+    execute<map_find_v<int, std::tuple<std::tuple<char, float>, std::tuple<int, char>>>, 1>();
+    execute<map_find_v<int, std::tuple<offset<int, 2>, offset<char, 1>, offset<short, 3>>>, 0>();
+
     using fg1 = find_group_t<char, std::tuple<std::tuple<float, char>, std::tuple<double, int, char>>>;
     execute<first_v<fg1>, 0>();
     execute<second_v<fg1>, 1>();
