@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 149
+#define MONSTER_VERSION 150
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1418,6 +1418,15 @@ namespace monster
 
     template <template <typename ...> typename F, auto N, typename T>
     inline constexpr auto visit_v = typev<visit<F, N, T>>;
+
+    template <template <typename, typename> typename F, auto M, auto N, typename T, typename U = T>
+    using unary = F<element_t<M, T>, element_t<N, U>>;
+
+    template <template <typename, typename> typename F, auto M, auto N, typename T, typename U = T>
+    using unary_t = typeof_t<unary<F, M, N, T, U>>;
+
+    template <template <typename, typename> typename F, auto M, auto N, typename T, typename U = T>
+    inline constexpr auto unary_v = typev<unary<F, M, N, T, U>>;
 
     template <template <typename ...> typename F, int N, int B, int E, bool>
     struct index_if;
@@ -2885,11 +2894,7 @@ namespace monster
                 template <int p, int q>
                 struct call
                 {
-                    using lhs = element_t<p, T>;
-                    using rhs = element_t<q, U>;
-
-                    static constexpr auto cond = negav<F<lhs, rhs>>;
-                    using type = type_if<cond, impl<i + 1>, next<p + 1, q + 1>>;
+                    using type = type_if<!unary_v<F, p, q, T, U>, impl<i + 1>, next<p + 1, q + 1>>;
                 };
 
                 static constexpr auto cond1 = k == E2;
@@ -3123,13 +3128,8 @@ namespace monster
     struct transmute
     {
         template <int i, int j, int k, typename W>
-        struct impl
+        struct impl : impl<i + 1, j, k + 1, append_t<W, unary_t<F, i, k, T, U>>>
         {
-            using lhs = element_t<i, T>;
-            using rhs = element_t<k, U>;
-
-            using next = append_t<W, typeof_t<F<lhs, rhs>>>;
-            using type = typeof_t<impl<i + 1, j, k + 1, next>>;
         };
 
         template <int j, int k, typename W>
@@ -6170,7 +6170,7 @@ namespace monster
         static constexpr auto N = sizeof_t_v<U>;
 
         template <auto i, typename V>
-        using impl = F<element_t<i, V>, element_t<i, U>>;
+        using impl = unary<F, i, i, V, U>;
 
         using type = expand_t<impl, T, index_sequence_of_c<(M < N ? M : N)>>;
     };
@@ -7790,8 +7790,7 @@ namespace monster
         template <auto N, typename T>
         struct impl
         {
-            using curr = element_t<N, T>;
-            using type = typeof_t<F<element_t<0, curr>, element_t<1, curr>>>;
+            using type = unary_t<F, 0, 1, element_t<N, T>>;
         };
 
         using type = expand_t<impl, combinations_t<Args...>>;
