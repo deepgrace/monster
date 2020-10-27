@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 150
+#define MONSTER_VERSION 151
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1425,6 +1425,24 @@ namespace monster
     template <template <typename, typename> typename F, auto M, auto N, typename T, typename U = T>
     using unary_t = typeof_t<unary<F, M, N, T, U>>;
 
+    template <template <typename, typename> typename F, auto N, typename T, typename U>
+    using lcall = F<element_t<N, T>, U>;
+
+    template <template <typename, typename> typename F, auto N, typename T, typename U>
+    using lcall_t = typeof_t<lcall<F, N, T, U>>;
+
+    template <template <typename, typename> typename F, auto N, typename T, typename U>
+    inline constexpr auto lcall_v = typev<lcall<F, N, T, U>>;
+
+    template <template <typename, typename> typename F, auto N, typename T, typename U>
+    using rcall = F<T, element_t<N, U>>;
+
+    template <template <typename, typename> typename F, auto N, typename T, typename U>
+    using rcall_t = typeof_t<rcall<F, N, T, U>>;
+
+    template <template <typename, typename> typename F, auto N, typename T, typename U>
+    inline constexpr auto rcall_v = typev<rcall<F, N, T, U>>;
+
     template <template <typename, typename> typename F, auto M, auto N, typename T, typename U = T>
     inline constexpr auto unary_v = typev<unary<F, M, N, T, U>>;
 
@@ -1516,7 +1534,7 @@ namespace monster
         struct impl
         {
             static constexpr auto half = i / 2;
-            static constexpr auto value = typev<comp<element_t<j + half, U>, T>>;
+            static constexpr auto value = lcall_v<comp, j + half, U, T>;
 
             static constexpr auto delta = value * half + value;
             using type = typeof_t<impl<value ? i - delta : half, j + delta>>;
@@ -2056,7 +2074,7 @@ namespace monster
     using adjacent_difference_t = typeof_t<adjacent_difference<F, T, B, E>>;
 
     template <template <typename, typename> typename comparator, auto i, auto j, typename T, typename U = T>
-    struct predicate : comparator<element_t<i, T>, element_t<j, U>>
+    struct predicate : unary<comparator, i, j, T, U>
     {
     };
 
@@ -2929,8 +2947,7 @@ namespace monster
                 template <int l>
                 struct call
                 {
-                    static constexpr auto cond = negav<F<element_t<l, U>, T>>;
-                    using type = type_if<cond, impl<l + 1, j>, next<l, p, q + 1>>;
+                    using type = type_if<!lcall_v<F, l, U, T>, impl<l + 1, j>, next<l, p, q + 1>>;
                 };
 
                 static constexpr auto cond1 = q + 1 >= N;
@@ -2939,8 +2956,7 @@ namespace monster
                 using type = type_if<cond1 || cond2, c_<cond1 ? p : E>, call<k + 1>>;
             };
 
-            static constexpr auto value = negav<F<element_t<i, U>, T>>;
-            using type = type_if<value, impl<i + 1, j>, next<i, i, 0>>;
+            using type = type_if<!lcall_v<F, i, U, T>, impl<i + 1, j>, next<i, i, 0>>;
         };
 
         template <int j>
@@ -3054,7 +3070,7 @@ namespace monster
         template <int i, int j, typename U, typename V>
         struct impl
         {
-            using curr = typeof_t<F<U, element_t<i, T>>>;
+            using curr = rcall_t<F, i, U, T>;
             using type = typeof_t<impl<i + 1, j, curr, append_t<V, curr>>>;
         };
 
@@ -3085,7 +3101,7 @@ namespace monster
         template <int i, int j, typename U, typename V>
         struct impl
         {
-            using curr = typeof_t<F<U, element_t<i, T>>>;
+            using curr = rcall_t<F, i, U, T>;
             using type = typeof_t<impl<i + 1, j, curr, append_t<V, curr>>>;
         };
 
@@ -3180,10 +3196,8 @@ namespace monster
     struct accumulate
     {
         template <int i, int j, typename V>
-        struct impl
+        struct impl : impl<i + 1, j, rcall_t<F, i, V, U>>
         {
-            using next = typeof_t<F<V, element_t<i, U>>>;
-            using type = typeof_t<impl<i + 1, j, next>>;
         };
 
         template <int j, typename V>
@@ -5673,7 +5687,7 @@ namespace monster
     using transform_while_t = typeof_t<transform_while<F, P, T, U, B, E>>;
 
     template <auto i, auto j, typename T, typename U = T>
-    struct is_same : std::is_same<element_t<i, T>, element_t<j, U>>
+    struct is_same : unary<std::is_same, i, j, T, U>
     {
     };
 
@@ -6052,7 +6066,7 @@ namespace monster
         template <size_t i, size_t j, auto... N>
         struct impl<i, j, std::index_sequence<N...>>
         {
-            using conc = concat_t<store_t<element_t<i, T>, element_t<N, U>>...>;
+            using conc = concat_t<unary_t<store, i, N, T, U>...>;
             using type = concat_t<conc, typeof_t<impl<i + 1, j, std::index_sequence<N...>>>>;
         };
 
@@ -6154,7 +6168,7 @@ namespace monster
         static constexpr auto N = sizeof_t_v<U>;
 
         template <auto i, typename V>
-        using impl = store_t<element_t<i, V>, element_t<i, U>>;
+        using impl = unary_t<store, i, i, V, U>;
 
         using type = unpack_t<concat_t, expand_t<impl, T, index_sequence_of_c<(M < N ? M : N)>>>;
     };
@@ -8340,7 +8354,7 @@ namespace monster
         template <int i, int j, int k, typename V>
         struct impl
         {
-            static constexpr auto value = typev<comparator<element_t<j, V>, x>>;
+            static constexpr auto value = lcall_v<comparator, j, V, x>;
 
             using cond = swap_if_t<value, i + 1, j, V>;
             using type = typeof_t<impl<i + value, j + 1, k, cond>>;
@@ -9625,7 +9639,7 @@ namespace monster
     struct map_find<T, U<Args...>>
     {
         template <typename V>
-        struct impl : std::is_same<T, element_t<0, V>>
+        struct impl : rcall<std::is_same, 0, T, V>
         {
         };
 
@@ -10011,7 +10025,7 @@ namespace monster
         struct search
         {
             static constexpr auto mid = (i + j) / 2;
-            static constexpr auto value = less_v<element_t<B + element_v<mid, U>, T>, element_t<B + k, T>>;
+            static constexpr auto value = unary_v<less_t, B + element_v<mid, U>, B + k, T>;
 
             using type = type_if<value, search<mid + 1, j, k, U>, search<i, mid - 1, k, U>>;
         };
@@ -10029,7 +10043,7 @@ namespace monster
         template <int i, int j, typename U>
         struct update<i, j, U, false>
         {
-            using type = exchange_if_t<less_v<element_t<B + i, T>, element_t<B + element_v<j, U>, T>>, j, c_<i>, U>;
+            using type = exchange_if_t<unary_v<less_t, B + i, B + element_v<j, U>, T>, j, c_<i>, U>;
         };
 
         template <int i, int j, int k, typename U, typename V>
@@ -10242,7 +10256,7 @@ namespace monster
         struct next
         {
             using curr = element_t<i, U>;
-            static constexpr auto value = std::is_same_v<curr, element_t<i, V>>;
+            static constexpr auto value = rcall_v<std::is_same, i, curr, V>;
 
             using type = type_if<value, next<i + 1, j, U, V, append_if_t<value, W, curr>>, std::type_identity<W>>;
         };
