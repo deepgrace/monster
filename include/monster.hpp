@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 151
+#define MONSTER_VERSION 152
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3314,28 +3314,28 @@ namespace monster
     using drop_t = typeof_t<drop<i, T>>;
 
     template <auto n, typename T>
-    using drop_front = range<n, sizeof_t_v<T>, T>;
+    using remove_prefix = range<n, sizeof_t_v<T>, T>;
 
     template <auto n, typename T>
-    using drop_front_t = typeof_t<drop_front<n, T>>;
+    using remove_prefix_t = typeof_t<remove_prefix<n, T>>;
 
     template <auto n, typename T>
-    using drop_back = range<0, sizeof_t_v<T> - n, T>;
+    using remove_suffix = range<0, sizeof_t_v<T> - n, T>;
 
     template <auto n, typename T>
-    using drop_back_t = typeof_t<drop_back<n, T>>;
+    using remove_suffix_t = typeof_t<remove_suffix<n, T>>;
 
     template <auto n, typename T>
-    using take_front = range<0, n, T>;
+    using take_prefix = range<0, n, T>;
 
     template <auto n, typename T>
-    using take_front_t = typeof_t<take_front<n, T>>;
+    using take_prefix_t = typeof_t<take_prefix<n, T>>;
 
     template <auto n, typename T>
-    using take_back = range<sizeof_t_v<T> - n, sizeof_t_v<T>, T>;
+    using take_suffix = range<sizeof_t_v<T> - n, sizeof_t_v<T>, T>;
 
     template <auto n, typename T>
-    using take_back_t = typeof_t<take_back<n, T>>;
+    using take_suffix_t = typeof_t<take_suffix<n, T>>;
 
     template <template <typename ...> typename F, typename T, bool B>
     struct apply_while
@@ -3353,7 +3353,7 @@ namespace monster
         };
 
         template <int i, int j>
-        struct impl<i, j, false> : std::conditional_t<B, drop_front<i, T>, take_front<i, T>>
+        struct impl<i, j, false> : std::conditional_t<B, remove_prefix<i, T>, take_prefix<i, T>>
         {
         };
 
@@ -5071,7 +5071,7 @@ namespace monster
     }
 
     template <auto n, typename... Args>
-    auto tuple_take_front(const std::tuple<Args...>& t)
+    auto tuple_take_prefix(const std::tuple<Args...>& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5081,7 +5081,7 @@ namespace monster
     }
 
     template <auto n, typename... Args>
-    auto tuple_take_back(const std::tuple<Args...>& t)
+    auto tuple_take_suffix(const std::tuple<Args...>& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5091,15 +5091,15 @@ namespace monster
     }
 
     template <auto n, typename... Args>
-    auto tuple_drop_front(const std::tuple<Args...>& t)
+    auto tuple_remove_prefix(const std::tuple<Args...>& t)
     {
-        return tuple_take_back<sizeof_v<Args...> - n>(t);
+        return tuple_take_suffix<sizeof_v<Args...> - n>(t);
     }
 
     template <auto n, typename... Args>
-    auto tuple_drop_back(const std::tuple<Args...>& t)
+    auto tuple_remove_suffix(const std::tuple<Args...>& t)
     {
-        return tuple_take_front<sizeof_v<Args...> - n>(t);
+        return tuple_take_prefix<sizeof_v<Args...> - n>(t);
     }
 
     template <size_t N, typename T>
@@ -5148,7 +5148,7 @@ namespace monster
     }
 
     template <auto n, typename T, auto m>
-    auto array_take_front(const std::array<T, m>& a)
+    auto array_take_prefix(const std::array<T, m>& a)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5158,7 +5158,7 @@ namespace monster
     }
 
     template <auto n, typename T, auto m>
-    auto array_take_back(const std::array<T, m>& a)
+    auto array_take_suffix(const std::array<T, m>& a)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5168,15 +5168,15 @@ namespace monster
     }
 
     template <auto n, typename T, auto m>
-    auto array_drop_front(const std::array<T, m>& a)
+    auto array_remove_prefix(const std::array<T, m>& a)
     {
-        return array_take_back<m - n>(a);
+        return array_take_suffix<m - n>(a);
     }
 
     template <auto n, typename T, auto m>
-    auto array_drop_back(const std::array<T, m>& a)
+    auto array_remove_suffix(const std::array<T, m>& a)
     {
-        return array_take_front<m - n>(a);
+        return array_take_prefix<m - n>(a);
     }
 
     template <typename F, typename T>
@@ -5321,7 +5321,7 @@ namespace monster
                 }
                 curr[i] += 1 - 2 * !ASC;
                 if (i + 1 >= depth)
-                    std::apply(std::forward<F>(f), array_take_front<N>(curr));
+                    std::apply(std::forward<F>(f), array_take_prefix<N>(curr));
                 else
                     ++i;
             }
@@ -7599,7 +7599,7 @@ namespace monster
         static constexpr auto N = matrix_row_size_v<T>;
 
         template <int i, int j, typename V>
-        struct impl : impl<i + 1, j, append_t<V, concat_t<subset_t<N - i - 1, i, w>, drop_back_t<i, T>>>>
+        struct impl : impl<i + 1, j, append_t<V, concat_t<subset_t<N - i - 1, i, w>, remove_suffix_t<i, T>>>>
         {
         };
 

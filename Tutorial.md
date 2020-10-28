@@ -831,12 +831,12 @@ int main(int argc, char* argv[])
     execute<drop_t<1, std::integer_sequence<int, 1, 2, -2, 4, 5>>,
             std::integer_sequence<int, 1, -2, 4, 5>>();
 
-    execute<drop_front_t<2, std::tuple<int, double, int, char>>, std::tuple<int, char>>();
-    execute<drop_back_t<2, std::integer_sequence<int, 1, 2, -2, 4, 5>>,
+    execute<remove_prefix_t<2, std::tuple<int, double, int, char>>, std::tuple<int, char>>();
+    execute<remove_suffix_t<2, std::integer_sequence<int, 1, 2, -2, 4, 5>>,
             std::integer_sequence<int, 1, 2, -2>>();
 
-    execute<take_front_t<2, std::tuple<int, double, int, char>>, std::tuple<int, double>>();
-    execute<take_back_t<2, std::integer_sequence<int, 1, 2, -2, 4, 5>>,
+    execute<take_prefix_t<2, std::tuple<int, double, int, char>>, std::tuple<int, double>>();
+    execute<take_suffix_t<2, std::integer_sequence<int, 1, 2, -2, 4, 5>>,
             std::integer_sequence<int, 4, 5>>();
 
     execute<drop_while_t<std::is_pointer, std::tuple<int*, double*, int, char>>, std::tuple<int, char>>();
@@ -1075,10 +1075,10 @@ int main(int argc, char* argv[])
     std::cout << "tuple_rotate " << std::get<2>(tuple_rotate<0, 2, 4>(tuple)) << std::endl;
     std::cout << "tuple_shift_left " << std::get<1>(tuple_shift_left<2>(tuple)) << std::endl;
     std::cout << "tuple_shift_right " << std::get<1>(tuple_shift_right<2>(tuple)) << std::endl;
-    std::cout << "tuple_take_front " << std::get<1>(tuple_take_front<3>(tuple)) << std::endl;
-    std::cout << "tuple_take_back " << std::get<2>(tuple_take_back<3>(tuple)) << std::endl;
-    std::cout << "tuple_drop_front " << std::get<0>(tuple_drop_front<3>(tuple)) << std::endl;
-    std::cout << "tuple_drop_back " << std::get<1>(tuple_drop_back<3>(tuple)) << std::endl;
+    std::cout << "tuple_take_prefix " << std::get<1>(tuple_take_prefix<3>(tuple)) << std::endl;
+    std::cout << "tuple_take_suffix " << std::get<2>(tuple_take_suffix<3>(tuple)) << std::endl;
+    std::cout << "tuple_remove_prefix " << std::get<0>(tuple_remove_prefix<3>(tuple)) << std::endl;
+    std::cout << "tuple_remove_suffix " << std::get<1>(tuple_remove_suffix<3>(tuple)) << std::endl;
     auto trans = tuple_transpose(std::make_tuple(tuple, std::make_tuple(7, 5)));
     std::cout << "tuple_transpose " << std::get<0>(std::get<1>(trans)) << std::endl;
     tuple_fill<3>(tuple, 3, 5);

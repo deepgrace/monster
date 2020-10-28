@@ -55,7 +55,7 @@ using f4 = first_type<int, double, char*, float>;
 // f4 == int
 
 // get the first two elements
-using f5 = take_front_t<2, std::tuple<int, double, int, char>>;
+using f5 = take_prefix_t<2, std::tuple<int, double, int, char>>;
 // f5 == std::tuple<int, double>
 
 // get the last element
@@ -69,7 +69,7 @@ using b4 = last_type<int, double, char*, float>;
 // b4 == float
 
 // get the last two elements
-using b5 = take_back_t<2, std::integer_sequence<int, 1, 2, -2, 4, 5>>;
+using b5 = take_suffix_t<2, std::integer_sequence<int, 1, 2, -2, 4, 5>>;
 // b5 == std::integer_sequence<int, 4, 5>
 
 // get odd indexed elements
@@ -753,11 +753,11 @@ using es4 = eliminate_subtype_t<std::index_sequence<5, 4, 4>, tp2>;
 // es4 == std::index_sequence<2, 0, 3, 7, 3, 3, 5, 4>
 
 // delete the first two elements
-using x = drop_front_t<2, std::tuple<int, double, int, char>>;
+using x = remove_prefix_t<2, std::tuple<int, double, int, char>>;
 // x == std::tuple<int, char>
 
 // delete the last two elements
-using y = drop_back_t<2, std::integer_sequence<int, 1, 2, -2, 4, 5>>;
+using y = remove_suffix_t<2, std::integer_sequence<int, 1, 2, -2, 4, 5>>;
 // y == std::integer_sequence<int, 1, 2, -2>
 
 // delete all duplicate elements, keep the first appearance
@@ -2133,19 +2133,19 @@ auto s3 = tuple_shift_right<2>(t);
 // s3 == std::make_tuple(2, 4, 1, 2, 3.0)
 
 // get the first three elements
-auto t1 = tuple_take_front<3>(t);
+auto t1 = tuple_take_prefix<3>(t);
 // t1 == std::make_tuple(1, 2, 3.0)
 
 // get the last three elements
-auto t2 = tuple_take_back<3>(t);
+auto t2 = tuple_take_suffix<3>(t);
 // t2 == std::make_tuple(3.0, 2, 4)
 
 // remove the first three elements
-auto t3 = tuple_drop_front<3>(t);
+auto t3 = tuple_remove_prefix<3>(t);
 // t3 == std::make_tuple(2, 4)
 
 // remove the last three elements
-auto t4 = tuple_drop_back<3>(t);
+auto t4 = tuple_remove_suffix<3>(t);
 // t4 == std::make_tuple(1, 2)
 
 // cartesian product of two tuples
