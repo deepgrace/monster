@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 152
+#define MONSTER_VERSION 153
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5177,6 +5177,35 @@ namespace monster
     auto array_remove_suffix(const std::array<T, m>& a)
     {
         return array_take_prefix<m - n>(a);
+    }
+
+    template <size_t lower, size_t upper>
+    struct visit_element
+    {
+        template <typename T, typename F>
+        static void visit(size_t index, T& t, F f)
+        {
+            static constexpr auto middle = lower + (upper - lower) / 2;
+
+            if (index < middle)
+                visit_element<lower, middle>::visit(index, t, f);
+            else if (index > middle)
+                visit_element<middle, upper>::visit(index, t, f);
+            else
+                f(std::get<middle>(t));
+        }
+    };
+
+    template <typename... Args, typename F>
+    void visit_at(size_t index, std::tuple<Args...>& t, F f)
+    {
+        visit_element<0, sizeof...(Args)>::visit(index, t, f);
+    }
+
+    template <typename... Args, typename F>
+    void visit_at(size_t index, const std::tuple<Args...>& t, F f)
+    {
+        visit_element<0, sizeof...(Args)>::visit(index, t, f);
     }
 
     template <typename F, typename T>
