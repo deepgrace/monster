@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 153
+#define MONSTER_VERSION 154
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -223,6 +223,12 @@ namespace monster
 
     template <int N, typename T>
     using identity_t = typeof_t<identity<N, T>>;
+
+    template <auto N, typename T>
+    decltype(auto) ignore(T&& t)
+    {
+        return std::forward<T>(t);
+    };
 
     template <auto N, typename T>
     struct wrapper : wrapper<N - 1, std::type_identity<T>>
@@ -3908,6 +3914,33 @@ namespace monster
     template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
     inline constexpr auto find_not_backward_v = typev<find_not_backward<T, U, B, E>>;
 
+    template <template <typename ...> typename F, typename T>
+    struct find_index
+    {
+        template <size_t N, typename U, typename V, bool = sizeof_t_v<U> != 0>
+        struct impl : impl<N + 1, pop_front_t<U>, append_if_t<visit_v<F, 0, U>, V, c_<N>>>
+        {
+        };
+
+        template <size_t N, typename U, typename V>
+        struct impl<N, U, V, false> : std::type_identity<V>
+        {
+        };
+
+        using type = typeof_t<impl<0, T, std::index_sequence<>>>;
+    };
+
+    template <template <typename ...> typename F, typename T>
+    using find_index_t = typeof_t<find_index<F, T>>;
+
+    template <template <typename ...> typename F, typename T>
+    struct find_index_not : find_index<negaf<F>::template apply, T>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T>
+    using find_index_not_t = typeof_t<find_index_not<F, T>>;
+
     template <typename T, typename U>
     struct reverse_subrange
     {
@@ -5145,6 +5178,26 @@ namespace monster
             return std::make_tuple(std::get<N>(t)...);
         }
         (indices());
+    }
+
+    template <size_t N, typename T>
+    auto tuple_repeat(const T& t)
+    {
+        return [&]<size_t... M>(const std::index_sequence<M...>&)
+        {
+            return std::make_tuple(ignore<M>(t)...);
+        }
+        (index_sequence_of_c<N>());
+    }
+
+    template <template <typename ...> typename F , typename... Args>
+    auto tuple_filter(const std::tuple<Args...>& t)
+    {
+        return [&]<size_t... N>(const std::index_sequence<N...>&)
+        {
+            return std::make_tuple(std::get<N>(t)...);
+        }
+        (find_index_t<F, std::tuple<Args...>>());
     }
 
     template <auto n, typename T, auto m>

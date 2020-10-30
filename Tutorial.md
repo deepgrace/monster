@@ -872,6 +872,11 @@ int main(int argc, char* argv[])
     execute<find_v<char, std::tuple<float, char, double, int, char>>, 1>();
     execute<find_v<c_6, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>, 2>();
 
+    execute<find_index_t<bind_front<std::is_same, char>::template apply,
+            std::tuple<float, char, double, int, char>>, std::index_sequence<1, 4>>();
+    execute<find_index_not_t<equal<6>::template apply, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>,
+            std::index_sequence<0, 1, 3, 5>>();
+
     execute<map_find_v<int, std::tuple<std::tuple<char, float>, std::tuple<int, char>>>, 1>();
     execute<map_find_v<int, std::tuple<offset<int, 2>, offset<char, 1>, offset<short, 3>>>, 0>();
 
@@ -1088,6 +1093,8 @@ int main(int argc, char* argv[])
     std::cout << "tuple_unique " << std::get<0>(tuple_unique(dupt)) << std::endl;
     using indices_ = std::index_sequence<0, 3, 4>;
     std::cout << "tuple_slice " << std::get<2>(tuple_slice<indices_>(tuple)) << std::endl;
+    std::cout << "tuple_repeat " << std::get<2>(tuple_repeat<4>(9)) << std::endl;
+    std::cout << "tuple_filter " << std::get<2>(tuple_filter<std::is_arithmetic>(dupt)) << std::endl;
 
     execute<infinite_call_t<4, int, std::add_pointer>, int****>();
     execute<multi_level_pointer_t<4, int>, int****>();
