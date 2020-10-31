@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 154
+#define MONSTER_VERSION 155
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3940,6 +3940,28 @@ namespace monster
 
     template <template <typename ...> typename F, typename T>
     using find_index_not_t = typeof_t<find_index_not<F, T>>;
+
+    template <typename T, typename U>
+    struct find_all : find_index<bind_front<std::is_same, T>::template apply, U>
+    {
+    };
+
+    template <typename T, typename U>
+    using find_all_t = typeof_t<find_all<T, U>>;
+
+    template <auto T, typename U>
+    using find_all_c = find_all_t<c_<T>, U>;
+
+    template <typename T, typename U>
+    struct find_all_not : find_index_not<bind_front<std::is_same, T>::template apply, U>
+    {
+    };
+
+    template <typename T, typename U>
+    using find_all_not_t = typeof_t<find_all_not<T, U>>;
+
+    template <auto T, typename U>
+    using find_all_not_c = find_all_not_t<c_<T>, U>;
 
     template <typename T, typename U>
     struct reverse_subrange
