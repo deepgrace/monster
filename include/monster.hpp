@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 155
+#define MONSTER_VERSION 156
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3750,11 +3750,23 @@ namespace monster
     template <typename T>
     using pop_front_t = typeof_t<pop_front<T>>;
 
+    template <bool B, typename T>
+    using pop_front_if = std::conditional_t<B, pop_front<T>, std::type_identity<T>>;
+
+    template <bool B, typename T>
+    using pop_front_if_t = typeof_t<pop_front_if<B, T>>;
+
     template <typename T>
     using pop_back = pop<0, T>;
 
     template <typename T>
     using pop_back_t = typeof_t<pop_back<T>>;
+
+    template <bool B, typename T>
+    using pop_back_if = std::conditional_t<B, pop_back<T>, std::type_identity<T>>;
+
+    template <bool B, typename T>
+    using pop_back_if_t = typeof_t<pop_back_if<B, T>>;
 
     template <typename T>
     using rest = pop_front<T>;
@@ -3962,6 +3974,27 @@ namespace monster
 
     template <auto T, typename U>
     using find_all_not_c = find_all_not_t<c_<T>, U>;
+
+    template <typename T, typename U>
+    struct match_index
+    {
+        template <size_t N, typename V, typename W, typename X, bool = sizeof_t_v<V> != 0>
+        struct impl
+        {
+            static constexpr auto value = unary_v<std::is_same, 0, 0, V, W>;
+            using type = typeof_t<impl<N + 1, pop_front_if_t<value, V>, pop_front_t<W>, append_if_t<value, X, c_<N>>>>;
+        };
+
+        template <size_t N, typename V, typename W, typename X>
+        struct impl<N, V, W, X, false> : std::type_identity<X>
+        {
+        };
+
+        using type = typeof_t<impl<0, T, U, std::index_sequence<>>>;
+    };
+
+    template <typename T, typename U>
+    using match_index_t = typeof_t<match_index<T, U>>;
 
     template <typename T, typename U>
     struct reverse_subrange
