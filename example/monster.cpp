@@ -881,6 +881,9 @@ int main(int argc, char* argv[])
     execute<find_v<char, std::tuple<float, char, double, int, char>>, 1>();
     execute<find_v<c_6, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>, 2>();
 
+    execute<find_nth_v<2, char, std::tuple<float, char, double, int, char>>, 4>();
+    execute<find_nth_v<4, c_6, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>, 6>();
+
     execute<find_all_t<char, std::tuple<float, char, double, int, char>>, std::index_sequence<1, 4>>();
     execute<find_all_not_c<6, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>, std::index_sequence<0, 1, 3, 5>>();
 
@@ -889,16 +892,31 @@ int main(int argc, char* argv[])
     execute<match_t<std::integer_sequence<int, 2, 4, 1>, std::integer_sequence<int, 2, 1, 4, 0, 3, 1, 4>>,
             std::index_sequence<0, 2, 5>>();
 
+    execute<unordered_match_t<std::tuple<short, char, double, char, short>, std::tuple<char, int, short, double, char, float, short>>,
+            std::index_sequence<2, 0, 3, 4, 6>>();
+    execute<unordered_match_t<std::integer_sequence<int, 4, 3, 1, 4>, std::integer_sequence<int, 2, 1, 4, 0, 3, 1, 4>>,
+            std::index_sequence<2, 4, 1, 6>>();
+
     using func = std::function<void(int, char)>;
     execute<function_traits_v<func>, 2>();
+    execute<function_traits_r<func>, void>();
     execute<function_traits_t<func>, std::tuple<int, char>>();
-    execute<typename function_traits<func>::result_type, void>();
 
     execute<fmatch_t<void(int, char, float), std::tuple<short, int, double, char, float>>,
             std::index_sequence<1, 3, 4>>();
+    execute<fmatch_t<decltype([](int, double, short){}), std::tuple<int, double, char, short>>,
+            std::index_sequence<0, 1, 3>>();
+
+    execute<unordered_fmatch_t<void(float, int, char, int), std::tuple<int, short, int, double, char, float>>,
+            std::index_sequence<5, 0, 4, 2>>();
+    execute<unordered_fmatch_t<decltype([](char, int, float, int){}), std::tuple<int, double, char, float, int>>,
+            std::index_sequence<2, 0, 3, 4>>();
 
     execute<map_find_v<int, std::tuple<std::tuple<char, float>, std::tuple<int, char>>>, 1>();
     execute<map_find_v<int, std::tuple<offset<int, 2>, offset<char, 1>, offset<short, 3>>>, 0>();
+
+    execute<map_update_t<char, short, std::tuple<std::tuple<char, float>, std::tuple<int, char>>>,
+            std::tuple<std::tuple<char, short>, std::tuple<int, char>>>();
 
     using fg1 = find_group_t<char, std::tuple<std::tuple<float, char>, std::tuple<double, int, char>>>;
     execute<first_v<fg1>, 0>();

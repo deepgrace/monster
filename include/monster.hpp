@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 157
+#define MONSTER_VERSION 158
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3972,13 +3972,61 @@ namespace monster
     struct function_traits;
 
     template <typename R, typename... Args>
+    struct function_traits<R(Args...)>
+    {
+        using result_type = R;
+        using type = std::tuple<std::decay_t<Args>...>;
+
+        static constexpr auto value = std::tuple_size_v<type>;
+    };
+
+    template <typename R, typename... Args>
+    struct function_traits<R (&)(Args...)>
+    {
+        using result_type = R;
+        using type = std::tuple<std::decay_t<Args>...>;
+
+        static constexpr auto value = std::tuple_size_v<type>;
+    };
+
+    template <typename R, typename... Args>
+    struct function_traits<R (*)(Args...)>
+    {
+        using result_type = R;
+        using type = std::tuple<std::decay_t<Args>...>;
+
+        static constexpr auto value = std::tuple_size_v<type>;
+    };
+
+    template <typename R, typename T, typename... Args>
+    struct function_traits<R (T::*)(Args...)>
+    {
+        using result_type = R;
+        using type = std::tuple<std::decay_t<Args>...>;
+
+        static constexpr auto value = std::tuple_size_v<type>;
+    };
+
+    template <typename R, typename T, typename... Args>
+    struct function_traits<R (T::*)(Args...) const>
+    {
+        using result_type = R;
+        using type = std::tuple<std::decay_t<Args>...>;
+
+        static constexpr auto value = std::tuple_size_v<type>;
+    };
+
+    template <typename R, typename... Args>
     struct function_traits<std::function<R(Args...)>>
     {
-        static constexpr auto value = sizeof_v<Args...>;
-
         using result_type = R;
-        using type = std::tuple<Args...>;
+        using type = std::tuple<std::decay_t<Args>...>;
+
+        static constexpr auto value = std::tuple_size_v<type>;
     };
+
+    template <typename T>
+    using function_traits_r = typename function_traits<T>::result_type;
 
     template <typename T>
     using function_traits_t = typeof_t<function_traits<T>>;
@@ -3986,8 +4034,27 @@ namespace monster
     template <typename T>
     inline constexpr auto function_traits_v = typev<function_traits<T>>;
 
+    template <typename F, typename T, template <typename, typename> typename match>
+    struct matcher
+    {
+        template <typename U, typename = std::void_t<>>
+        struct impl : match<function_traits_t<U>, T>
+        {
+        };
+
+        template <typename U>
+        struct impl<U, std::void_t<decltype(&U::operator())>> : impl<decltype(&U::operator())>
+        {
+        };
+
+        using type = typeof_t<impl<F>>;
+    };
+
+    template <typename F, typename T, template <typename, typename> typename match>
+    using matcher_t = typeof_t<matcher<F, T, match>>;
+
     template <typename F, typename T>
-    struct fmatch : match<function_traits_t<std::function<F>>, T>
+    struct fmatch : matcher<F, T, match>
     {
     };
 
@@ -5251,16 +5318,6 @@ namespace monster
             return std::make_tuple(std::get<N>(t)...);
         }
         (find_index_t<F, std::tuple<Args...>>());
-    }
-
-    template <typename F, typename... Args>
-    auto tuple_match(F&& f, const std::tuple<Args...>& t)
-    {
-        return [&]<size_t... N>(const std::index_sequence<N...>&)
-        {
-            return std::invoke(f, std::get<N>(t)...);
-        }
-        (fmatch_t<F, std::tuple<Args...>>());
     }
 
     template <auto n, typename T, auto m>
@@ -9800,6 +9857,16 @@ namespace monster
     template <typename T, typename U>
     inline constexpr auto map_find_v = typev<map_find<T, U>>;
 
+    template <typename T, typename U, typename V>
+    struct map_update
+    {
+        static constexpr auto N = map_find_v<T, V>;
+        using type = exchange_t<N, append_t<clear_t<element_t<N, V>>, T, U>, V>;
+    };
+
+    template <typename T, typename U, typename V>
+    using map_update_t = typeof_t<map_update<T, U, V>>;
+
     template <typename T, typename U>
     struct shift_value
     {
@@ -10106,6 +10173,88 @@ namespace monster
 
     template <typename T>
     using duplicate_elements_t = typeof_t<duplicate_elements<T>>;
+
+    template <auto N, typename T, typename U>
+    struct find_nth
+    {
+        template <typename V, bool>
+        struct impl
+        {
+            static constexpr auto value = find_v<T, V>;
+        };
+
+        template <typename V>
+        struct impl<V, false>
+        {
+            using type = bmh_t<std::tuple<T>, V>;
+            static constexpr auto value = type_if_v<less_equal_v<c_<N>, type>, element<N - 1, type>, c_<sizeof_t_v<V>>>;
+        };
+
+        static constexpr auto value = typev<impl<U, N == 1>>;
+    };
+
+    template <auto N, typename T, typename U>
+    inline constexpr auto find_nth_v = typev<find_nth<N, T, U>>;
+
+    template <typename T, typename U>
+    struct unordered_match
+    {
+        using uniq = unique_t<T>;
+        using base = clear_t<T>;
+
+        template <typename V, typename W, bool = sizeof_t_v<V> != 0>
+        struct maps
+        {
+            using curr = element_t<0, V>;
+            using pair = std::tuple<curr,  bmh_t<append_t<base, curr>, U>>;
+
+            using type = typeof_t<maps<pop_front_t<V>, append_t<W, pair>>>;
+        };
+
+        template <typename V, typename W>
+        struct maps<V, W, false> : std::type_identity<W>
+        {
+        };
+
+        template <typename V, typename W, typename X, bool = sizeof_t_v<V> != 0>
+        struct impl
+        {
+            using curr = element_t<0, V>;
+            static constexpr auto N = map_find_v<curr, W>;
+            using indices = get_matrix_element_t<N, 1, W>;
+
+            using dest = set_matrix_element_t<N, 1, pop_front_t<indices>, W>;
+            using type = typeof_t<impl<pop_front_t<V>, dest, append_t<X, element_t<0, indices>>>>;
+        };
+
+        template <typename V, typename W, typename X>
+        struct impl<V, W, X, false> : std::type_identity<X>
+        {
+        };
+
+        using type = typeof_t<impl<T, typeof_t<maps<uniq, std::tuple<>>>, std::index_sequence<>>>;
+    };
+
+    template <typename T, typename U>
+    using unordered_match_t = typeof_t<unordered_match<T, U>>;
+
+    template <typename F, typename T>
+    struct unordered_fmatch : matcher<F, T, unordered_match>
+    {
+    };
+
+    template <typename F, typename T>
+    using unordered_fmatch_t = typeof_t<unordered_fmatch<F, T>>;
+
+    template <typename T, typename F>
+    constexpr decltype(auto) advanced_apply(T&& t, F&& f)
+    {
+        return [&]<size_t... N>(const std::index_sequence<N...>&)
+        {
+            return std::invoke(std::forward<F>(f), std::get<N>(std::forward<T>(t))...);
+        }
+        (unordered_fmatch_t<std::decay_t<F>, std::decay_t<T>>());
+    }
 
     template <typename... Args>
     requires is_variadic_pack_v<Args...>
