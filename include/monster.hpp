@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 158
+#define MONSTER_VERSION 159
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -703,12 +703,12 @@ namespace monster
     };
 
     template <typename T>
-    struct sizeof_t<T, std::enable_if_t<is_tuple_v<T>>> : index_t<std::tuple_size_v<T>>
+    struct sizeof_t<T, std::enable_if_t<is_variadic_type_v<T>>> : index_t<std::tuple_size_v<T>>
     {
     };
 
     template <typename T>
-    struct sizeof_t<T, std::void_t<std::enable_if_t<!is_tuple_v<T>>, decltype(T::value + 1)>> : T
+    struct sizeof_t<T, std::void_t<std::enable_if_t<!is_variadic_type_v<T>>, decltype(T::value + 1)>> : T
     {
     };
 
@@ -10199,7 +10199,6 @@ namespace monster
     template <typename T, typename U>
     struct unordered_match
     {
-        using uniq = unique_t<T>;
         using base = clear_t<T>;
 
         template <typename V, typename W, bool = sizeof_t_v<V> != 0>
@@ -10219,12 +10218,11 @@ namespace monster
         template <typename V, typename W, typename X, bool = sizeof_t_v<V> != 0>
         struct impl
         {
-            using curr = element_t<0, V>;
-            static constexpr auto N = map_find_v<curr, W>;
+            static constexpr auto N = map_find_v<element_t<0, V>, W>;
             using indices = get_matrix_element_t<N, 1, W>;
 
-            using dest = set_matrix_element_t<N, 1, pop_front_t<indices>, W>;
-            using type = typeof_t<impl<pop_front_t<V>, dest, append_t<X, element_t<0, indices>>>>;
+            using next = set_matrix_element_t<N, 1, pop_front_t<indices>, W>;
+            using type = typeof_t<impl<pop_front_t<V>, next, append_t<X, element_t<0, indices>>>>;
         };
 
         template <typename V, typename W, typename X>
@@ -10232,7 +10230,7 @@ namespace monster
         {
         };
 
-        using type = typeof_t<impl<T, typeof_t<maps<uniq, std::tuple<>>>, std::index_sequence<>>>;
+        using type = typeof_t<impl<T, typeof_t<maps<unique_t<T>, std::tuple<>>>, std::index_sequence<>>>;
     };
 
     template <typename T, typename U>
@@ -10247,6 +10245,7 @@ namespace monster
     using unordered_fmatch_t = typeof_t<unordered_fmatch<F, T>>;
 
     template <typename T, typename F>
+    requires is_variadic_type_v<std::decay_t<T>>
     constexpr decltype(auto) advanced_apply(T&& t, F&& f)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
@@ -10254,6 +10253,13 @@ namespace monster
             return std::invoke(std::forward<F>(f), std::get<N>(std::forward<T>(t))...);
         }
         (unordered_fmatch_t<std::decay_t<F>, std::decay_t<T>>());
+    }
+
+    template <typename F, typename T>
+    requires is_variadic_type_v<std::decay_t<T>>
+    constexpr decltype(auto) advanced_apply(F&& f, T&& t)
+    {
+        return advanced_apply(std::forward<T>(t), std::forward<F>(f));
     }
 
     template <typename... Args>
