@@ -885,7 +885,7 @@ int main(int argc, char* argv[])
     execute<function_traits_t<func>, std::tuple<int, char>>();
     execute<typename function_traits<func>::result_type, void>();
 
-    execute<matched_args_indices_t<void(int, char, float), std::tuple<short, int, double, char, float>>,
+    execute<fmatch_t<void(int, char, float), std::tuple<short, int, double, char, float>>,
             std::index_sequence<1, 3, 4>>();
 
     execute<map_find_v<int, std::tuple<std::tuple<char, float>, std::tuple<int, char>>>, 1>();

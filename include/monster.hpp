@@ -3987,12 +3987,12 @@ namespace monster
     inline constexpr auto function_traits_v = typev<function_traits<T>>;
 
     template <typename F, typename T>
-    struct matched_args_indices : match<function_traits_t<std::function<F>>, T>
+    struct fmatch : match<function_traits_t<std::function<F>>, T>
     {
     };
 
     template <typename F, typename T>
-    using matched_args_indices_t = typeof_t<matched_args_indices<F, T>>;
+    using fmatch_t = typeof_t<fmatch<F, T>>;
 
     template <typename T, typename U>
     struct reverse_subrange
@@ -5260,7 +5260,7 @@ namespace monster
         {
             return std::invoke(f, std::get<N>(t)...);
         }
-        (matched_args_indices_t<F, std::tuple<Args...>>());
+        (fmatch_t<F, std::tuple<Args...>>());
     }
 
     template <auto n, typename T, auto m>
