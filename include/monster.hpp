@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 156
+#define MONSTER_VERSION 157
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -429,36 +429,6 @@ namespace monster
 
     template <bool A, bool B, typename X, typename Y, typename Z>
     using ternary_conditional_t = typeof_t<ternary_conditional<A, B, X, Y, Z>>;
-
-    template <typename T>
-    struct member_type;
-
-    template <typename R, typename T, typename... Args>
-    struct member_type<R (T::*)(Args...)>
-    {
-        using type = R;
-    };
-
-    template <typename R, typename T, typename... Args>
-    struct member_type<R (T::*)(Args...) const>
-    {
-        using type = R;
-    };
-
-    template <typename T>
-    using member_type_t = typeof_t<member_type<T>>;
-
-    template <typename T>
-    struct member_args;
-
-    template <typename T, typename U, typename... Args>
-    struct member_args<T (U::*)(Args...)>
-    {
-        using type = tuple_t<Args...>;
-    };
-
-    template <typename T>
-    using member_args_t = typeof_t<member_args<T>>;
 
     template <typename... Args>
     struct inherit : Args...
@@ -3976,13 +3946,15 @@ namespace monster
     using find_all_not_c = find_all_not_t<c_<T>, U>;
 
     template <typename T, typename U>
-    struct match_index
+    struct match
     {
         template <size_t N, typename V, typename W, typename X, bool = sizeof_t_v<V> != 0>
         struct impl
         {
             static constexpr auto value = unary_v<std::is_same, 0, 0, V, W>;
-            using type = typeof_t<impl<N + 1, pop_front_if_t<value, V>, pop_front_t<W>, append_if_t<value, X, c_<N>>>>;
+            using next = impl<N + 1, pop_front_if_t<value, V>, pop_front_t<W>, append_if_t<value, X, c_<N>>>;
+
+            using type = type_if<equal_v<V, W> && !std::is_same_v<V, W>, clear<X>, next>;
         };
 
         template <size_t N, typename V, typename W, typename X>
@@ -3994,7 +3966,33 @@ namespace monster
     };
 
     template <typename T, typename U>
-    using match_index_t = typeof_t<match_index<T, U>>;
+    using match_t = typeof_t<match<T, U>>;
+
+    template <typename T>
+    struct function_traits;
+
+    template <typename R, typename... Args>
+    struct function_traits<std::function<R(Args...)>>
+    {
+        static constexpr auto value = sizeof_v<Args...>;
+
+        using result_type = R;
+        using type = std::tuple<Args...>;
+    };
+
+    template <typename T>
+    using function_traits_t = typeof_t<function_traits<T>>;
+
+    template <typename T>
+    inline constexpr auto function_traits_v = typev<function_traits<T>>;
+
+    template <typename F, typename T>
+    struct matched_args_indices : match<function_traits_t<std::function<F>>, T>
+    {
+    };
+
+    template <typename F, typename T>
+    using matched_args_indices_t = typeof_t<matched_args_indices<F, T>>;
 
     template <typename T, typename U>
     struct reverse_subrange
@@ -5255,6 +5253,16 @@ namespace monster
         (find_index_t<F, std::tuple<Args...>>());
     }
 
+    template <typename F, typename... Args>
+    auto tuple_match(F&& f, const std::tuple<Args...>& t)
+    {
+        return [&]<size_t... N>(const std::index_sequence<N...>&)
+        {
+            return std::invoke(f, std::get<N>(t)...);
+        }
+        (matched_args_indices_t<F, std::tuple<Args...>>());
+    }
+
     template <auto n, typename T, auto m>
     auto array_take_prefix(const std::array<T, m>& a)
     {
@@ -5307,13 +5315,13 @@ namespace monster
     template <typename... Args, typename F>
     void visit_at(size_t index, std::tuple<Args...>& t, F f)
     {
-        visit_element<0, sizeof...(Args)>::visit(index, t, f);
+        visit_element<0, sizeof_v<Args...>>::visit(index, t, f);
     }
 
     template <typename... Args, typename F>
     void visit_at(size_t index, const std::tuple<Args...>& t, F f)
     {
-        visit_element<0, sizeof...(Args)>::visit(index, t, f);
+        visit_element<0, sizeof_v<Args...>>::visit(index, t, f);
     }
 
     template <typename F, typename T>
