@@ -914,49 +914,36 @@ int main(int argc, char* argv[])
     execute<unordered_fmatch_t<decltype([](char, int, float, int){}), std::tuple<int, double, char, float, int>>,
             std::index_sequence<2, 0, 3, 4>>();
 
+    auto f1 = [](double a, int b, int c, std::string& s, std::pair<int, double>& p, float f)
+              {
+                  std::cout << a << std::endl;
+                  std::cout << b << std::endl;
+                  std::cout << c << std::endl;
+                  std::cout << s << std::endl;
+                  std::cout << p.second << std::endl;
+                  std::cout << p.first << std::endl;
+
+                  return f;
+              };
+
     auto argx = std::make_tuple(1, 2.5f, std::string("monster"), 7, -3, std::make_pair(20, 80.9), 4.7, 5);
+
     // expected output: 4.7, 1, 7, monster, 80.9, 20, 2.5
+    std::cout << advanced_apply(argx, f1) << std::endl;
+    // or std::cout << advanced_apply(f1, argx) << std::endl;
 
-    std::cout << advanced_apply(argx, [](double a, int b, int c, std::string& s, std::pair<int, double>& p, float f)
-                 {
-                     std::cout << a << std::endl;
-                     std::cout << b << std::endl;
-                     std::cout << c << std::endl;
-                     std::cout << s << std::endl;
-                     std::cout << p.second << std::endl;
-                     std::cout << p.first << std::endl;
+    auto f2 = [](int& a, float b)
+              {
+                  std::cout << a << std::endl;
 
-                     return f;
-                 }) << std::endl;
-
-    std::cout << advanced_apply([](double a, int b, int c, std::string& s, std::pair<int, double>& p, float f)
-                 {
-                     std::cout << a << std::endl;
-                     std::cout << b << std::endl;
-                     std::cout << c << std::endl;
-                     std::cout << s << std::endl;
-                     std::cout << p.second << std::endl;
-                     std::cout << p.first << std::endl;
-
-                     return f;
-                 }, argx) << std::endl;
+                  return b;
+              };
 
     auto argy = std::make_pair(3.6f, 2020);
+
     // expected output: 2020, 3.6
-
-    std::cout << advanced_apply(argy, [](int& a, float b)
-                 {
-                     std::cout << a << std::endl;
-
-                     return b;
-                 }) << std::endl;
-
-    std::cout << advanced_apply([](int& a, float b)
-                 {
-                     std::cout << a << std::endl;
-
-                     return b;
-                 }, argy) << std::endl;
+    std::cout << advanced_apply(f2, argy) << std::endl;
+    // or std::cout << advanced_apply(argy, f2) << std::endl;
 
     execute<map_find_v<int, std::tuple<std::tuple<char, float>, std::tuple<int, char>>>, 1>();
     execute<map_find_v<int, std::tuple<offset<int, 2>, offset<char, 1>, offset<short, 3>>>, 0>();
