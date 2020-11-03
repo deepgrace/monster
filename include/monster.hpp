@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 159
+#define MONSTER_VERSION 160
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4577,6 +4577,9 @@ namespace monster
     struct fibonacci : fib<N, (N < 2)>
     {
     };
+
+    template <size_t N>
+    inline constexpr auto fibonacci_v = typev<fibonacci<N>>;
 
     template <int N, int base = 10>
     struct tokenize
