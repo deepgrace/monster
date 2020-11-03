@@ -945,6 +945,9 @@ int main(int argc, char* argv[])
     std::cout << advanced_apply(f2, argy) << std::endl;
     // or std::cout << advanced_apply(argy, f2) << std::endl;
 
+    auto ints = select_values_of_type<int>(5.f, 3, std::string("Template"), 1,  4.5, 9);
+    std::cout << ints[2] << std::endl;
+
     execute<map_find_v<int, std::tuple<std::tuple<char, float>, std::tuple<int, char>>>, 1>();
     execute<map_find_v<int, std::tuple<offset<int, 2>, offset<char, 1>, offset<short, 3>>>, 0>();
 

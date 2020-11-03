@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 160
+#define MONSTER_VERSION 161
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -10263,6 +10263,18 @@ namespace monster
     constexpr decltype(auto) advanced_apply(F&& f, T&& t)
     {
         return advanced_apply(std::forward<T>(t), std::forward<F>(f));
+    }
+
+    template <typename T, typename... Args>
+    constexpr decltype(auto) select_values_of_type(Args&&... args)
+    {
+        auto tup = std::make_tuple(std::forward<Args>(args)...);
+
+        return [&]<size_t... N>(const std::index_sequence<N...>&)
+        {
+            return std::array<T, sizeof...(N)>{std::get<N>(tup)...};
+        }
+        (find_all_t<T, std::tuple<std::decay_t<Args>...>>());
     }
 
     template <typename... Args>
