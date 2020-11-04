@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 161
+#define MONSTER_VERSION 162
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5066,7 +5066,7 @@ namespace monster
     }
 
     template <typename F, typename... Args>
-    decltype(auto) tuple_apply(const std::tuple<Args...>& t, F&& f)
+    constexpr decltype(auto) tuple_apply(const std::tuple<Args...>& t, F&& f)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5076,7 +5076,7 @@ namespace monster
     }
 
     template <typename F, typename... Args, typename... args>
-    void tuple_transform(F&& f, const std::tuple<Args...>& t, args&&... rest)
+    constexpr decltype(auto) tuple_transform(F&& f, const std::tuple<Args...>& t, args&&... rest)
     {
         [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5086,7 +5086,7 @@ namespace monster
     }
 
     template <typename... Args>
-    auto tuple_reverse(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_reverse(const std::tuple<Args...>& t)
     {
         constexpr auto size = sizeof_v<Args...>;
         auto reversed = reverse_t<std::tuple<Args...>>();
@@ -5100,19 +5100,19 @@ namespace monster
     };
 
     template <typename... Args, typename... T>
-    std::tuple<std::remove_cvref_t<T>..., std::remove_cvref_t<Args>...> tuple_prepend(const std::tuple<Args...>& tuple, T&&... t)
+    constexpr decltype(auto) tuple_prepend(const std::tuple<Args...>& tuple, T&&... t)
     {
         return std::tuple_cat(std::make_tuple(std::forward<T>(t)...), tuple);
     }
 
     template <typename... Args, typename... T>
-    std::tuple<std::remove_cvref_t<Args>..., std::remove_cvref_t<T>...> tuple_append(const std::tuple<Args...>& tuple, T&&... t)
+    constexpr decltype(auto) tuple_append(const std::tuple<Args...>& tuple, T&&... t)
     {
         return std::tuple_cat(tuple, std::make_tuple(std::forward<T>(t)...));
     }
 
     template <auto i, typename... Args>
-    auto tuple_remove(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_remove(const std::tuple<Args...>& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5122,7 +5122,7 @@ namespace monster
     }
 
     template <auto i, auto j, typename... Args>
-    auto tuple_swap(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_swap(const std::tuple<Args...>& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5132,7 +5132,7 @@ namespace monster
     }
 
     template <auto i, auto j, typename... Args>
-    auto tuple_range(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_range(const std::tuple<Args...>& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5142,13 +5142,13 @@ namespace monster
     }
 
     template <auto pos, auto len, typename... Args>
-    auto tuple_subset(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_subset(const std::tuple<Args...>& t)
     {
         return tuple_range<pos, pos + len>(t);
     }
 
     template <auto i, auto j, typename... Args>
-    auto tuple_erase(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_erase(const std::tuple<Args...>& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5158,7 +5158,7 @@ namespace monster
     }
 
     template <auto i, auto j, typename... Args>
-    auto tuple_reverse_range(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_reverse_range(const std::tuple<Args...>& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5168,21 +5168,21 @@ namespace monster
     }
 
     template <auto i, typename... Args, typename... T>
-    auto tuple_insert(const std::tuple<Args...>& tuple, T&&... t)
+    constexpr decltype(auto) tuple_insert(const std::tuple<Args...>& tuple, T&&... t)
     {
         return std::tuple_cat(tuple_range<0, i>(tuple),
                std::make_tuple(std::forward<T>(t)...), tuple_range<i, sizeof_v<Args...>>(tuple));
     }
 
     template <auto i, typename... Args, typename... T>
-    auto tuple_replace(const std::tuple<Args...>& tuple, T&&... t)
+    constexpr decltype(auto) tuple_replace(const std::tuple<Args...>& tuple, T&&... t)
     {
         return std::tuple_cat(tuple_range<0, i>(tuple),
                std::make_tuple(std::forward<T>(t)...), tuple_range<i + 1, sizeof_v<Args...>>(tuple));
     }
 
     template <typename... Args, typename T, typename U>
-    auto tuple_replace(const std::tuple<Args...>& tuple, T&& t, U&& u)
+    constexpr decltype(auto) tuple_replace(const std::tuple<Args...>& tuple, T&& t, U&& u)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5197,7 +5197,7 @@ namespace monster
     }
 
     template <auto i, auto j, auto k, typename... Args>
-    auto tuple_rotate(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_rotate(const std::tuple<Args...>& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5207,7 +5207,7 @@ namespace monster
     }
 
     template <auto i, typename... Args>
-    auto tuple_shift_left(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_shift_left(const std::tuple<Args...>& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5217,7 +5217,7 @@ namespace monster
     }
 
     template <auto i, typename... Args>
-    auto tuple_shift_right(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_shift_right(const std::tuple<Args...>& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5227,7 +5227,7 @@ namespace monster
     }
 
     template <auto n, typename... Args>
-    auto tuple_take_prefix(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_take_prefix(const std::tuple<Args...>& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5237,7 +5237,7 @@ namespace monster
     }
 
     template <auto n, typename... Args>
-    auto tuple_take_suffix(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_take_suffix(const std::tuple<Args...>& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5247,24 +5247,24 @@ namespace monster
     }
 
     template <auto n, typename... Args>
-    auto tuple_remove_prefix(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_remove_prefix(const std::tuple<Args...>& t)
     {
         return tuple_take_suffix<sizeof_v<Args...> - n>(t);
     }
 
     template <auto n, typename... Args>
-    auto tuple_remove_suffix(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_remove_suffix(const std::tuple<Args...>& t)
     {
         return tuple_take_prefix<sizeof_v<Args...> - n>(t);
     }
 
     template <size_t N, typename T>
-    void tuple_fill(T& t)
+    constexpr decltype(auto) tuple_fill(T& t)
     {
     };
 
     template <size_t N, typename T, typename U, typename... Args>
-    void tuple_fill(T& t, U&& u, Args&&... args)
+    constexpr decltype(auto) tuple_fill(T& t, U&& u, Args&&... args)
     {
         if constexpr(N < sizeof_t_v<T>)
         {
@@ -5274,7 +5274,7 @@ namespace monster
     }
 
     template <auto i, auto n, typename... Args>
-    auto tuple_splat(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_splat(const std::tuple<Args...>& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5284,7 +5284,7 @@ namespace monster
     }
 
     template <typename... Args>
-    auto tuple_unique(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_unique(const std::tuple<Args...>& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5294,7 +5294,7 @@ namespace monster
     }
 
     template <typename indices, typename... Args>
-    auto tuple_slice(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_slice(const std::tuple<Args...>& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5304,7 +5304,7 @@ namespace monster
     }
 
     template <size_t N, typename T>
-    auto tuple_repeat(const T& t)
+    constexpr decltype(auto) tuple_repeat(const T& t)
     {
         return [&]<size_t... M>(const std::index_sequence<M...>&)
         {
@@ -5314,7 +5314,7 @@ namespace monster
     }
 
     template <template <typename ...> typename F , typename... Args>
-    auto tuple_filter(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_filter(const std::tuple<Args...>& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5324,7 +5324,7 @@ namespace monster
     }
 
     template <auto n, typename T, auto m>
-    auto array_take_prefix(const std::array<T, m>& a)
+    constexpr decltype(auto) array_take_prefix(const std::array<T, m>& a)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5334,7 +5334,7 @@ namespace monster
     }
 
     template <auto n, typename T, auto m>
-    auto array_take_suffix(const std::array<T, m>& a)
+    constexpr decltype(auto) array_take_suffix(const std::array<T, m>& a)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -5344,13 +5344,13 @@ namespace monster
     }
 
     template <auto n, typename T, auto m>
-    auto array_remove_prefix(const std::array<T, m>& a)
+    constexpr decltype(auto) array_remove_prefix(const std::array<T, m>& a)
     {
         return array_take_suffix<m - n>(a);
     }
 
     template <auto n, typename T, auto m>
-    auto array_remove_suffix(const std::array<T, m>& a)
+    constexpr decltype(auto) array_remove_suffix(const std::array<T, m>& a)
     {
         return array_take_prefix<m - n>(a);
     }
@@ -10275,6 +10275,14 @@ namespace monster
             return std::array<T, sizeof...(N)>{std::get<N>(tup)...};
         }
         (find_all_t<T, std::tuple<std::decay_t<Args>...>>());
+    }
+
+    template <typename T, typename... Args>
+    constexpr decltype(auto) exclude_values_of_type(Args&&... args)
+    {
+        auto tup = std::make_tuple(std::forward<Args>(args)...);
+
+        return tuple_slice<find_all_not_t<T, std::tuple<std::decay_t<Args>...>>>(tup);
     }
 
     template <typename... Args>
