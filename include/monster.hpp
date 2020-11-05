@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 162
+#define MONSTER_VERSION 163
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -2512,6 +2512,9 @@ namespace monster
     template <bool B, auto i, typename T, typename U>
     using exchange_if_t = typeof_t<exchange_if<B, i, T, U>>;
 
+    template <bool B, auto i, auto N, typename U>
+    using exchange_if_c = exchange_if_t<B, i, c_<N>, U>;
+
     template <typename indices, typename T, typename U>
     requires less_equal_v<indices, U>
     struct exchange_with
@@ -3563,6 +3566,14 @@ namespace monster
 
     template <bool B, typename T, typename U, int i = 0, int j = sizeof_t_v<U>>
     using append_range_if_t = typeof_t<append_range_if<B, T, U, i, j>>;
+
+    template <typename T, typename U, typename V>
+    struct insert_at_middle : append_range<append_t<U, T>, V>
+    {
+    };
+
+    template <typename T, typename U, typename V>
+    using insert_at_middle_t = typeof_t<insert_at_middle<T, U, V>>;
 
     template <auto i, auto j, typename T, typename... Args>
     struct replace : concat<append_t<range_t<0, i, T>, Args...>, range_t<j, sizeof_t_v<T>, T>>
@@ -10676,6 +10687,147 @@ namespace monster
 
     template <typename T>
     using lbs_t = typeof_t<lbs<T>>;
+
+    template <typename T>
+    struct sentinel
+    {
+        struct nonesuch
+        {
+        };
+
+        template <typename U, bool>
+        struct impl : std::type_identity<nonesuch>
+        {
+        };
+
+        template <typename U>
+        struct impl<U, false> : c_<max_element_v<U> + 1>
+        {
+        };
+
+        using type = typeof_t<impl<T, is_variadic_type_v<T>>>;
+    };
+
+    template <typename T>
+    using sentinel_t = typeof_t<sentinel<T>>;
+
+    template <typename T>
+    struct main_lorentz
+    {
+        template <typename U>
+        struct zfunc
+        {
+            static constexpr auto N = sizeof_t_v<U>;
+
+            template <int i, int j, int k, int l, typename V>
+            struct impl
+            {
+                template <typename W, int m = element_v<i, W>, bool = i + m < N>
+                struct call
+                {
+                    static constexpr auto value = is_same_v<m, i + m, U>;
+                    using type = type_if<value, call<exchange_if_c<value, i, m + 1, W>>, std::type_identity<W>>;
+                };
+
+                template <typename W, int m>
+                struct call<W, m, false> : std::type_identity<W>
+                {
+                };
+
+                static constexpr auto q = type_if_v<i <= l, element<i - k, V>, c_0>;
+                using curr = typeof_t<call<exchange_if_c<i <= l, i, min_v<l - i + 1, q>, V>>>;
+
+                static constexpr auto p = i + element_v<i, curr> - 1;
+                using type = typeof_t<impl<i + 1, j, l < p ? i : k, l < p ? p : l, curr>>;
+            };
+
+            template <int j, int k, int l, typename V>
+            struct impl<j, j, k, l, V> : std::type_identity<V>
+            {
+            };
+
+            using type = typeof_t<impl<1, N, 0, 0, index_sequence_c<N, 0>>>;
+        };
+
+        template <typename U>
+        using zfunc_t = typeof_t<zfunc<U>>;
+
+        template <int i, int j, int k, int l, int m, typename U, bool left>
+        struct next
+        {
+            template <int n, typename V, bool = n <= min_v<k, l> && !(left && n == k)>
+            struct impl
+            {
+                static constexpr auto p = i + j - n - !left * (k - 1);
+                using type = typeof_t<impl<n + 1, append_t<V, pair_v<p, p + 2 * k - 1>>>>;
+            };
+
+            template <int n, typename V>
+            struct impl<n, V, false> : std::type_identity<V>
+            {
+            };
+
+            using type = typeof_t<impl<max_v<1, k - m>, U>>;
+        };
+
+        using divider = sentinel_t<T>;
+
+        template <bool B, typename U, typename V, int M, typename W = std::conditional_t<B, U, V>>
+        using getz = type_if<0 <= M && M < sizeof_t_v<W>, element<M, W>, c_0>;
+
+        template <typename U, typename V, int shift = 0, auto N = sizeof_t_v<U>, bool = N != 1>
+        struct impl
+        {
+            static constexpr auto half = N / 2;
+            static constexpr auto rest = N - half;
+
+            using lhs = subset_t<0, half, U>;
+            using rhs = subset_t<half, rest, U>;
+
+            using curr = reverse_t<lhs>;
+            using lcpa = zfunc_t<curr>;
+
+            using lcpb = zfunc_t<insert_at_middle_t<divider, rhs, lhs>>;
+            using lcpc = zfunc_t<insert_at_middle_t<divider, curr, reverse_t<rhs>>>;
+
+            using lcpd = zfunc_t<rhs>;
+
+            template <int i, int j, typename W>
+            struct call
+            {
+                static constexpr auto value = i < half;
+                static constexpr auto l = value ? half - i : i - half + 1;
+
+                static constexpr auto p = typev<getz<value, lcpa, lcpc, half - i + !value * (half + rest)>>;
+                static constexpr auto q = typev<getz<value, lcpb, lcpd, i + 1 + value ? rest : -half>>;
+
+                using curr = next<shift, i, l, p, q, W, i < half>;
+                using type = typeof_t<call<i + 1, j, type_if<l <= p + q, curr, std::type_identity<W>>>>;
+            };
+
+            template <int j, typename W>
+            struct call<j, j, W> : std::type_identity<W>
+            {
+            };
+
+            using type = typeof_t<call<0, N, typeof_t<impl<rhs, typeof_t<impl<lhs, V, shift>>, shift + half>>>>;
+        };
+
+        template <typename U, typename V, int shift, auto N>
+        struct impl<U, V, shift, N, false> : std::type_identity<V>
+        {
+        };
+
+        template <typename U, typename V>
+        struct comp : bool_<first_v<U> < first_v<V>>
+        {
+        };
+
+        using type = quick_sort_t<typeof_t<impl<T, std::tuple<>>>, comp>;
+    };
+
+    template <typename T>
+    using main_lorentz_t = typeof_t<main_lorentz<T>>;
 }
 
 #endif

@@ -2326,6 +2326,11 @@ int main(int argc, char* argv[])
     execute<lbs_t<std::integer_sequence<int, 1, 11, 2, 10, 4, 5, 2, 1>>,
             std::integer_sequence<int, 1, 11, 10, 5, 2, 1>>();
 
+    execute<main_lorentz_t<std::tuple<int, int, int, short, int, short, int>>,
+            std::tuple<pair_v<0, 1>, pair_v<1, 2>, pair_v<3, 6>>>();
+    execute<main_lorentz_t<std::integer_sequence<int, 2, 3, 3, 3, 0, 5, 6, 5, 6, 7>>,
+            std::tuple<pair_v<1, 2>, pair_v<2, 3>, pair_v<5, 8>>>();
+
     execute<manacker_t<std::tuple<int, char, double, char, int, char>>,
             std::tuple<std::tuple<int>, std::tuple<char>, std::tuple<int, char, double, char, int>,
             std::tuple<char>, std::tuple<char, int, char>, std::tuple<char>>>();
