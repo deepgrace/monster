@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 163
+#define MONSTER_VERSION 164
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1315,18 +1315,22 @@ namespace monster
     template <typename T, template <typename ...> typename... F>
     using compose_right_t = typeof_t<compose_right<T, F...>>;
 
-    template <template <template <typename ...> typename, typename ...> typename F, template <typename ...> typename f, typename... Args>
-    struct eval
+    template <template <template <typename ...> typename, typename ...> typename transform,
+    template <typename ...> typename apply, typename T, typename... Args>
+    struct transform_apply
     {
         template <typename... args>
-        using apply = F<f, Args..., args...>;
+        using call = transform<apply, Args..., args...>;
+
+        using type = unpack_t<call, T>;
     };
 
-    template <template <template <typename ...> typename, typename ...> typename F, template <typename ...> typename f, typename T, typename... Args>
-    using eval_t = unpack_t<eval<F, f, Args...>::template apply, T>;
+    template <template <template <typename ...> typename, typename ...> typename transform,
+    template <typename ...> typename apply, typename T, typename... Args>
+    using transform_apply_t = typeof_t<transform_apply<transform, apply, T, Args...>>;
 
     template <typename T>
-    using tuple_and = eval_t<folded_t, std::conjunction, T, std::true_type>;
+    using tuple_and = transform_apply_t<folded_t, std::conjunction, T, std::true_type>;
 
     template <typename T>
     inline constexpr auto tuple_and_v = typev<tuple_and<T>>;
@@ -3258,7 +3262,7 @@ namespace monster
         template <typename U>
         using apply = reverse_with_t<U, reverse_recursive>;
 
-        using type = reverse_t<eval_t<currying_t, apply, T>>;
+        using type = reverse_t<transform_apply_t<currying_t, apply, T>>;
     };
 
     template <typename T>
@@ -5623,7 +5627,7 @@ namespace monster
         {
         };
 
-        using type = eval_t<folded_t, comp, to_tuple_t<T<U, values...>>, get<0, T<U, values...>>>;
+        using type = transform_apply_t<folded_t, comp, to_tuple_t<T<U, values...>>, get<0, T<U, values...>>>;
     };
 
     template <typename T>
@@ -5789,7 +5793,7 @@ namespace monster
         {
         };
 
-        using type = eval_t<folded_t, comp, to_tuple_t<range_t<B, E, U>>, index_type<0, T>>;
+        using type = transform_apply_t<folded_t, comp, to_tuple_t<range_t<B, E, U>>, index_type<0, T>>;
     };
 
     template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
@@ -5806,7 +5810,7 @@ namespace monster
         {
         };
 
-        using type = eval_t<folded_t, comp, to_tuple_t<range_t<B, E, T>>, c_0>;
+        using type = transform_apply_t<folded_t, comp, to_tuple_t<range_t<B, E, T>>, c_0>;
     };
 
     template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
@@ -5842,9 +5846,9 @@ namespace monster
         };
 
         template <typename U>
-        using unique = eval_t<currying_t, impl<U>::template apply, to_tuple_t<unique_t<U>>>;
+        using unique = transform_apply_t<currying_t, impl<U>::template apply, to_tuple_t<unique_t<U>>>;
 
-        using type = typeof_t<eval_t<folded_t, comp, unique<T>>>;
+        using type = typeof_t<transform_apply_t<folded_t, comp, unique<T>>>;
         static constexpr auto value = value_if<is_tuple_v<T>, std::false_type, type>;
     };
 
@@ -10828,6 +10832,20 @@ namespace monster
 
     template <typename T>
     using main_lorentz_t = typeof_t<main_lorentz<T>>;
+
+    template <typename T>
+    struct lrp
+    {
+        template <typename U, typename V>
+        struct longest : std::conditional<pair_diff<V> <= pair_diff<U>, U, V>
+        {
+        };
+
+        using type = transform_apply_t<folded_t, longest, main_lorentz_t<T>>;
+    };
+
+    template <typename T>
+    using lrp_t = typeof_t<lrp<T>>;
 }
 
 #endif

@@ -2015,7 +2015,7 @@ using s3 = suffix_c<std::integer_sequence<int, 5, 0>, 2, 6>;
 
 // add pointer to each element of a parameter pack
 using c1 = currying_t<std::add_pointer, int*, double, char>;
-using c2 = eval_t<currying_t, std::add_pointer, c1>;
+using c2 = transform_apply_t<currying_t, std::add_pointer, c1>;
 // c1 == std::tuple<int**, double*, char*>
 // c2 == std::tuple<int***, double**, char**>
 

@@ -372,7 +372,7 @@ int main(int argc, char* argv[])
 
     execute<ycombinator_t<nest, int, char, double>, std::tuple<int, std::tuple<char, std::tuple<double>>>>();
 
-    execute<negav<eval_t<folded_t, std::conjunction, std::tuple<std::false_type, std::true_type>,
+    execute<negav<transform_apply_t<folded_t, std::conjunction, std::tuple<std::false_type, std::true_type>,
             std::true_type>>>();
 
     execute<on_t<std::add_pointer, std::tuple, int, double, char*>, std::tuple<int*, double*, char**>>();
@@ -548,7 +548,7 @@ int main(int argc, char* argv[])
     execute<increase_t<integer_t, 3>, std::integer_sequence<int, 5, 10, 7>>();
     execute<increase_t<integer_t, -3>, std::integer_sequence<int, -1, 4, 1>>();
 
-    using add_one_t = eval_t<currying_t, succ, to_tuple_t<integer_t>>;
+    using add_one_t = transform_apply_t<currying_t, succ, to_tuple_t<integer_t>>;
     execute<add_one_t, std::tuple<c_<3, int>, c_<8, int>, c_<5, int>>>();
 
     execute<next_slide_indices_t<2, 7, std::integer_sequence<int, 2, 3, 4>>,
@@ -2330,6 +2330,11 @@ int main(int argc, char* argv[])
             std::tuple<pair_v<0, 1>, pair_v<1, 2>, pair_v<3, 6>>>();
     execute<main_lorentz_t<std::integer_sequence<int, 2, 3, 3, 3, 0, 5, 6, 5, 6, 7>>,
             std::tuple<pair_v<1, 2>, pair_v<2, 3>, pair_v<5, 8>>>();
+
+    execute<lrp_t<std::tuple<int, int, int, short, int, short, int>>,
+            pair_v<3, 6>>();
+    execute<lrp_t<std::integer_sequence<int, 2, 3, 3, 3, 0, 5, 6, 5, 6, 7>>,
+            pair_v<5, 8>>();
 
     execute<manacker_t<std::tuple<int, char, double, char, int, char>>,
             std::tuple<std::tuple<int>, std::tuple<char>, std::tuple<int, char, double, char, int>,
