@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 164
+#define MONSTER_VERSION 165
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4575,6 +4575,34 @@ namespace monster
             return std::forward<F>(f)(std::forward<Args>(args)...);
         }
     };
+
+    template <typename... Invokable>
+    struct compose
+    {
+        compose(Invokable&&... invoker) : invoker(std::forward<Invokable>(invoker)...)
+        {
+        }
+
+        template <size_t N, typename... Args>
+        auto apply(Args&&... args) const
+        {
+            if constexpr(N == 0)
+               return std::invoke(std::get<0>(invoker), std::forward<Args>(args)...);
+            else
+               return apply<N - 1>(std::invoke(std::get<N>(invoker), std::forward<Args>(args)...));
+        }
+
+        template <typename... Args>
+        auto operator()(Args&& ... args) const
+        {
+            return apply<sizeof_v<Invokable...> - 1>(std::forward<Args>(args)...);
+        }
+
+        std::tuple<Invokable...> invoker;
+    };
+
+    template <typename... Invokable>
+    compose(Invokable&&...) -> compose<Invokable...>;
 
     template <size_t N, bool = (N < 2)>
     struct fib

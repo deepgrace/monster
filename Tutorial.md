@@ -1126,6 +1126,12 @@ int main(int argc, char* argv[])
 
     unroller<3> unroll;
 
+    auto fa = [](double x, double y) { return std::make_pair(x, y); };
+    auto fb = [](std::pair<double, double> p) { return p.first + p.second; };
+    auto fc = [](double x) { return 2 * x; };
+
+    std::cout << compose(fc, fb, fa)(4.0, 8.0) << std::endl;
+
     unroll([](auto&&... args)
     {
         (std::cout << ... << args) << std::endl;
