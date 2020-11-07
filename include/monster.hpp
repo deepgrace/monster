@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 166
+#define MONSTER_VERSION 167
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1716,6 +1716,38 @@ namespace monster
 
     template <typename... Args>
     using index_sequence_for = make_index_sequence<sizeof_v<Args...>>;
+
+    template <size_t, typename T = std::void_t<>>
+    using make_type = T;
+
+    template <size_t N, typename T>
+    struct tuple_element;
+
+    template <size_t N, template <typename ...> typename T, typename... Args>
+    struct tuple_element<N, T<Args...>>
+    {
+        template <typename U, typename V>
+        struct impl;
+
+        template <auto... m, auto... n>
+        struct impl<std::index_sequence<m...>, std::index_sequence<n...>>
+        {
+            template <typename U>
+            struct deduct;
+
+            template <typename U, typename... args>
+            struct deduct<T<make_type<m>..., U, args...>> : std::type_identity<U>
+            {
+            };
+
+            using type = typeof_t<deduct<T<std::conditional_t<n == N, Args, std::void_t<>>...>>>;
+        };
+
+        using type = typeof_t<impl<std::make_index_sequence<N>, std::index_sequence_for<Args...>>>;
+    };
+
+    template <size_t N, typename T>
+    using tuple_element_t = typeof_t<tuple_element<N, T>>;
 
     template <typename T, T... values>
     struct index_list
@@ -4584,7 +4616,7 @@ namespace monster
         }
 
         template <size_t N, typename... Args>
-        auto apply(Args&&... args) const
+        constexpr decltype(auto) apply(Args&&... args) const
         {
             if constexpr(N == 0)
                 return std::invoke(std::get<0>(invoker), std::forward<Args>(args)...);
@@ -4593,7 +4625,7 @@ namespace monster
         }
 
         template <typename... Args>
-        auto operator()(Args&& ... args) const
+        constexpr decltype(auto) operator()(Args&& ... args) const
         {
             return apply<sizeof_v<Invokable...> - 1>(std::forward<Args>(args)...);
         }
@@ -10251,7 +10283,7 @@ namespace monster
         struct maps
         {
             using curr = element_t<0, V>;
-            using pair = std::tuple<curr,  bmh_t<append_t<base, curr>, U>>;
+            using pair = std::tuple<curr, bmh_t<append_t<base, curr>, U>>;
 
             using type = typeof_t<maps<pop_front_t<V>, append_t<W, pair>>>;
         };
