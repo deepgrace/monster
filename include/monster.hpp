@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 165
+#define MONSTER_VERSION 166
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4560,7 +4560,7 @@ namespace monster
     void loop(F&& f, Args&&... args)
     {
         if constexpr(N > 1)
-           loop<N - 1>(std::forward<F>(f), std::forward<Args>(args)...);
+            loop<N - 1>(std::forward<F>(f), std::forward<Args>(args)...);
         std::forward<F>(f)(N - 1, std::forward<Args>(args)...);
     }
 
@@ -4571,7 +4571,7 @@ namespace monster
         decltype(auto) operator()(F&& f, Args&&... args)
         {
             if constexpr(N > 1)
-               unroller<N - 1>()(std::forward<F>(f), std::forward<Args>(args)...);
+                unroller<N - 1>()(std::forward<F>(f), std::forward<Args>(args)...);
             return std::forward<F>(f)(std::forward<Args>(args)...);
         }
     };
@@ -4587,9 +4587,9 @@ namespace monster
         auto apply(Args&&... args) const
         {
             if constexpr(N == 0)
-               return std::invoke(std::get<0>(invoker), std::forward<Args>(args)...);
+                return std::invoke(std::get<0>(invoker), std::forward<Args>(args)...);
             else
-               return apply<N - 1>(std::invoke(std::get<N>(invoker), std::forward<Args>(args)...));
+                return apply<N - 1>(std::invoke(std::get<N>(invoker), std::forward<Args>(args)...));
         }
 
         template <typename... Args>
