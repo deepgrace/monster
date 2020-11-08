@@ -562,6 +562,9 @@ int main(int argc, char* argv[])
 
     execute<fibonacci_v<4>, 3>();
 
+    execute<triangular_number_v<4>, 10>();
+    execute<triangular_number_sequence_t<4>, std::integer_sequence<int, 1, 3, 6, 10>>();
+
     execute<nth_type_t<2, int, double, char*, float>, char*>();
     execute<first_type<int, double, char*, float>, int>();
     execute<last_type<int, double, char*, float>, float>();

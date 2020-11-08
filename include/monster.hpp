@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 169
+#define MONSTER_VERSION 170
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4603,6 +4603,27 @@ namespace monster
 
     template <size_t N>
     inline constexpr auto fibonacci_v = typev<fibonacci<N>>;
+
+    template <size_t N>
+    struct triangular_number
+    {
+        static constexpr auto value = N * (N + 1) / 2;
+    };
+
+    template <size_t N>
+    inline constexpr auto triangular_number_v = typev<triangular_number<N>>;
+
+    template <size_t N>
+    struct triangular_number_sequence
+    {
+        template <auto M, typename T>
+        using impl = triangular_number<M + 1>;
+
+        using type = expand_t<impl, c_0, index_sequence_of_c<N>>;
+    };
+
+    template <size_t N>
+    using triangular_number_sequence_t = typeof_t<triangular_number_sequence<N>>;
 
     template <int N, int base = 10>
     struct tokenize
