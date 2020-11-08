@@ -1170,8 +1170,8 @@ int main(int argc, char* argv[])
     std::cout << "tuple_repeat " << std::get<2>(tuple_repeat<4>(9)) << std::endl;
     std::cout << "tuple_filter " << std::get<2>(tuple_filter<std::is_arithmetic>(dupt)) << std::endl;
 
-    execute<infinite_call_t<4, int, std::add_pointer>, int****>();
-    execute<multi_level_pointer_t<4, int>, int****>();
+    execute<nth_level_pointer_t<4, int>, int****>();
+    execute<call_ntimes_t<4, int, std::add_pointer>, int****>();
 
     execute<pop_front_t<std::tuple<float, double, int>>, std::tuple<double, int>>();
     execute<pop_front_t<std::integer_sequence<int, 1, 2, 3>>, std::integer_sequence<int, 2, 3>>();

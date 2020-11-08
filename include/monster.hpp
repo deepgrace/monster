@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 168
+#define MONSTER_VERSION 169
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4706,26 +4706,26 @@ namespace monster
     using infinite_t = typeof_t<infinite<F, T>>;
 
     template <size_t N, typename T>
-    struct nth_infinite : nth_infinite<N - 1, typename T::next>
+    struct nth_call : nth_call<N - 1, typename T::next>
     {
     };
 
     template <typename T>
-    struct nth_infinite<0, T>
+    struct nth_call<0, T>
     {
         using type = typeof_t<T>;
     };
 
     template <size_t N, typename T>
-    using nth_infinite_t = typeof_t<nth_infinite<N, T>>;
+    using nth_call_t = typeof_t<nth_call<N, T>>;
 
     template <size_t N, typename T, template <typename ...> typename F>
-    struct infinite_call : nth_infinite<N, infinite_t<F, T>>
+    struct call_ntimes : nth_call<N, infinite_t<F, T>>
     {
     };
 
     template <size_t N, typename T, template <typename ...> typename F>
-    using infinite_call_t = typeof_t<infinite_call<N, T, F>>;
+    using call_ntimes_t = typeof_t<call_ntimes<N, T, F>>;
 
     template <size_t N, typename T, typename F>
     struct repeat : call<F, typeof_t<repeat<N - 1, T, F>>>
@@ -4750,12 +4750,12 @@ namespace monster
     using pointer_type_of_t = call_t<bind_front<std::add_pointer>, T>;
 
     template <size_t N, typename T>
-    struct multi_level_pointer : repeat<N, T, pointer_type_of>
+    struct nth_level_pointer : repeat<N, T, pointer_type_of>
     {
     };
 
     template <size_t N, typename T>
-    using multi_level_pointer_t = typeof_t<multi_level_pointer<N, T>>;
+    using nth_level_pointer_t = typeof_t<nth_level_pointer<N, T>>;
 
     template <bool... B>
     struct fast_and : std::is_same<fast_and<true, B...>, fast_and<B..., true>>

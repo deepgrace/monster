@@ -983,11 +983,11 @@ using z5 = zip_with_t<pair_t, std::tuple<int, char, short, double>, std::tuple<c
 // z4 == std::integer_sequence<int, 3, 8, -15>
 // z5 == std::tuple<pair_t<int, char>, pair_t<char, double>, pair_t<short, float>>
 
-// infinite call
-using i = infinite_call_t<4, int, std::add_pointer>;
-using p = multi_level_pointer_t<5, int>;
+// call a function n times
+using p = nth_level_pointer_t<4, int>;
+using i = call_ntimes_t<4, int, std::add_pointer>;
+// p == int****
 // i == int****
-// p == int*****
 
 // takes a single element in a sequence and replicates it to 
 // create another sequence with some number of copies of that element
