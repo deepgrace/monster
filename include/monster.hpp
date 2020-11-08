@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 167
+#define MONSTER_VERSION 168
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -715,35 +715,6 @@ namespace monster
     template <typename T>
     inline constexpr auto sizeof_t_v = typev<sizeof_t<T>>;
 
-    template <typename T>
-    struct argument_size : argument_size<decltype(&T::operator())>
-    {
-    };
-
-    template <typename R, typename T, typename... Args>
-    struct argument_size<R (T::*)(Args...)> : index_t<sizeof_v<Args...>>
-    {
-    };
-
-    template <typename R, typename... Args>
-    struct argument_size<R (*)(Args...)> : index_t<sizeof_v<Args...>>
-    {
-    };
-
-    template <typename R, typename T, typename... Args>
-    struct argument_size<R (T::*)(Args...) const> : index_t<sizeof_v<Args...>>
-    {
-    };
-
-    template <typename T>
-    inline constexpr auto argument_size_v = typev<argument_size<T>>;
-
-    template <auto N>
-    using index_sequence_of_c = std::make_index_sequence<N>;
-
-    template <typename T, auto N = 0>
-    using index_sequence_of_t = index_sequence_of_c<sizeof_t_v<T> - N>;
-
     template <typename T, typename U, auto p = sizeof_t_v<T>, auto q = sizeof_t_v<U>>
     using less_t = bool_<(p < q)>;
 
@@ -931,24 +902,122 @@ namespace monster
     template <bool B, typename T>
     using as_tuple_if_t = typeof_t<as_tuple_if<B, T>>;
 
-    template <auto N, typename T>
-    struct variadic_element
+    template <size_t... indices>
+    struct index_tuple
     {
-        template <typename U, bool B>
-        struct impl : std::type_identity<std::tuple_element<N, as_tuple_t<U>>>
-        {
-        };
-
-        template <typename U>
-        struct impl<U, false> : std::type_identity<get<N, U>>
-        {
-        };
-
-        using type = typeof_t<impl<T, is_variadic_type_v<T>>>;
+        template <size_t N>
+        using apply = index_tuple<indices..., N>;
     };
 
+    template <size_t N>
+    struct next_index_tuple
+    {
+        using type = typeof_t<next_index_tuple<N - 1>>::template apply<N - 1>;
+    };
+
+    template <>
+    struct next_index_tuple<0>
+    {
+        using type = index_tuple<>;
+    };
+
+    template <size_t N>
+    using next_index_tuple_t = typeof_t<next_index_tuple<N>>;
+
+    template <size_t N>
+    using make_index_tuple = next_index_tuple_t<N>;
+
+    template <typename... Args>
+    using index_tuple_for = make_index_tuple<sizeof_v<Args...>>;
+
+    template <size_t... indices>
+    struct index_sequence
+    {
+    };
+
+    template <typename T, bool B>
+    struct duple;
+
+    template <size_t... indices>
+    struct duple<index_sequence<indices...>, false>
+    {
+        using type = index_sequence<indices..., (sizeof...(indices) + indices)...>;
+    };
+
+    template <size_t... indices>
+    struct duple<index_sequence<indices...>, true>
+    {
+        using type = index_sequence<indices..., (sizeof...(indices) + indices)..., sizeof...(indices) * 2>;
+    };
+
+    template <size_t N>
+    struct next_index_sequence : duple<typeof_t<next_index_sequence<N / 2>>, N % 2 != 0>
+    {
+    };
+
+    template <>
+    struct next_index_sequence<1>
+    {
+        using type = index_sequence<0>;
+    };
+
+    template <>
+    struct next_index_sequence<0>
+    {
+        using type = index_sequence<>;
+    };
+
+    template <size_t N>
+    using next_index_sequence_t = typeof_t<next_index_sequence<N>>;
+
+    template <size_t N>
+    using make_index_sequence = next_index_sequence_t<N>;
+
+    template <typename... Args>
+    using index_sequence_for = make_index_sequence<sizeof_v<Args...>>;
+
+    template <auto N>
+    using index_sequence_of_c = std::make_index_sequence<N>;
+
+    template <typename T, auto N = 0>
+    using index_sequence_of_t = index_sequence_of_c<sizeof_t_v<T> - N>;
+
+    template <size_t, typename T = std::void_t<>>
+    using make_type = T;
+
+    template <size_t N, typename T>
+    struct tuple_element;
+
+    template <size_t N, template <typename ...> typename T, typename... Args>
+    struct tuple_element<N, T<Args...>>
+    {
+        template <typename U, typename V>
+        struct impl;
+
+        template <auto... m, auto... n>
+        struct impl<index_sequence<m...>, index_sequence<n...>>
+        {
+            template <typename U>
+            struct deduct;
+
+            template <typename U, typename... args>
+            struct deduct<T<make_type<m>..., U, args...>> : std::type_identity<U>
+            {
+            };
+
+            using type = typeof_t<deduct<T<std::conditional_t<n == N, Args, std::void_t<>>...>>>;
+        };
+
+        using type = typeof_t<impl<make_index_sequence<N>, index_sequence_for<Args...>>>;
+    };
+
+    template <size_t N, typename T>
+    using tuple_element_t = typeof_t<tuple_element<N, T>>;
+
     template <auto N, typename T>
-    using element = typeof_t<variadic_element<N, T>>;
+    struct element : std::conditional_t<is_variadic_type_v<T>, tuple_element<N, T>, get<N, T>>
+    {
+    };
 
     template <auto N, typename T>
     using element_t = typeof_t<element<N, T>>;
@@ -956,12 +1025,6 @@ namespace monster
     template <auto N, typename T>
     requires is_variadic_value_v<T>
     inline constexpr auto element_v = typev<element_t<N, T>>;
-
-    template <auto N, typename T>
-    using variadic_element_t =  element_t<N, T>;
-
-    template <auto N, typename T>
-    inline constexpr auto variadic_element_v = element_v<N, T>;
 
     template <bool B, auto N, typename T, typename U>
     using element_if = std::conditional_t<!B, U, element<N, T>>;
@@ -1643,112 +1706,6 @@ namespace monster
         return std::forward<last_type<Args...>>(nth_value_v<sizeof_v<Args...> - 1>((std::forward<Args>(args))...));
     }
     
-    template <size_t... indices>
-    struct index_tuple
-    {
-        template <size_t N>
-        using apply = index_tuple<indices..., N>;
-    };
-
-    template <size_t N>
-    struct next_index_tuple
-    {
-        using type = typeof_t<next_index_tuple<N - 1>>::template apply<N - 1>;
-    };
-
-    template <>
-    struct next_index_tuple<0>
-    {
-        using type = index_tuple<>;
-    };
-
-    template <size_t N>
-    using next_index_tuple_t = typeof_t<next_index_tuple<N>>;
-
-    template <size_t N>
-    using make_index_tuple = next_index_tuple_t<N>;
-
-    template <typename... Args>
-    using index_tuple_for = make_index_tuple<sizeof_v<Args...>>;
-
-    template <size_t... indices>
-    struct index_sequence
-    {
-    };
-
-    template <typename T, bool B>
-    struct duple;
-
-    template <size_t... indices>
-    struct duple<index_sequence<indices...>, false>
-    {
-        using type = index_sequence<indices..., (sizeof...(indices) + indices)...>;
-    };
-
-    template <size_t... indices>
-    struct duple<index_sequence<indices...>, true>
-    {
-        using type = index_sequence<indices..., (sizeof...(indices) + indices)..., sizeof...(indices) * 2>;
-    };
-
-    template <size_t N>
-    struct next_index_sequence : duple<typeof_t<next_index_sequence<N / 2>>, N % 2 != 0>
-    {
-    };
-
-    template <>
-    struct next_index_sequence<1>
-    {
-        using type = index_sequence<0>;
-    };
-
-    template <>
-    struct next_index_sequence<0>
-    {
-        using type = index_sequence<>;
-    };
-
-    template <size_t N>
-    using next_index_sequence_t = typeof_t<next_index_sequence<N>>;
-
-    template <size_t N>
-    using make_index_sequence = next_index_sequence_t<N>;
-
-    template <typename... Args>
-    using index_sequence_for = make_index_sequence<sizeof_v<Args...>>;
-
-    template <size_t, typename T = std::void_t<>>
-    using make_type = T;
-
-    template <size_t N, typename T>
-    struct tuple_element;
-
-    template <size_t N, template <typename ...> typename T, typename... Args>
-    struct tuple_element<N, T<Args...>>
-    {
-        template <typename U, typename V>
-        struct impl;
-
-        template <auto... m, auto... n>
-        struct impl<std::index_sequence<m...>, std::index_sequence<n...>>
-        {
-            template <typename U>
-            struct deduct;
-
-            template <typename U, typename... args>
-            struct deduct<T<make_type<m>..., U, args...>> : std::type_identity<U>
-            {
-            };
-
-            using type = typeof_t<deduct<T<std::conditional_t<n == N, Args, std::void_t<>>...>>>;
-        };
-
-        using type = typeof_t<impl<std::make_index_sequence<N>, std::index_sequence_for<Args...>>>;
-    };
-
-    template <size_t N, typename T>
-    using tuple_element_t = typeof_t<tuple_element<N, T>>;
-
     template <typename T, T... values>
     struct index_list
     {
@@ -4016,7 +3973,9 @@ namespace monster
     using match_t = typeof_t<match<T, U>>;
 
     template <typename T>
-    struct function_traits;
+    struct function_traits : function_traits<decltype(&T::operator())>
+    {
+    };
 
     template <typename R, typename... Args>
     struct function_traits<R(Args...)>
@@ -4082,19 +4041,8 @@ namespace monster
     inline constexpr auto function_traits_v = typev<function_traits<T>>;
 
     template <typename F, typename T, template <typename, typename> typename match>
-    struct matcher
+    struct matcher : match<function_traits_t<F>, T>
     {
-        template <typename U, typename = std::void_t<>>
-        struct impl : match<function_traits_t<U>, T>
-        {
-        };
-
-        template <typename U>
-        struct impl<U, std::void_t<decltype(&U::operator())>> : impl<decltype(&U::operator())>
-        {
-        };
-
-        using type = typeof_t<impl<F>>;
     };
 
     template <typename F, typename T, template <typename, typename> typename match>

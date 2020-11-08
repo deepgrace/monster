@@ -253,9 +253,9 @@ int main(int argc, char* argv[])
     execute<sizeof_t_v<std::tuple<std::index_sequence<1, 2>>>, 1>();
     execute<sizeof_t_v<std::tuple<std::integral_constant<int, 3>>>, 1>();
 
-    execute<argument_size_v<decltype([](int, char){})>, 2>();
-    execute<argument_size_v<decltype(+[](int, int){})>, 2>();
-    execute<argument_size_v<void(*)(int, char, short)>, 3>();
+    execute<function_traits_v<decltype([](int, char){})>, 2>();
+    execute<function_traits_v<decltype(+[](int, int){})>, 2>();
+    execute<function_traits_v<void(*)(int, char, short)>, 3>();
 
     execute<less_v<char, int>>();
     execute<less_equal_v<c_3, c_4>>();
