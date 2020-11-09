@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 170
+#define MONSTER_VERSION 171
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5365,6 +5365,35 @@ namespace monster
             return std::make_tuple(std::get<N>(t)...);
         }
         (find_index_t<F, std::tuple<Args...>>());
+    }
+
+    template <size_t N, typename T>
+    constexpr decltype(auto) element_as_tuple(T&& t)
+    {
+        using type = std::remove_cvref_t<T>;
+
+        return [&]<auto... n>(const std::index_sequence<n...>&)
+        {
+            using curr = std::tuple_element_t<N, type>;
+
+            if constexpr (!(std::is_same_v<curr, std::tuple_element_t<n, type>> || ...))
+                return std::tuple<curr>(std::get<N>(std::forward<T>(t)));
+            else
+                return std::make_tuple();
+        }
+        (index_sequence_of_c<N>());
+    }
+
+    template <typename... Args>
+    constexpr decltype(auto) tuple_cat_unique(Args&&... args)
+    {
+        auto tuple = std::tuple_cat(std::forward<Args>(args)...);
+
+        return [&]<auto... N>(const std::index_sequence<N...>&)
+        {
+            return std::tuple_cat(element_as_tuple<N>(std::move(tuple))...);
+        }
+        (index_sequence_of_c<(sizeof_t_v<std::decay_t<Args>> + ...)>());
     }
 
     template <auto n, typename T, auto m>

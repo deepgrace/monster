@@ -562,6 +562,17 @@ int main(int argc, char* argv[])
 
     execute<fibonacci_v<4>, 3>();
 
+    constexpr std::tuple<int, short, char> first(1, 2, 3);
+    constexpr std::tuple<short, float> second(4, 5);
+    constexpr std::tuple<int, double, short> third(6, 7, 8);
+    constexpr auto t_ = tuple_cat_unique(first, second, third);
+
+    static_assert(std::get<0>(t_) == 1);
+    static_assert(std::get<1>(t_) == 2);
+    static_assert(std::get<2>(t_) == 3);
+    static_assert(std::get<3>(t_) == 5);
+    static_assert(std::get<4>(t_) == 7);
+
     execute<triangular_number_v<4>, 10>();
     execute<triangular_number_sequence_t<4>, std::integer_sequence<int, 1, 3, 6, 10>>();
 
