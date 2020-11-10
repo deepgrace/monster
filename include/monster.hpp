@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 171
+#define MONSTER_VERSION 172
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -64,6 +64,9 @@ namespace monster
 
     template <size_t N>
     using index_t = c_<N, size_t>;
+
+    template <size_t N>
+    constexpr index_t<N> index{};
 
     template <typename... Args>
     using tuple_t = std::tuple<Args...>;
@@ -5345,6 +5348,25 @@ namespace monster
             return std::make_tuple(std::get<N>(t)...);
         }
         (indices());
+    }
+
+    template <typename T>
+    constexpr decltype(auto) tuple_view(T&& t)
+    {
+        return []<auto... N>(const std::index_sequence<N...>&)
+        {
+            return [](auto&& f)
+            {
+                return decltype(f)(f).template operator()<N...>();
+            };
+        }
+        (index_sequence_of_t<std::remove_cvref_t<T>>())
+        (
+            [&]<auto... N>()
+            {
+                return std::forward_as_tuple(std::get<N>(std::forward<T>(t))...);
+            }
+        );
     }
 
     template <size_t N, typename T>
