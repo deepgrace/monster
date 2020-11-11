@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 173
+#define MONSTER_VERSION 174
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4474,10 +4474,16 @@ namespace monster
     template <typename... Args>
     overload_sequence(Args&&...) -> overload_sequence<Args...>;
 
+    template <auto... N, typename F, typename... Args>
+    constexpr decltype(auto) call_operator(F&& f, Args&&... args)
+    {
+        return std::forward<F>(f).template operator()<N...>(std::forward<Args>(args)...);
+    };
+
     template <auto... N, typename F>
     constexpr void for_value(F&& f)
     {
-        (f.template operator()<N>(), ...);
+        (call_operator<N>(f), ...);
     }
 
     template <typename... Args, typename F>
@@ -4508,15 +4514,15 @@ namespace monster
         [&]<auto... N>(const std::index_sequence<N...>&)
         {
             if constexpr ((is_variadic_type_v<Args> && ...))
-                ([&]<auto n, template <typename ...> typename T, typename... args>(const T<args...>&)
+                (call_operator<N>([&]<auto n, template <typename ...> typename T, typename... args>(const T<args...>&)
                 {
                     for_type<args...>(f);
-                }.template operator()<N>(Args()), ...);
+                }, Args()), ...);
             else
-                ([&]<auto n, template <typename, auto ...> typename T, typename U, auto... args>(const T<U, args...>&)
+                (call_operator<N>([&]<auto n, template <typename, auto ...> typename T, typename U, auto... args>(const T<U, args...>&)
                 {
                     for_value<args...>(f);
-                }.template operator()<N>(Args()), ...);
+                }, Args()), ...);
         }
         (std::index_sequence_for<Args...>());
     }
@@ -5357,7 +5363,7 @@ namespace monster
         {
             return [](auto&& f)
             {
-                return decltype(f)(f).template operator()<N...>();
+                return call_operator<N...>(decltype(f)(f));
             };
         }
         (index_sequence_of_t<std::remove_cvref_t<T>>())
@@ -5727,7 +5733,7 @@ namespace monster
 
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
-            return std::make_tuple(row.template operator()<N>()...);
+            return std::make_tuple(call_operator<N>(row)...);
         }(index_sequence_of_c<min_element_v<indices>>());
     }
 
@@ -5751,10 +5757,10 @@ namespace monster
                 {
                     auto g = [&]<auto n>(){ return std::apply(std::forward<F>(f), std::get<n>(std::forward<T>(tuple))); };
 
-                    if constexpr(std::is_same_v<decltype(g.template operator()<0>()), std::void_t<>>)
-                        (g.template operator()<N>(), ...);
+                    if constexpr(std::is_same_v<decltype(call_operator<0>(g)), std::void_t<>>)
+                        (call_operator<N>(g), ...);
                     else
-                        return std::forward_as_tuple(g.template operator()<N>()...);
+                        return std::forward_as_tuple(call_operator<N>(g)...);
                 }
                 (index_sequence_of_c<size>());
         }
