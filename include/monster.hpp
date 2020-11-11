@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 172
+#define MONSTER_VERSION 173
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5735,6 +5735,30 @@ namespace monster
     decltype(auto) tuple_transpose(const std::tuple<Args...>& t)
     {
         return tuple_apply(t, [](auto&&... args) { return tuple_zip(args...); });
+    }
+
+    template <typename F, typename... Args>
+    constexpr decltype(auto) zipped_tuple_map(F&& f, Args&&... args)
+    {
+        return [&]<typename T>(T&& tuple)
+        {
+            constexpr auto size = sizeof_t_v<std::decay_t<T>>;
+
+            if constexpr (size == 0)
+                return std::forward<T>(tuple);
+            else
+                return [&]<auto... N>(const std::index_sequence<N...>&)
+                {
+                    auto g = [&]<auto n>(){ return std::apply(std::forward<F>(f), std::get<n>(std::forward<T>(tuple))); };
+
+                    if constexpr(std::is_same_v<decltype(g.template operator()<0>()), std::void_t<>>)
+                        (g.template operator()<N>(), ...);
+                    else
+                        return std::forward_as_tuple(g.template operator()<N>()...);
+                }
+                (index_sequence_of_c<size>());
+        }
+        (tuple_zip(std::forward<Args>(args)...));
     }
 
     template <typename T>

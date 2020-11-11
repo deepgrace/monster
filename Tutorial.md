@@ -573,6 +573,11 @@ int main(int argc, char* argv[])
     static_assert(std::get<3>(t_) == 5);
     static_assert(std::get<4>(t_) == 7);
 
+    auto a_ = std::make_tuple(1, 2, 3);
+    auto b_ = std::make_tuple("one", "two", "three");
+    auto f_ = [](auto i, auto s) { std::cout << ++i << " " << s << std::endl; };
+    zipped_tuple_map(f_, a_, b_);
+
     execute<triangular_number_v<4>, 10>();
     execute<triangular_number_sequence_t<4>, std::integer_sequence<int, 1, 3, 6, 10>>();
 
