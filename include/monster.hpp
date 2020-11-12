@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 174
+#define MONSTER_VERSION 175
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -479,6 +479,60 @@ namespace monster
 
     template <bool B, typename T = std::void_t<>>
     using disable_if_t = typeof_t<disable_if<B, T>>;
+
+    template <typename T, typename U>
+    struct transfer_reference : std::type_identity<U>
+    {
+    };
+
+    template <typename T, typename U>
+    struct transfer_reference<T&, U> : std::add_lvalue_reference<U>
+    {
+    };
+
+    template <typename T, typename U>
+    struct transfer_reference<T&&, U> : std::add_rvalue_reference<U>
+    {
+    };
+
+    template <typename T, typename U>
+    using transfer_reference_t = typeof_t<transfer_reference<T, U>>;
+
+    template <typename T, typename U>
+    struct _transfer_cv : std::type_identity<U>
+    {
+    };
+
+    template <typename T, typename U>
+    struct _transfer_cv<const T, U> : transfer_reference<U, std::add_const_t<std::remove_reference_t<U>>>
+    {
+    };
+
+    template <typename T, typename U>
+    struct _transfer_cv<volatile T, U> : transfer_reference<U, std::add_volatile_t<std::remove_reference_t<U>>>
+    {
+    };
+
+    template <typename T, typename U>
+    struct _transfer_cv<const volatile T, U> : transfer_reference<U, std::add_cv_t<std::remove_reference_t<U>>>
+    {
+    };
+
+    template <typename T, typename U>
+    struct transfer_cv : _transfer_cv<std::remove_reference_t<T>, U>
+    {
+    };
+
+    template <typename T, typename U>
+    using transfer_cv_t = typeof_t<transfer_cv<T, U>>;
+
+    template <typename T, typename U>
+    struct transfer_cvref : transfer_reference<T, transfer_cv_t<T, U>>
+    {
+    };
+
+    template <typename T, typename U>
+    using transfer_cvref_t = typeof_t<transfer_cvref<T, U>>;
 
     template <typename S, typename T, typename = std::void_t<>>
     struct is_streamable : std::false_type
