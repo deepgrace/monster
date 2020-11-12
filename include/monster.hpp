@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 175
+#define MONSTER_VERSION 176
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4586,6 +4586,9 @@ namespace monster
         template <typename T>
         operator T(){}
     };
+
+    template <typename = std::void_t<>>
+    static constexpr universal wildcard{};
 
     template <typename T>
     consteval auto aggregate_arity(auto... Args)
