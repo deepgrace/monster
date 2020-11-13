@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 176
+#define MONSTER_VERSION 177
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1041,6 +1041,38 @@ namespace monster
 
     template <size_t, typename T = std::void_t<>>
     using make_type = T;
+
+    template <typename... Args>
+    struct tuple_depth
+    {
+        static constexpr auto value = 0;
+    };
+
+    template <template <typename ...> typename T, typename... Args>
+    struct tuple_depth<T<Args...>>
+    {
+        static constexpr auto value = 1 + tuple_depth<Args...>::value;
+    };
+
+    template <typename T>
+    inline constexpr auto tuple_depth_v = typev<tuple_depth<T>>;
+
+    template <auto N, typename T>
+    struct depth_element;
+
+    template <auto N, template <typename ...> typename T, typename U>
+    struct depth_element<N, T<U>>
+    {
+        using type = type_if<is_variadic_type_v<U>, depth_element<N - 1, U>, std::type_identity<U>>;
+    };
+
+    template <template <typename ...> typename T, typename U>
+    struct depth_element<0, T<U>> : std::type_identity<T<U>>
+    {
+    };
+
+    template <auto N, typename T>
+    using depth_element_t = typeof_t<depth_element<N, T>>;
 
     template <size_t N, typename T>
     struct tuple_element;

@@ -1016,6 +1016,11 @@ int main(int argc, char* argv[])
 
     execute<tuple_element_size_v<2, std::tuple<short, int, double>>, sizeof(double)>();
 
+    using nests = std::tuple<std::tuple<std::tuple<std::tuple<int>>>>;
+    execute<tuple_depth_v<nests>, 4>();
+    execute<depth_element_t<2, nests>, std::tuple<std::tuple<int>>>();
+    execute<depth_element_t<4, nests>, int>();
+
     execute<binary_search_v<double, std::tuple<short, int, double>>>();
     execute<binary_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>>();
 
