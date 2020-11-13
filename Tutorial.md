@@ -7,6 +7,12 @@
 
 using namespace monster;
 
+template <typename ...> struct T0 {};
+template <typename ...> struct T1 {};
+template <typename ...> struct T2 {};
+template <typename ...> struct T3 {};
+template <typename ...> struct T4 {};
+
 template <typename T, typename U>
 struct comp
 {
@@ -1007,11 +1013,36 @@ int main(int argc, char* argv[])
 
     execute<tuple_element_size_v<2, std::tuple<short, int, double>>, sizeof(double)>();
 
-    using nests = std::tuple<std::tuple<std::tuple<std::tuple<int>>>>;
-    execute<tuple_depth_v<nests>, 4>();
-    execute<depth_element_t<2, nests>, std::tuple<std::tuple<int>>>();
-    execute<depth_element_t<4, nests>, int>();
+    using nest1 = T0<T1<T2<T3<T4<>>>>>;
+    using nest2 = T0<T1<T2<T3<T4<int>>>>>;
 
+    using flat1 = std::tuple<T0<>, T1<>, T2<>, T3<>, T4<>>;
+    using flat2 = std::tuple<T0<>, T1<>, T2<>, T3<>, T4<>, int>;
+
+    execute<tuple_depth_v<nest1>, 5>();
+    execute<tuple_depth_v<nest2>, 5>();
+
+    execute<depth_element_t<3, nest1>, T3<T4<>>>();
+    execute<depth_element_t<5, nest2>, int>();
+
+    execute<to_flat_t<nest1>, flat1>();
+    execute<to_nest_t<flat1>, nest1>();
+
+    execute<to_flat_t<nest2>, flat2>();
+    execute<to_nest_t<flat2>, nest2>();
+
+    execute<to_nest_t<swap_t<0, 3, flat1>>, T3<T1<T2<T0<T4<>>>>>>();
+    execute<to_nest_t<swap_t<1, 4, flat2>>, T0<T4<T2<T3<T1<int>>>>>>();
+
+    execute<to_nest_t<range_t<1, 4, flat1>>, T1<T2<T3<>>>>();
+    execute<to_nest_t<range_t<2, 5, flat2>>, T2<T3<T4<>>>>();
+
+    execute<to_nest_t<reverse_t<flat1>>, T4<T3<T2<T1<T0<>>>>>>();
+    execute<to_nest_t<reverse_t<flat2>>, T4<T3<T2<T1<T0<int>>>>>>();
+/*  or
+    execute<nest_reverse_t<nest1>, T4<T3<T2<T1<T0<>>>>>>();
+    execute<nest_reverse_t<nest2>, T4<T3<T2<T1<T0<int>>>>>>();
+*/
     execute<binary_search_v<double, std::tuple<short, int, double>>>();
     execute<binary_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>>();
 

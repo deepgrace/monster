@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 177
+#define MONSTER_VERSION 178
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3836,6 +3836,73 @@ namespace monster
 
     template <typename T>
     using rest_t = typeof_t<rest<T>>;
+
+    template <typename T>
+    struct to_flat
+    {
+        template <typename U, typename V>
+        struct impl;
+
+        template <template <typename ...> typename U, typename... Args, template <typename ...> typename V, typename W>
+        struct impl<U<Args...>, V<W>> : impl<U<Args..., V<>>, W>
+        {
+        };
+
+        template <template <typename ...> typename U, typename... Args, template <typename ...> typename V>
+        struct impl<U<Args...>, V<>> : std::type_identity<U<Args..., V<>>>
+        {
+        };
+
+        template <template <typename ...> typename U, typename... Args, typename V>
+        struct impl<U<Args...>, V> : std::type_identity<U<Args..., V>>
+        {
+        };
+
+        using type = typeof_t<impl<std::tuple<>, T>>;
+    };
+
+    template <typename T>
+    using to_flat_t = typeof_t<to_flat<T>>;
+
+    template <typename T>
+    struct to_nest
+    {
+        template <typename U>
+        struct impl;
+
+        template <typename U>
+        struct impl<std::tuple<U>> : std::type_identity<U>
+        {
+        };
+
+        template <typename U, typename V, typename... Args>
+        struct impl<std::tuple<U, V, Args...>> : impl<std::tuple<append_t<V, U>, Args...>>
+        {
+        };
+
+        template <typename U, bool = is_variadic_type_v<front_t<T>>>
+        struct call : impl<U>
+        {
+        };
+
+        template <typename U>
+        struct call<U, false> : impl<prepend_t<pop_back_t<U>, front_t<T>>>
+        {
+        };
+
+        using type = typeof_t<call<reverse_t<T>>>;
+    };
+
+    template <typename T>
+    using to_nest_t = typeof_t<to_nest<T>>;
+
+    template <typename T>
+    struct nest_reverse : to_nest<reverse_t<to_flat_t<T>>>
+    {
+    };
+
+    template <typename T>
+    using nest_reverse_t = typeof_t<nest_reverse<T>>;
 
     template <typename T, typename U = T, typename... Args>
     constexpr size_t typeindex()
