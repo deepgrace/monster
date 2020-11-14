@@ -1037,6 +1037,9 @@ int main(int argc, char* argv[])
     execute<nest_set_t<nest1, nest2>, T0<T1<T2<T3<T4<T0<T1<T2<T3<T4<int>>>>>>>>>>>();
     execute<nest_set_t<nest2, nest1>, T0<T1<T2<T3<T4<T0<T1<T2<T3<T4<>>>>>>>>>>>();
 
+    execute<nest_concat_t<T0<int>, T1<T2<short>>, T3<>, T4<int>>, T0<T1<T2<T3<T4<int>>>>>>();
+    execute<nest_concat_t<std::tuple<>, T1<T2<>>, T3<T4<>>>, std::tuple<T1<T2<T3<T4<>>>>>>();
+
     execute<to_flat_t<nest1>, flat1>();
     execute<to_nest_t<flat1>, nest1>();
 

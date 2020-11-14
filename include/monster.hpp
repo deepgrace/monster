@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 179
+#define MONSTER_VERSION 180
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3935,6 +3935,22 @@ namespace monster
 
     template <typename T, typename U>
     using nest_set_t = typeof_t<nest_set<T, U>>;
+
+    template <typename... Args>
+    struct nest_concat;
+
+    template <typename T>
+    struct nest_concat<T> : std::type_identity<T>
+    {
+    };
+
+    template <typename T, typename U, typename... Args>
+    struct nest_concat<T, U, Args...> : nest_concat<nest_set_t<T, U>, Args...>
+    {
+    };
+
+    template <typename... Args>
+    using nest_concat_t = typeof_t<nest_concat<Args...>>;
 
     template <typename T, typename U = T, typename... Args>
     constexpr size_t typeindex()
