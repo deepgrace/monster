@@ -1055,18 +1055,18 @@ int main(int argc, char* argv[])
     execute<to_flat_t<nest2>, flat2>();
     execute<to_nest_t<flat2>, nest2>();
 
-    execute<to_nest_t<swap_t<0, 3, flat1>>, T3<T1<T2<T0<T4<>>>>>>();
-    execute<to_nest_t<swap_t<1, 4, flat2>>, T0<T4<T2<T3<T1<int>>>>>>();
+    execute<nest_erase_t<1, 4, nest1>, T0<T4<>>>();
+    execute<nest_erase_t<2, 5, nest2>, T0<T1<int>>>();
 
-    execute<to_nest_t<range_t<1, 4, flat1>>, T1<T2<T3<>>>>();
-    execute<to_nest_t<range_t<2, 5, flat2>>, T2<T3<T4<>>>>();
+    execute<nest_range_t<1, 4, nest1>, T1<T2<T3<>>>>();
+    execute<nest_range_t<2, 5, nest2>, T2<T3<T4<>>>>();
 
-    execute<to_nest_t<reverse_t<flat1>>, T4<T3<T2<T1<T0<>>>>>>();
-    execute<to_nest_t<reverse_t<flat2>>, T4<T3<T2<T1<T0<int>>>>>>();
-/*  or
+    execute<nest_swap_t<0, 3, nest1>, T3<T1<T2<T0<T4<>>>>>>();
+    execute<nest_swap_t<1, 4, nest2>, T0<T4<T2<T3<T1<int>>>>>>();
+
     execute<nest_reverse_t<nest1>, T4<T3<T2<T1<T0<>>>>>>();
     execute<nest_reverse_t<nest2>, T4<T3<T2<T1<T0<int>>>>>>();
-*/
+
     execute<binary_search_v<double, std::tuple<short, int, double>>>();
     execute<binary_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>>();
 
