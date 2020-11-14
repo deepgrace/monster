@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 181
+#define MONSTER_VERSION 182
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3951,6 +3951,22 @@ namespace monster
 
     template <typename T>
     using nest_reverse_t = typeof_t<nest_reverse<T>>;
+
+    template <auto lower, auto upper, typename T>
+    struct nest_reverse_range : nest_operator<lower, upper, T, reverse_range>
+    {
+    };
+
+    template <auto lower, auto upper, typename T>
+    using nest_reverse_range_t = typeof_t<nest_reverse_range<lower, upper, T>>;
+
+    template <auto pos, auto len, typename T>
+    struct nest_subset : nest_operator<pos, len, T, subset>
+    {
+    };
+
+    template <auto pos, auto len, typename T>
+    using nest_subset_t = typeof_t<nest_subset<pos, len, T>>;
 
     template <typename T>
     struct nest_clear : to_nest<range_t<0, nest_depth_v<T>, to_flat_t<T>>>
