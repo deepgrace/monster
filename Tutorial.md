@@ -1019,11 +1019,23 @@ int main(int argc, char* argv[])
     using flat1 = std::tuple<T0<>, T1<>, T2<>, T3<>, T4<>>;
     using flat2 = std::tuple<T0<>, T1<>, T2<>, T3<>, T4<>, int>;
 
-    execute<tuple_depth_v<nest1>, 5>();
-    execute<tuple_depth_v<nest2>, 5>();
+    execute<nest_depth_v<nest1>, 5>();
+    execute<nest_depth_v<nest2>, 5>();
 
-    execute<depth_element_t<3, nest1>, T3<T4<>>>();
-    execute<depth_element_t<5, nest2>, int>();
+    execute<nest_size_v<nest1>, 5>();
+    execute<nest_size_v<nest2>, 6>();
+
+    execute<nest_element_t<3, nest1>, T3<T4<>>>();
+    execute<nest_element_t<5, nest2>, int>();
+
+    execute<nest_clear_t<nest1>, T0<T1<T2<T3<T4<>>>>>>();
+    execute<nest_clear_t<nest2>, T0<T1<T2<T3<T4<>>>>>>();
+
+    execute<nest_set_t<nest1, nullptr_t>, T0<T1<T2<T3<T4<nullptr_t>>>>>>();
+    execute<nest_set_t<nest2, nullptr_t>, T0<T1<T2<T3<T4<nullptr_t>>>>>>();
+
+    execute<nest_set_t<nest1, nest2>, T0<T1<T2<T3<T4<T0<T1<T2<T3<T4<int>>>>>>>>>>>();
+    execute<nest_set_t<nest2, nest1>, T0<T1<T2<T3<T4<T0<T1<T2<T3<T4<>>>>>>>>>>>();
 
     execute<to_flat_t<nest1>, flat1>();
     execute<to_nest_t<flat1>, nest1>();

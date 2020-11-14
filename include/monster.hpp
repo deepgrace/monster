@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 178
+#define MONSTER_VERSION 179
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1042,37 +1042,53 @@ namespace monster
     template <size_t, typename T = std::void_t<>>
     using make_type = T;
 
-    template <typename... Args>
+    template <auto N, typename... Args>
     struct tuple_depth
     {
-        static constexpr auto value = 0;
+        static constexpr auto value = N * sizeof...(Args);
     };
 
-    template <template <typename ...> typename T, typename... Args>
-    struct tuple_depth<T<Args...>>
+    template <auto N, template <typename ...> typename T, typename... Args>
+    struct tuple_depth<N, T<Args...>>
     {
-        static constexpr auto value = 1 + tuple_depth<Args...>::value;
+        static constexpr auto value = 1 + tuple_depth<N, Args...>::value;
+    };
+
+    template <auto N, typename T>
+    inline constexpr auto tuple_depth_v = typev<tuple_depth<N, T>>;
+
+    template <typename T>
+    struct nest_depth : tuple_depth<0, T>
+    {
     };
 
     template <typename T>
-    inline constexpr auto tuple_depth_v = typev<tuple_depth<T>>;
+    inline constexpr auto nest_depth_v = typev<nest_depth<T>>;
+
+    template <typename T>
+    struct nest_size : tuple_depth<1, T>
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto nest_size_v = typev<nest_size<T>>;
 
     template <auto N, typename T>
-    struct depth_element;
+    struct nest_element;
 
     template <auto N, template <typename ...> typename T, typename U>
-    struct depth_element<N, T<U>>
+    struct nest_element<N, T<U>>
     {
-        using type = type_if<is_variadic_type_v<U>, depth_element<N - 1, U>, std::type_identity<U>>;
+        using type = type_if<is_variadic_type_v<U>, nest_element<N - 1, U>, std::type_identity<U>>;
     };
 
     template <template <typename ...> typename T, typename U>
-    struct depth_element<0, T<U>> : std::type_identity<T<U>>
+    struct nest_element<0, T<U>> : std::type_identity<T<U>>
     {
     };
 
     template <auto N, typename T>
-    using depth_element_t = typeof_t<depth_element<N, T>>;
+    using nest_element_t = typeof_t<nest_element<N, T>>;
 
     template <size_t N, typename T>
     struct tuple_element;
@@ -3903,6 +3919,22 @@ namespace monster
 
     template <typename T>
     using nest_reverse_t = typeof_t<nest_reverse<T>>;
+
+    template <typename T>
+    struct nest_clear : to_nest<range_t<0, nest_depth_v<T>, to_flat_t<T>>>
+    {
+    };
+
+    template <typename T>
+    using nest_clear_t = typeof_t<nest_clear<T>>;
+
+    template <typename T, typename U>
+    struct nest_set : to_nest<append_t<range_t<0, nest_depth_v<T>, to_flat_t<T>>, U>>
+    {
+    };
+
+    template <typename T, typename U>
+    using nest_set_t = typeof_t<nest_set<T, U>>;
 
     template <typename T, typename U = T, typename... Args>
     constexpr size_t typeindex()
