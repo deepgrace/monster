@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 183
+#define MONSTER_VERSION 184
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3975,12 +3975,18 @@ namespace monster
     using nest_subset_t = typeof_t<nest_subset<pos, len, T>>;
 
     template <typename T>
-    struct nest_clear : to_nest<range_t<0, nest_depth_v<T>, to_flat_t<T>>>
+    struct nest_clear : nest_operator<0, nest_depth_v<T>, T, range>
     {
     };
 
     template <typename T>
     using nest_clear_t = typeof_t<nest_clear<T>>;
+
+    template <bool B, typename T>
+    using nest_clear_if = std::conditional_t<B, nest_clear<T>, std::type_identity<T>>;
+
+    template <bool B, typename T>
+    using nest_clear_if_t = typeof_t<nest_clear_if<B, T>>;
 
     template <typename T, typename U>
     struct nest_set : to_nest<append_t<range_t<0, nest_depth_v<T>, to_flat_t<T>>, U>>
@@ -4011,6 +4017,58 @@ namespace monster
 
     template <typename... Args>
     using nest_concat_t = typeof_t<nest_concat<Args...>>;
+
+    template <template <auto, typename> typename F, auto N, typename T, bool B = true>
+    struct nest_apply
+    {
+        using last = nest_last_t<T>;
+        using curr = to_nest_t<typeof_t<F<N, to_flat_t<nest_clear_if_t<B, T>>>>>;
+
+        using type = nest_set_if_t<B && !is_variadic_type_v<last>, curr, last>;
+    };
+
+    template <template <auto, typename> typename F, auto N, typename T, bool B = true>
+    using nest_apply_t = typeof_t<nest_apply<F, N, T, B>>;
+
+    template <auto N, typename T>
+    struct nest_remove_prefix : nest_apply<remove_prefix, N, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using nest_remove_prefix_t = typeof_t<nest_remove_prefix<N, T>>;
+
+    template <auto N, typename T>
+    struct nest_remove_suffix : nest_apply<remove_suffix, N, T, 0>
+    {
+    };
+
+    template <auto N, typename T>
+    using nest_remove_suffix_t = typeof_t<nest_remove_suffix<N, T>>;
+
+    template <auto N, typename T>
+    struct nest_take_prefix : nest_apply<take_prefix, N, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using nest_take_prefix_t = typeof_t<nest_take_prefix<N, T>>;
+
+    template <auto N, typename T>
+    struct nest_take_suffix : nest_apply<take_suffix, N, T, 0>
+    {
+    };
+
+    template <auto N, typename T>
+    using nest_take_suffix_t = typeof_t<nest_take_suffix<N, T>>;
+
+    template <auto N, typename T>
+    struct nest_drop : nest_apply<drop, N, T, 0>
+    {
+    };
+
+    template <auto N, typename T>
+    using nest_drop_t = typeof_t<nest_drop<N, T>>;
 
     template <typename T, typename U = T, typename... Args>
     constexpr size_t typeindex()
@@ -5331,12 +5389,8 @@ namespace monster
     using nest_rotate_t = typeof_t<nest_rotate<lower, middle, upper, T>>;
 
     template <auto N, typename T>
-    struct nest_shift_left
+    struct nest_shift_left : nest_apply<shift_left, N, T>
     {
-        using last = nest_last_t<T>;
-        using curr = to_nest_t<shift_left_t<N, to_flat_t<nest_clear_t<T>>>>;
-
-        using type = nest_set_if_t<!is_variadic_type_v<last>, curr, last>;
     };
 
     template <auto N, typename T>
