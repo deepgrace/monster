@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 184
+#define MONSTER_VERSION 185
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -2602,22 +2602,22 @@ namespace monster
     using substitute_c = substitute_t<i, j, c_<N>, U>;
 
     template <auto i, typename T, typename U>
-    using exchange = substitute<i, i + 1, T, U>;
+    using change = substitute<i, i + 1, T, U>;
 
     template <auto i, typename T, typename U>
-    using exchange_t = typeof_t<exchange<i, T, U>>;
+    using change_t = typeof_t<change<i, T, U>>;
 
     template <auto i, auto N, typename U>
-    using exchange_c = exchange_t<i, c_<N>, U>;
+    using change_c = change_t<i, c_<N>, U>;
 
     template <bool B, auto i, typename T, typename U>
-    using exchange_if = std::conditional_t<!B, std::type_identity<U>, exchange<i, T, U>>;
+    using change_if = std::conditional_t<!B, std::type_identity<U>, change<i, T, U>>;
 
     template <bool B, auto i, typename T, typename U>
-    using exchange_if_t = typeof_t<exchange_if<B, i, T, U>>;
+    using change_if_t = typeof_t<change_if<B, i, T, U>>;
 
     template <bool B, auto i, auto N, typename U>
-    using exchange_if_c = exchange_if_t<B, i, c_<N>, U>;
+    using change_if_c = change_if_t<B, i, c_<N>, U>;
 
     template <typename indices, typename T, typename U>
     requires less_equal_v<indices, U>
@@ -2627,7 +2627,7 @@ namespace monster
         struct impl;
 
         template <auto n, auto... N, typename W>
-        struct impl<std::index_sequence<n, N...>, W> : impl<std::index_sequence<N...>, exchange_t<n, element_t<n, T>, W>>
+        struct impl<std::index_sequence<n, N...>, W> : impl<std::index_sequence<N...>, change_t<n, element_t<n, T>, W>>
         {
         };
 
@@ -3131,7 +3131,7 @@ namespace monster
     using transform_t = typeof_t<transform<F, T>>;
 
     template <auto N, template <typename ...> typename F, typename T>
-    struct transform_nth : exchange<N, visit_t<F, N, T>, T>
+    struct transform_nth : change<N, visit_t<F, N, T>, T>
     {
     };
 
@@ -3304,7 +3304,7 @@ namespace monster
         struct impl
         {
             using next = typeof_t<F<V>>;
-            using type = typeof_t<impl<i + 1, j, next, exchange_t<i, V, W>>>;
+            using type = typeof_t<impl<i + 1, j, next, change_t<i, V, W>>>;
         };
 
         template <int j, typename V, typename W>
@@ -3473,7 +3473,7 @@ namespace monster
 
             static constexpr auto value = negav<F<lhs, rhs>>;
 
-            using next = exchange_if_t<value && j + 1 != i, j + 1, rhs, U>;
+            using next = change_if_t<value && j + 1 != i, j + 1, rhs, U>;
             using type = typeof_t<impl<i + 1, j + value, next, i + 1 != E>>;
         };
 
@@ -3515,7 +3515,7 @@ namespace monster
             using curr = element_t<j, U>;
             static constexpr auto value = negav<F<curr>>;
 
-            using next = exchange_if_t<value, i, curr, U>;
+            using next = change_if_t<value, i, curr, U>;
             using type = typeof_t<impl<i + value, j + 1, next, j + 1 != E>>;
         };
 
@@ -4069,6 +4069,14 @@ namespace monster
 
     template <auto N, typename T>
     using nest_drop_t = typeof_t<nest_drop<N, T>>;
+
+    template <auto N, typename T>
+    struct nest_pivot : nest_apply<pivot, N, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using nest_pivot_t = typeof_t<nest_pivot<N, T>>;
 
     template <typename T, typename U = T, typename... Args>
     constexpr size_t typeindex()
@@ -4641,7 +4649,7 @@ namespace monster
     using max_subarray_t = typeof_t<max_subarray<T>>;
 
     template <auto n, auto N, typename T>
-    using sub = exchange<n, c_<N>, T>;
+    using sub = change<n, c_<N>, T>;
 
     template <auto n, auto N, typename T>
     using sub_t = typeof_t<sub<n, N, T>>;
@@ -6931,7 +6939,7 @@ namespace monster
     inline constexpr auto get_matrix_element_v = typev<get_matrix_element_t<row, col, T>>;
 
     template <auto row, auto col, typename T, typename U>
-    struct set_matrix_element : exchange<row, exchange_t<col, T, element_t<row, U>>, U>
+    struct set_matrix_element : change<row, change_t<col, T, element_t<row, U>>, U>
     {
     };
 
@@ -6976,7 +6984,7 @@ namespace monster
 
     template <auto N, typename T, typename U, bool B = false>
     requires (matrix_row_size_v<T> == matrix_col_size_v<U> || B)
-    struct set_matrix_row : exchange<N, T, U>
+    struct set_matrix_row : change<N, T, U>
     {
     };
 
@@ -7016,7 +7024,7 @@ namespace monster
 
     template <auto N, typename T, typename U, bool B = false>
     requires (matrix_row_size_v<T> == matrix_row_size_v<U> || B)
-    struct set_matrix_col : exchange<N, T, U>
+    struct set_matrix_col : change<N, T, U>
     {
         template <int i, int j, typename V>
         struct impl : set_matrix_element<typev<V>, N, element_t<typev<V>, T>, typeof_t<V>>
@@ -7494,7 +7502,7 @@ namespace monster
             static constexpr auto p = element_v<i, curr>;
             static constexpr auto q = element_v<typev<V>, T>;
 
-            using type = exchange_t<i, c_<B ? p + q : p * q>, curr>;
+            using type = change_t<i, c_<B ? p + q : p * q>, curr>;
         };
 
         using type = matrix_col_transform_t<N, N, U, impl, 1>;
@@ -9469,7 +9477,7 @@ namespace monster
             static constexpr auto n = sizeof_t_v<X> / p % q;
             static constexpr auto m = get_v<n, V> - 1;
 
-            using type = typeof_t<sort<i - 1, sub_t<n, m, V>, exchange_t<m, X, W>>>;
+            using type = typeof_t<sort<i - 1, sub_t<n, m, V>, change_t<m, X, W>>>;
         };
 
         template <typename V, typename W>
@@ -9920,14 +9928,14 @@ namespace monster
             template <typename W, bool B>
             struct next
             {
-                using type = sort<i, j - 1, k, exchange_t<j, prev, W>, V>;
+                using type = sort<i, j - 1, k, change_t<j, prev, W>, V>;
             };
 
             template <typename W>
             struct next<W, false>
             {
                 using cond = element_if_t<i + 1 != k, i + 1, W, std::type_identity<W>>;
-                using type = sort<i + 1, i + 1, k, exchange_t<j, V, W>, cond>;
+                using type = sort<i + 1, i + 1, k, change_t<j, V, W>, cond>;
             };
 
             using type = typeof_t<typeof_t<next<U, typev<comparator<V, prev>>>>>;
@@ -9936,7 +9944,7 @@ namespace monster
         template <size_t i, size_t k, typename U, typename V>
         struct sort<i, 0, k, U, V>
         {
-            using type = typeof_t<sort<i + 1, i + 1, k, exchange_t<0, V, U>, element_t<i + 1 == k ? i : i + 1, U>>>;
+            using type = typeof_t<sort<i + 1, i + 1, k, change_t<0, V, U>, element_t<i + 1 == k ? i : i + 1, U>>>;
         };
 
         template <size_t k, typename U, typename V>
@@ -10040,7 +10048,7 @@ namespace monster
             using second = element_t<j, right>;
 
             static constexpr auto value = typev<comparator<first, second>>;
-            using swap = exchange_t<k, std::conditional_t<value, first, second>, U>;
+            using swap = change_t<k, std::conditional_t<value, first, second>, U>;
 
             using type = typeof_t<assign<i + value, j + !value, k + 1, l, swap>>;
         };
@@ -10335,7 +10343,7 @@ namespace monster
     struct map_update
     {
         static constexpr auto N = map_find_v<T, V>;
-        using type = exchange_t<N, append_t<clear_t<element_t<N, V>>, T, U>, V>;
+        using type = change_t<N, append_t<clear_t<element_t<N, V>>, T, U>, V>;
     };
 
     template <typename T, typename U, typename V>
@@ -10379,7 +10387,7 @@ namespace monster
             static constexpr auto last = index == k;
 
             using dest = offset<curr, N - i - 1>;
-            using next = type_if<last, append<U, dest>, exchange<index, dest, U>>;
+            using next = type_if<last, append<U, dest>, change<index, dest, U>>;
 
             using type = typeof_t<table<i + 1, j, k + last, next>>;
         };
@@ -10791,9 +10799,9 @@ namespace monster
             using second = second_t<prev>;
 
             using last = element_t<from, first>;
-            using next = exchange_t<to, prepend_t<element_t<to, first>, get<0, last>>, first>;
+            using next = change_t<to, prepend_t<element_t<to, first>, get<0, last>>, first>;
 
-            using curr = exchange_t<from, pop_front_t<last>, next>;
+            using curr = change_t<from, pop_front_t<last>, next>;
             using type = typeof_t<impl<i - 1, curr, use, to, from, append_t<second, c_<from>, c_<to>>>>;
         };
 
@@ -10830,21 +10838,21 @@ namespace monster
         };
 
         template <int i, int j, typename U, bool>
-        struct update : exchange<j, c_<i>, U>
+        struct update : change<j, c_<i>, U>
         {
         };
 
         template <int i, int j, typename U>
         struct update<i, j, U, false>
         {
-            using type = exchange_if_t<unary_v<less_t, B + i, B + element_v<j, U>, T>, j, c_<i>, U>;
+            using type = change_if_t<unary_v<less_t, B + i, B + element_v<j, U>, T>, j, c_<i>, U>;
         };
 
         template <int i, int j, int k, typename U, typename V>
         struct impl
         {
             static constexpr auto l = typeof_v<search<1, k, i, V>>;
-            using type = typeof_t<impl<i + 1, j, max_v<l, k>, exchange_c<i, element_v<l - 1, V>, U>, typeof_t<update<i, l, V, k < l>>>>; 
+            using type = typeof_t<impl<i + 1, j, max_v<l, k>, change_c<i, element_v<l - 1, V>, U>, typeof_t<update<i, l, V, k < l>>>>; 
         };
 
         template <int j, int k, typename U, typename V>
@@ -10855,12 +10863,12 @@ namespace monster
         using call = typeof_t<impl<B, E, 0, fill_c<E, 0>, fill_c<E + 1, 0>>>;
 
         template <int i, int j, typename U>
-        struct reconstruct : reconstruct<i - 1, element_v<j, typeof_t<call>>, exchange_t<i, c_<B + j>, U>>
+        struct reconstruct : reconstruct<i - 1, element_v<j, typeof_t<call>>, change_t<i, c_<B + j>, U>>
         {
         };
 
         template <int j, typename U>
-        struct reconstruct<0, j, U> : exchange<0, c_<B + j>, U>
+        struct reconstruct<0, j, U> : change<0, c_<B + j>, U>
         {
         };
 
@@ -10971,7 +10979,7 @@ namespace monster
             static constexpr auto lhs = value ? j - mid : l;
             static constexpr auto rhs = value ? j + mid - i : r;
 
-            using type = pair_t<index_type<j, exchange_c<j, mid, U>>, triple<lhs, rhs, pair_v<j - mid, j + mid + !i>>>;
+            using type = pair_t<index_type<j, change_c<j, mid, U>>, triple<lhs, rhs, pair_v<j - mid, j + mid + !i>>>;
         };
 
         template <int i, int l, int r, typename U>
@@ -11099,7 +11107,7 @@ namespace monster
             using curr = element_t<j, U>;
             static constexpr auto value = typev<lhs> < typev<rhs> && less_v<element_t<i, U>, curr>;
 
-            using type = typeof_t<next<i, j + l, k, l, exchange_if_t<value, i, curr, U>>>;
+            using type = typeof_t<next<i, j + l, k, l, change_if_t<value, i, curr, U>>>;
         };
 
         template <int i, int k, int l, typename U>
@@ -11109,7 +11117,7 @@ namespace monster
             using rhs = element_t<i, T>;
 
             using curr = type_if<l == 1, append<lhs, rhs>, prepend<lhs, rhs>>;
-            using type = typeof_t<next<i + l, l == 1 ? 0 : N - 1, k, l, exchange_t<i, curr, U>>>;
+            using type = typeof_t<next<i + l, l == 1 ? 0 : N - 1, k, l, change_t<i, curr, U>>>;
         };
 
         template <int j, int k, int l, typename U>
@@ -11186,7 +11194,7 @@ namespace monster
                 struct call
                 {
                     static constexpr auto value = is_same_v<m, i + m, U>;
-                    using type = type_if<value, call<exchange_if_c<value, i, m + 1, W>>, std::type_identity<W>>;
+                    using type = type_if<value, call<change_if_c<value, i, m + 1, W>>, std::type_identity<W>>;
                 };
 
                 template <typename W, int m>
@@ -11195,7 +11203,7 @@ namespace monster
                 };
 
                 static constexpr auto q = type_if_v<i <= l, element<i - k, V>, c_0>;
-                using curr = typeof_t<call<exchange_if_c<i <= l, i, min_v<l - i + 1, q>, V>>>;
+                using curr = typeof_t<call<change_if_c<i <= l, i, min_v<l - i + 1, q>, V>>>;
 
                 static constexpr auto p = i + element_v<i, curr> - 1;
                 using type = typeof_t<impl<i + 1, j, l < p ? i : k, l < p ? p : l, curr>>;

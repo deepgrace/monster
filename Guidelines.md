@@ -1654,9 +1654,9 @@ using s3 = substitute_c<3, 6, 9, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4
 // s3 == std::integer_sequence<int, 1, 3, -2, 9, 9, 9, 4, 6>
 
 // replace element at specific index
-using e1 = exchange_t<2, int, std::tuple<int, int, char, double, int, float, char>>;
-using e2 = exchange_t<1, c_<-2>, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>;
-using e3 = exchange_c<4, 9, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>;
+using e1 = change_t<2, int, std::tuple<int, int, char, double, int, float, char>>;
+using e2 = change_t<1, c_<-2>, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>;
+using e3 = change_c<4, 9, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>;
 // e1 == std::tuple<int, int, int, double, int, float, char>
 // e2 == std::integer_sequence<int, 1, -2, -2, 1, 7, 1, 4, 6>
 // e3 == std::integer_sequence<int, 1, 3, -2, 1, 9, 1, 4, 6>

@@ -797,11 +797,11 @@ int main(int argc, char* argv[])
     execute<substitute_c<3, 6, 9, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>,
             std::integer_sequence<int, 1, 3, -2, 9, 9, 9, 4, 6>>();
 
-    execute<exchange_t<2, int, std::tuple<int, int, char, double, int, float, char>>,
+    execute<change_t<2, int, std::tuple<int, int, char, double, int, float, char>>,
             std::tuple<int, int, int, double, int, float, char>>();
-    execute<exchange_t<1, c_<-2>, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>,
+    execute<change_t<1, c_<-2>, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>,
             std::integer_sequence<int, 1, -2, -2, 1, 7, 1, 4, 6>>();
-    execute<exchange_c<4, 9, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>,
+    execute<change_c<4, 9, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>,
             std::integer_sequence<int, 1, 3, -2, 1, 9, 1, 4, 6>>();
 
     execute<exchange_with_t<std::index_sequence<2, 4, 0, 1, 6>,
@@ -1078,6 +1078,9 @@ int main(int argc, char* argv[])
 
     execute<nest_drop_t<3, nest1>, T0<T1<T2<T4<>>>>>();
     execute<nest_drop_t<3, nest2>, T0<T1<T2<T4<int>>>>>();
+
+    execute<nest_pivot_t<3, nest1>, T3<T4<T0<T1<T2<>>>>>>();
+    execute<nest_pivot_t<3, nest2>, T3<T4<T0<T1<T2<int>>>>>>();
 
     execute<binary_search_v<double, std::tuple<short, int, double>>>();
     execute<binary_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>>();

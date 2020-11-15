@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
     static_assert(std::is_same_v<u1, std::tuple<int, char, double>>);
     static_assert(std::is_same_v<u2, std::integer_sequence<int, 2, 3, 4>>);
 
-    // exchanges the elements at specific index of a sequence
+    // swap elements at specific index of a sequence
     using s1 = swap_t<1, 3, std::tuple<int, double, char, float>>;
     using s2 = swap_t<0, 2, std::integer_sequence<int, 1, -2, 7, 4>>;
     static_assert(std::is_same_v<s1, std::tuple<int, float, char, double>>);
