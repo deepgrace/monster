@@ -1064,6 +1064,12 @@ int main(int argc, char* argv[])
     execute<nest_subset_t<1, 3, nest1>, T1<T2<T3<>>>>();
     execute<nest_subset_t<2, 4, nest2>, T2<T3<T4<int>>>>();
 
+    execute<nest_rotate_t<0, 2, 4, nest1>, T2<T3<T0<T1<T4<>>>>>>();
+    execute<nest_rotate_t<1, 3, 5, nest2>, T0<T3<T4<T1<T2<int>>>>>>();
+
+    execute<nest_shift_left_t<3, nest1>, T3<T4<T0<T1<T2<>>>>>>();
+    execute<nest_shift_right_t<3, nest2>, T2<T3<T4<T0<T1<int>>>>>>();
+
     execute<binary_search_v<double, std::tuple<short, int, double>>>();
     execute<binary_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>>();
 

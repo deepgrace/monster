@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 182
+#define MONSTER_VERSION 183
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1074,21 +1074,27 @@ namespace monster
     inline constexpr auto nest_size_v = typev<nest_size<T>>;
 
     template <auto N, typename T>
-    struct nest_element;
-
-    template <auto N, template <typename ...> typename T, typename U>
-    struct nest_element<N, T<U>>
+    struct nest_element : std::type_identity<T>
     {
-        using type = type_if<is_variadic_type_v<U>, nest_element<N - 1, U>, std::type_identity<U>>;
     };
 
-    template <template <typename ...> typename T, typename U>
-    struct nest_element<0, T<U>> : std::type_identity<T<U>>
+    template <auto N, template <typename ...> typename T, typename... Args>
+    struct nest_element<N, T<Args...>>
     {
+        using next = alias_t<Args..., std::void_t<>>;
+        using type = type_if<N != 0, nest_element<N - 1, next>, std::type_identity<T<Args...>>>;
     };
 
     template <auto N, typename T>
     using nest_element_t = typeof_t<nest_element<N, T>>;
+
+    template <typename T>
+    struct nest_last : nest_element<nest_size_v<T> - 1, T>
+    {
+    };
+
+    template <typename T>
+    using nest_last_t = typeof_t<nest_last<T>>;
 
     template <size_t N, typename T>
     struct tuple_element;
@@ -3984,6 +3990,12 @@ namespace monster
     template <typename T, typename U>
     using nest_set_t = typeof_t<nest_set<T, U>>;
 
+    template <bool B, typename T, typename U>
+    using nest_set_if = std::conditional_t<B, nest_set<T, U>, std::type_identity<T>>;
+
+    template <bool B, typename T, typename U>
+    using nest_set_if_t = typeof_t<nest_set_if<B, T, U>>;
+
     template <typename... Args>
     struct nest_concat;
 
@@ -5284,7 +5296,7 @@ namespace monster
     using shift_left_t = typeof_t<shift_left<N, T>>;
 
     template <auto N, typename T>
-    struct shift_right : rotate<0, sizeof_t_v<T> - N, sizeof_t_v<T>, T>
+    struct shift_right : shift_left<sizeof_t_v<T> - N, T>
     {
     };
 
@@ -5309,6 +5321,34 @@ namespace monster
 
     template <typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using shuffle_t = typeof_t<shuffle<T, B, E>>;
+
+    template <auto lower, auto middle, auto upper, typename T>
+    struct nest_rotate : to_nest<rotate_t<lower, middle, upper, to_flat_t<T>>>
+    {
+    };
+
+    template <auto lower, auto middle, auto upper, typename T>
+    using nest_rotate_t = typeof_t<nest_rotate<lower, middle, upper, T>>;
+
+    template <auto N, typename T>
+    struct nest_shift_left
+    {
+        using last = nest_last_t<T>;
+        using curr = to_nest_t<shift_left_t<N, to_flat_t<nest_clear_t<T>>>>;
+
+        using type = nest_set_if_t<!is_variadic_type_v<last>, curr, last>;
+    };
+
+    template <auto N, typename T>
+    using nest_shift_left_t = typeof_t<nest_shift_left<N, T>>;
+
+    template <auto N, typename T>
+    struct nest_shift_right : nest_shift_left<nest_depth_v<T> - N, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using nest_shift_right_t = typeof_t<nest_shift_right<N, T>>;
 
     template <typename T, auto N, auto B = T(), auto D = 0>
     struct value_sequence
