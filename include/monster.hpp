@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 186
+#define MONSTER_VERSION 187
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3980,6 +3980,30 @@ namespace monster
     template <typename T>
     using nest_unique_t = typeof_t<nest_unique<T>>;
 
+    template <typename T>
+    struct nest_pop_front : nest_invoke<pop_front, T>
+    {
+    };
+
+    template <typename T>
+    using nest_pop_front_t = typeof_t<nest_pop_front<T>>;
+
+    template <typename T>
+    struct nest_pop_back : nest_invoke<pop_back, T>
+    {
+    };
+
+    template <typename T>
+    using nest_pop_back_t = typeof_t<nest_pop_back<T>>;
+
+    template <typename T>
+    struct nest_midpoint : nest_element<(nest_size_v<T> + 1) /  2 - 1, T>
+    {
+    };
+
+    template <typename T>
+    using nest_midpoint_t = typeof_t<nest_midpoint<T>>;
+
     template <auto lower, auto upper, typename T>
     struct nest_reverse_range : nest_operator<lower, upper, T, reverse_range>
     {
@@ -4051,6 +4075,30 @@ namespace monster
 
     template <template <auto, typename> typename F, auto N, typename T, bool B = true>
     using nest_apply_t = typeof_t<nest_apply<F, N, T, B>>;
+
+    template <template <typename ...> typename T, typename U>
+    struct nest_prepend
+    {
+        template <typename V>
+        using impl = prepend<V, T<>>;
+
+        using type = nest_invoke_t<impl, U>;
+    };
+
+    template <template <typename ...> typename T, typename U>
+    using nest_prepend_t = typeof_t<nest_prepend<T, U>>;
+
+    template <template <typename ...> typename T, typename U>
+    struct nest_append
+    {
+        template <auto N, typename V>
+        using impl = append<V, T<>>;
+
+        using type = nest_apply_t<impl, 0, U>;
+    };
+
+    template <template <typename ...> typename T, typename U>
+    using nest_append_t = typeof_t<nest_append<T, U>>;
 
     template <auto N, typename T>
     struct nest_remove_prefix : nest_apply<remove_prefix, N, T>
