@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 185
+#define MONSTER_VERSION 186
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1095,6 +1095,12 @@ namespace monster
 
     template <typename T>
     using nest_last_t = typeof_t<nest_last<T>>;
+
+    template <bool B, typename T>
+    using nest_last_if = std::conditional_t<B, nest_last<T>, std::type_identity<T>>;
+
+    template <bool B, typename T>
+    using nest_last_if_t = typeof_t<nest_last_if<B, T>>;
 
     template <size_t N, typename T>
     struct tuple_element;
@@ -3950,13 +3956,29 @@ namespace monster
     template <auto lower, auto upper, typename T>
     using nest_swap_t = typeof_t<nest_swap<lower, upper, T>>;
 
+    template <template <typename ...> typename F, typename T>
+    struct nest_invoke : to_nest<typeof_t<F<to_flat_t<T>>>>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T>
+    using nest_invoke_t = typeof_t<nest_invoke<F, T>>;
+
     template <typename T>
-    struct nest_reverse : to_nest<reverse_t<to_flat_t<T>>>
+    struct nest_reverse : nest_invoke<reverse, T>
     {
     };
 
     template <typename T>
     using nest_reverse_t = typeof_t<nest_reverse<T>>;
+
+    template <typename T>
+    struct nest_unique : nest_invoke<unique, T>
+    {
+    };
+
+    template <typename T>
+    using nest_unique_t = typeof_t<nest_unique<T>>;
 
     template <auto lower, auto upper, typename T>
     struct nest_reverse_range : nest_operator<lower, upper, T, reverse_range>
@@ -4021,7 +4043,7 @@ namespace monster
     template <template <auto, typename> typename F, auto N, typename T, bool B = true>
     struct nest_apply
     {
-        using last = nest_last_t<T>;
+        using last = nest_last_if_t<B, T>;
         using curr = to_nest_t<typeof_t<F<N, to_flat_t<nest_clear_if_t<B, T>>>>>;
 
         using type = nest_set_if_t<B && !is_variadic_type_v<last>, curr, last>;
@@ -6740,6 +6762,14 @@ namespace monster
 
     template <template <typename ...> typename F, typename T>
     using remove_copy_if_t = typeof_t<remove_copy_if<F, T>>;
+
+    template <template <typename ...> typename T, typename U>
+    struct nest_remove_copy : to_nest<remove_copy_t<T<>, to_flat_t<U>>>
+    {
+    };
+
+    template <template <typename ...> typename T, typename U>
+    using nest_remove_copy_t = typeof_t<nest_remove_copy<T, U>>;
 
     template <typename T, typename U>
     struct cartesian_product

@@ -1055,6 +1055,9 @@ int main(int argc, char* argv[])
     execute<nest_swap_t<0, 3, nest1>, T3<T1<T2<T0<T4<>>>>>>();
     execute<nest_swap_t<1, 4, nest2>, T0<T4<T2<T3<T1<int>>>>>>();
 
+    execute<nest_unique_t<T0<T1<T2<T1<T3<T4<T4<>>>>>>>>, T0<T1<T2<T3<T4<>>>>>>();
+    execute<nest_unique_t<T0<T1<T2<T1<T3<T4<T0<int>>>>>>>>, T0<T1<T2<T3<T4<int>>>>>>();
+
     execute<nest_reverse_t<nest1>, T4<T3<T2<T1<T0<>>>>>>();
     execute<nest_reverse_t<nest2>, T4<T3<T2<T1<T0<int>>>>>>();
 
@@ -1081,6 +1084,9 @@ int main(int argc, char* argv[])
 
     execute<nest_pivot_t<3, nest1>, T3<T4<T0<T1<T2<>>>>>>();
     execute<nest_pivot_t<3, nest2>, T3<T4<T0<T1<T2<int>>>>>>();
+
+    execute<nest_remove_copy_t<T2, nest1>, T0<T1<T3<T4<>>>>>();
+    execute<nest_remove_copy_t<T3, nest2>, T0<T1<T2<T4<int>>>>>();
 
     execute<binary_search_v<double, std::tuple<short, int, double>>>();
     execute<binary_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>>();
