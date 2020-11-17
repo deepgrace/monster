@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 187
+#define MONSTER_VERSION 188
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4100,6 +4100,18 @@ namespace monster
     template <template <typename ...> typename T, typename U>
     using nest_append_t = typeof_t<nest_append<T, U>>;
 
+    template <auto N, template <typename ...> typename T, typename U>
+    struct nest_change
+    {
+        template <auto M, typename V>
+        using impl = change<M, T<>, V>;
+
+        using type = nest_apply_t<impl, N, U>;
+    };
+
+    template <auto N, template <typename ...> typename T, typename U>
+    using nest_change_t = typeof_t<nest_change<N, T, U>>;
+
     template <auto N, typename T>
     struct nest_remove_prefix : nest_apply<remove_prefix, N, T>
     {
@@ -4299,6 +4311,38 @@ namespace monster
 
     template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
     inline constexpr auto find_not_backward_v = typev<find_not_backward<T, U, B, E>>;
+
+    template <template <typename ...> typename T, typename U>
+    struct nest_find : find<T<>, to_flat_t<U>>
+    {
+    };
+
+    template <template <typename ...> typename T, typename U>
+    inline constexpr auto nest_find_v = typev<nest_find<T, U>>;
+
+    template <template <typename ...> typename T, typename U>
+    struct nest_find_backward : find_backward<T<>, to_flat_t<nest_clear_t<U>>>
+    {
+    };
+
+    template <template <typename ...> typename T, typename U>
+    inline constexpr auto nest_find_backward_v = typev<nest_find_backward<T, U>>;
+
+    template <template <typename ...> typename T, typename U>
+    struct nest_find_not : find_not<T<>, to_flat_t<U>>
+    {
+    };
+
+    template <template <typename ...> typename T, typename U>
+    inline constexpr auto nest_find_not_v = typev<nest_find_not<T, U>>;
+
+    template <template <typename ...> typename T, typename U>
+    struct nest_find_not_backward : find_not_backward<T<>, to_flat_t<nest_clear_t<U>>>
+    {
+    };
+
+    template <template <typename ...> typename T, typename U>
+    inline constexpr auto nest_find_not_backward_v = typev<nest_find_not_backward<T, U>>;
 
     template <template <typename ...> typename F, typename T>
     struct find_index
