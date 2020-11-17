@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 188
+#define MONSTER_VERSION 189
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1636,10 +1636,10 @@ namespace monster
     template <template <typename ...> typename F, int N, int B, int E, typename T>
     inline constexpr auto index_if_v = typev<index_if_t<F, N, B, E, T>>;
 
-    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using next_index_if = index_if_t<F, 1, B, E, T>;
 
-    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     inline constexpr auto next_index_if_v = typev<next_index_if<F, T, B, E>>;
 
     template <template <typename ...> typename F, typename T, int B = sizeof_t_v<T> - 1, int E = -1>
@@ -1648,13 +1648,13 @@ namespace monster
     template <template <typename ...> typename F, typename T, int B = sizeof_t_v<T> - 1, int E = -1>
     inline constexpr auto prev_index_if_v = typev<prev_index_if<F, T, B, E>>;
 
-    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using find_if = applyf<next_index_if, F, T, B, E>;
 
-    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using find_if_t = typeof_t<find_if<F, T, B, E>>;
 
-    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     inline constexpr auto find_if_v = typev<find_if_t<F, T, B, E>>;
 
     template <template <typename ...> typename F, typename T, int B = sizeof_t_v<T> - 1, int E = -1>
@@ -1666,13 +1666,13 @@ namespace monster
     template <template <typename ...> typename F, typename T, int B = sizeof_t_v<T> - 1, int E = -1>
     inline constexpr auto find_if_backward_v = typev<find_if_backward_t<F, T, B, E>>;
 
-    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using find_if_not = applyf<next_index_if, F, T, B, E, true>;
 
-    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using find_if_not_t = applyf_t<next_index_if, F, T, B, E, true>;
 
-    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     inline constexpr auto find_if_not_v = typev<find_if_not_t<F, T, B, E>>;
 
     template <template <typename ...> typename F, typename T, int B = sizeof_t_v<T> - 1, int E = -1>
@@ -1684,7 +1684,7 @@ namespace monster
     template <template <typename ...> typename F, typename T, int B = sizeof_t_v<T> - 1, int E = -1>
     inline constexpr auto find_if_not_backward_v = typev<find_if_not_backward_t<F, T, B, E>>;
 
-    template <typename T, typename U, bool D = true, int B = 0, int E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
+    template <typename T, typename U, bool D = true, auto B = 0, auto E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
     struct bound
     {
         template <typename X, typename Y>
@@ -1708,37 +1708,37 @@ namespace monster
         using type = typeof_t<impl<E - B, B>>;
     };
 
-    template <typename T, typename U, bool D = true, int B = 0, int E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
+    template <typename T, typename U, bool D = true, auto B = 0, auto E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
     using bound_t = typeof_t<bound<T, U, D, B, E, F>>;
 
-    template <typename T, typename U, bool D = true, int B = 0, int E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
+    template <typename T, typename U, bool D = true, auto B = 0, auto E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
     inline constexpr auto bound_v = typev<bound_t<T, U, D, B, E, F>>;
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
     using lower_bound = bound<T, U, true, B, E, F>;
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
     using lower_bound_t = typeof_t<lower_bound<T, U, B, E, F>>;
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
     inline constexpr auto lower_bound_v = typev<lower_bound_t<T, U, B, E, F>>;
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
     using upper_bound = bound<T, U, false, B, E, F>;
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
     using upper_bound_t = typeof_t<upper_bound<T, U, B, E, F>>;
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
     inline constexpr auto upper_bound_v = typev<upper_bound_t<T, U, B, E, F>>;
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
     struct equal_range
     {
         using type = pair_v<lower_bound_v<T, U, B, E, F>, upper_bound_v<T, U, B, E, F>>;
     };
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>, template <typename, typename> typename F = less_t>
     using equal_range_t = typeof_t<equal_range<T, U, B, E, F>>;
 
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
@@ -3663,12 +3663,12 @@ namespace monster
     template <auto i, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     using insert_range_t = typeof_t<insert_range<i, T, U, B, E>>;
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     struct append_range : insert_range<sizeof_t_v<T>, T, U, B, E>
     {
     };
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     using append_range_t = typeof_t<append_range<T, U, B, E>>;
 
     template <bool B, typename T, typename U, int i = 0, int j = sizeof_t_v<U>>
@@ -4276,73 +4276,73 @@ namespace monster
         return B + index_of<T, range_t<B, E, U>, B1, B2>();
     }
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     struct find
     {
         static constexpr auto value = find_of<T, U, B, E, false, false>();
     };
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     inline constexpr auto find_v = typev<find<T, U, B, E>>;
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     struct find_backward
     {
         static constexpr auto value = find_of<T, U, B, E, true, false>();
     };
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     inline constexpr auto find_backward_v = typev<find_backward<T, U, B, E>>;
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     struct find_not
     {
         static constexpr auto value = find_of<T, U, B, E, false, true>();
     };
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     inline constexpr auto find_not_v = typev<find_not<T, U, B, E>>;
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     struct find_not_backward
     {
         static constexpr auto value = find_of<T, U, B, E, true, true>();
     };
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     inline constexpr auto find_not_backward_v = typev<find_not_backward<T, U, B, E>>;
 
-    template <template <typename ...> typename T, typename U>
-    struct nest_find : find<T<>, to_flat_t<U>>
+    template <template <typename ...> typename T, typename U, auto B = 0, auto E = nest_depth_v<U>>
+    struct nest_find : find<T<>, to_flat_t<U>, B, E>
     {
     };
 
-    template <template <typename ...> typename T, typename U>
-    inline constexpr auto nest_find_v = typev<nest_find<T, U>>;
+    template <template <typename ...> typename T, typename U, auto B = 0, auto E = nest_depth_v<U>>
+    inline constexpr auto nest_find_v = typev<nest_find<T, U, B, E>>;
 
-    template <template <typename ...> typename T, typename U>
-    struct nest_find_backward : find_backward<T<>, to_flat_t<nest_clear_t<U>>>
+    template <template <typename ...> typename T, typename U, auto B = 0, auto E = nest_depth_v<U>>
+    struct nest_find_backward : find_backward<T<>, to_flat_t<nest_clear_t<U>>, B, E>
     {
     };
 
-    template <template <typename ...> typename T, typename U>
-    inline constexpr auto nest_find_backward_v = typev<nest_find_backward<T, U>>;
+    template <template <typename ...> typename T, typename U, auto B = 0, auto E = nest_depth_v<U>>
+    inline constexpr auto nest_find_backward_v = typev<nest_find_backward<T, U, B, E>>;
 
-    template <template <typename ...> typename T, typename U>
-    struct nest_find_not : find_not<T<>, to_flat_t<U>>
+    template <template <typename ...> typename T, typename U, auto B = 0, auto E = nest_depth_v<U>>
+    struct nest_find_not : find_not<T<>, to_flat_t<U>, B, E>
     {
     };
 
-    template <template <typename ...> typename T, typename U>
-    inline constexpr auto nest_find_not_v = typev<nest_find_not<T, U>>;
+    template <template <typename ...> typename T, typename U, auto B = 0, auto E = nest_depth_v<U>>
+    inline constexpr auto nest_find_not_v = typev<nest_find_not<T, U, B, E>>;
 
-    template <template <typename ...> typename T, typename U>
-    struct nest_find_not_backward : find_not_backward<T<>, to_flat_t<nest_clear_t<U>>>
+    template <template <typename ...> typename T, typename U, auto B = 0, auto E = nest_depth_v<U>>
+    struct nest_find_not_backward : find_not_backward<T<>, to_flat_t<nest_clear_t<U>>, B, E>
     {
     };
 
-    template <template <typename ...> typename T, typename U>
-    inline constexpr auto nest_find_not_backward_v = typev<nest_find_not_backward<T, U>>;
+    template <template <typename ...> typename T, typename U, auto B = 0, auto E = nest_depth_v<U>>
+    inline constexpr auto nest_find_not_backward_v = typev<nest_find_not_backward<T, U, B, E>>;
 
     template <template <typename ...> typename F, typename T>
     struct find_index
@@ -6363,7 +6363,7 @@ namespace monster
     template <typename T>
     inline constexpr auto kadane_v = typev<kadane_t<T>>;
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     struct count
     {
         template <typename V, typename W, typename X = typeof_t<V>>
@@ -6374,13 +6374,13 @@ namespace monster
         using type = transform_apply_t<folded_t, comp, to_tuple_t<range_t<B, E, U>>, index_type<0, T>>;
     };
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     using count_t = typeof_t<count<T, U, B, E>>;
 
-    template <typename T, typename U, int B = 0, int E = sizeof_t_v<U>>
+    template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     inline constexpr auto count_v = typev<count_t<T, U, B, E>>;
 
-    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     struct count_if
     {
         template <typename V, typename W>
@@ -6391,21 +6391,21 @@ namespace monster
         using type = transform_apply_t<folded_t, comp, to_tuple_t<range_t<B, E, T>>, c_0>;
     };
 
-    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using count_if_t = typeof_t<count_if<F, T, B, E>>;
 
-    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     inline constexpr auto count_if_v = typev<count_if_t<F, T, B, E>>;
 
-    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     struct count_if_not : count_if<negaf<F>::template apply, T, B, E>
     {
     };
 
-    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using count_if_not_t = typeof_t<count_if_not<F, T, B, E>>;
 
-    template <template <typename ...> typename F, typename T, int B = 0, int E = sizeof_t_v<T>>
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     inline constexpr auto count_if_not_v = typev<count_if_not_t<F, T, B, E>>;
 
     template <typename T>
@@ -9100,7 +9100,7 @@ namespace monster
     template <size_t N, typename T>
     using slide_list_t = typeof_t<slide_list<N, T>>;
 
-    template <typename T, template <typename ...> typename F, int B = 0, int E = sizeof_t_v<T>>
+    template <typename T, template <typename ...> typename F, auto B = 0, auto E = sizeof_t_v<T>>
     struct partition_point
     {
         template <int i, int j, bool = (i > 0)>
@@ -9121,10 +9121,10 @@ namespace monster
         using type = typeof_t<impl<E - B, B>>;
     };
 
-    template <typename T, template <typename ...> typename F, int B = 0, int E = sizeof_t_v<T>>
+    template <typename T, template <typename ...> typename F, auto B = 0, auto E = sizeof_t_v<T>>
     using partition_point_t = typeof_t<partition_point<T, F, B, E>>;
 
-    template <typename T, template <typename ...> typename F, int B = 0, int E = sizeof_t_v<T>>
+    template <typename T, template <typename ...> typename F, auto B = 0, auto E = sizeof_t_v<T>>
     inline constexpr auto partition_point_v = typev<partition_point_t<T, F, B, E>>;
 
     template <template <typename ...> typename F, typename T>
@@ -10942,7 +10942,7 @@ namespace monster
     template <int n = 3>
     using hanoi_t = typeof_t<hanoi<n>>;
 
-    template <typename T, int B = 0, int E = sizeof_t_v<T>>
+    template <typename T, auto B = 0, auto E = sizeof_t_v<T>>
     struct lis
     {
         template <int i, int j, int k, typename U, bool = i <= j>
@@ -10998,7 +10998,7 @@ namespace monster
         using type = typeof_t<reconstruct<l - 1, second_v<call>, index_sequence_c<l, 0>>>;
     };
 
-    template <typename T, int B = 0, int E = sizeof_t_v<T>>
+    template <typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using lis_t = typeof_t<lis<T, B, E>>;
 
     template <int row, int col, auto v = 0>
