@@ -1019,6 +1019,13 @@ int main(int argc, char* argv[])
     using flat1 = std::tuple<T0<>, T1<>, T2<>, T3<>, T4<>>;
     using flat2 = std::tuple<T0<>, T1<>, T2<>, T3<>, T4<>, int>;
 
+    execute<!is_nest_v<int>>();
+    execute<is_nest_v<T1<T2<>>>>();
+    execute<is_nest_v<T1<T2<int>>>>();
+    execute<is_nest_v<std::tuple<>>>();
+    execute<!is_nest_v<T1<int, T2<>>>>();
+    execute<!is_nest_v<T1<T2<int, char>>>>();
+
     execute<nest_depth_v<nest1>, 5>();
     execute<nest_depth_v<nest2>, 5>();
 

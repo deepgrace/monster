@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 190
+#define MONSTER_VERSION 191
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1053,6 +1053,24 @@ namespace monster
 
     template <size_t, typename T = std::void_t<>>
     using make_type = T;
+
+    template <typename T>
+    struct is_nest : std::false_type
+    {
+    };
+
+    template <template <typename ...> typename T>
+    struct is_nest<T<>> : std::true_type
+    {
+    };
+
+    template <template <typename ...> typename T, typename U>
+    struct is_nest<T<U>> : std::conditional_t<is_variadic_type_v<U>, is_nest<U>, std::true_type>
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto is_nest_v = typev<is_nest<T>>;
 
     template <auto N, typename... Args>
     struct tuple_depth
