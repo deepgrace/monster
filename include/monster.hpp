@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 189
+#define MONSTER_VERSION 190
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -744,6 +744,18 @@ namespace monster
     template <typename... Args>
     inline constexpr auto sizeof_v = sizeof...(Args);
     
+    template <typename T>
+    struct variadic_size;
+
+    template <template <typename ...> typename T, typename... Args>
+    struct variadic_size<T<Args...>>
+    {
+        static constexpr auto value = sizeof_v<Args...>;
+    };
+
+    template <typename T>
+    inline constexpr auto variadic_size_v = typev<variadic_size<T>>;
+
     template <typename T, typename = std::void_t<>>
     struct sizeof_t : index_t<sizeof(T)>
     {
@@ -760,7 +772,7 @@ namespace monster
     };
 
     template <typename T>
-    struct sizeof_t<T, std::enable_if_t<is_variadic_type_v<T>>> : index_t<std::tuple_size_v<T>>
+    struct sizeof_t<T, std::enable_if_t<is_variadic_type_v<T>>> : index_t<variadic_size_v<T>>
     {
     };
 
@@ -3898,13 +3910,13 @@ namespace monster
         template <typename U>
         struct impl;
 
-        template <typename U>
-        struct impl<std::tuple<U>> : std::type_identity<U>
+        template <template <typename ...> typename U, typename V>
+        struct impl<U<V>> : std::type_identity<V>
         {
         };
 
-        template <typename U, typename V, typename... Args>
-        struct impl<std::tuple<U, V, Args...>> : impl<std::tuple<append_t<V, U>, Args...>>
+        template <template <typename ...> typename U, typename V, typename W, typename... Args>
+        struct impl<U<V, W, Args...>> : impl<U<append_t<W, V>, Args...>>
         {
         };
 
@@ -5419,6 +5431,27 @@ namespace monster
 
     template <typename T, typename U>
     using assign_t = typeof_t<assign<T, U>>;
+
+    template <auto N, template <typename ...> typename T>
+    struct nest_fill : to_nest<fill_t<N, T<>>>
+    {
+    };
+
+    template <auto N, template <typename ...> typename T>
+    using nest_fill_t = typeof_t<nest_fill<N, T>>;
+
+    template <typename T, template <typename ...> typename U>
+    struct nest_assign
+    {
+        static constexpr auto depth = nest_depth_v<T>;
+        static constexpr auto size = nest_size_v<T>;
+
+        static constexpr auto value = depth != size;
+        using type = nest_set_if_t<value, nest_fill_t<depth, U>, nest_last_if_t<value, T>>;
+    };
+
+    template <typename T, template <typename ...> typename U>
+    using nest_assign_t = typeof_t<nest_assign<T, U>>;
 
     template <size_t N>
     struct repeat_range

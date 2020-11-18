@@ -1115,6 +1115,11 @@ int main(int argc, char* argv[])
     execute<nest_find_not_backward_v<T2, nest1>, 4>();
     execute<nest_find_not_backward_v<T4, nest2>, 3>();
 
+    execute<nest_fill_t<3, T2>, T2<T2<T2<>>>>();
+
+    execute<nest_assign_t<nest1, T0>, T0<T0<T0<T0<T0<>>>>>>();
+    execute<nest_assign_t<nest2, T1>, T1<T1<T1<T1<T1<int>>>>>>();
+
     execute<binary_search_v<double, std::tuple<short, int, double>>>();
     execute<binary_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>>();
 
