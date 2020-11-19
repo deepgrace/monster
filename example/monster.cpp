@@ -1136,6 +1136,12 @@ int main(int argc, char* argv[])
     execute<nest_assign_t<nest1, T0>, T0<T0<T0<T0<T0<>>>>>>();
     execute<nest_assign_t<nest2, T1>, T1<T1<T1<T1<T1<int>>>>>>();
 
+    execute<nest_rest_t<nest1>, T1<T2<T3<T4<>>>>>();
+    execute<nest_rest_t<nest2>, T1<T2<T3<T4<int>>>>>();
+
+    execute<nest_front_t<nest1>, T0<>>();
+    execute<nest_back_t<nest2>, T4<>>();
+
     execute<binary_search_v<double, std::tuple<short, int, double>>>();
     execute<binary_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>>();
 

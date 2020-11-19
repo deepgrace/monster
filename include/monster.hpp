@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 191
+#define MONSTER_VERSION 192
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3928,6 +3928,11 @@ namespace monster
         template <typename U>
         struct impl;
 
+        template <template <typename ...> typename U>
+        struct impl<U<>> : std::type_identity<U<>>
+        {
+        };
+
         template <template <typename ...> typename U, typename V>
         struct impl<U<V>> : std::type_identity<V>
         {
@@ -4063,6 +4068,30 @@ namespace monster
 
     template <bool B, typename T>
     using nest_clear_if_t = typeof_t<nest_clear_if<B, T>>;
+
+    template <typename T>
+    struct nest_rest : nest_invoke<rest, T>
+    {
+    };
+
+    template <typename T>
+    using nest_rest_t = typeof_t<nest_rest<T>>;
+
+    template <typename T>
+    struct nest_front : nest_invoke<front, T>
+    {
+    };
+
+    template <typename T>
+    using nest_front_t = typeof_t<nest_front<T>>;
+
+    template <typename T>
+    struct nest_back : nest_invoke<back, nest_clear_t<T>>
+    {
+    };
+
+    template <typename T>
+    using nest_back_t = typeof_t<nest_back<T>>;
 
     template <typename T, typename U>
     struct nest_set : to_nest<append_t<range_t<0, nest_depth_v<T>, to_flat_t<T>>, U>>
