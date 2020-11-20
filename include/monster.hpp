@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 192
+#define MONSTER_VERSION 193
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3991,6 +3991,14 @@ namespace monster
     template <auto lower, auto upper, typename T>
     using nest_swap_t = typeof_t<nest_swap<lower, upper, T>>;
 
+    template <auto lower, auto upper, typename T>
+    struct nest_extent : nest_operator<lower, upper, T, extent>
+    {
+    };
+
+    template <auto lower, auto upper, typename T>
+    using nest_extent_t = typeof_t<nest_extent<lower, upper, T>>;
+
     template <template <typename ...> typename F, typename T>
     struct nest_invoke : to_nest<typeof_t<F<to_flat_t<T>>>>
     {
@@ -4068,6 +4076,14 @@ namespace monster
 
     template <bool B, typename T>
     using nest_clear_if_t = typeof_t<nest_clear_if<B, T>>;
+
+    template <auto lower, auto upper, typename T, auto N = nest_depth_v<T>>
+    struct nest_degree : nest_extent<N - upper, N - lower, nest_clear_t<T>>
+    {
+    };
+
+    template <auto lower, auto upper, typename T, auto N = nest_depth_v<T>>
+    using nest_degree_t = typeof_t<nest_degree<lower, upper, T, N>>;
 
     template <typename T>
     struct nest_rest : nest_invoke<rest, T>

@@ -1059,6 +1059,12 @@ int main(int argc, char* argv[])
     execute<nest_range_t<1, 4, nest1>, T1<T2<T3<>>>>();
     execute<nest_range_t<2, 5, nest2>, T2<T3<T4<>>>>();
 
+    execute<nest_extent_t<1, 4, nest1>, T3<T2<T1<>>>>();
+    execute<nest_extent_t<2, 5, nest2>, T4<T3<T2<>>>>();
+
+    execute<nest_degree_t<0, 3, nest1>, T4<T3<T2<>>>>();
+    execute<nest_degree_t<1, 4, nest2>, T3<T2<T1<>>>>();
+
     execute<nest_swap_t<0, 3, nest1>, T3<T1<T2<T0<T4<>>>>>>();
     execute<nest_swap_t<1, 4, nest2>, T0<T4<T2<T3<T1<int>>>>>>();
 
