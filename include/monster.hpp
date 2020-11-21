@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 194
+#define MONSTER_VERSION 195
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6793,17 +6793,16 @@ namespace monster
     template <typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
     inline constexpr auto is_permutation_v = typev<is_permutation<T, U, B1, E1, B2, E2>>;
 
-    template <typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>,
-    auto B2 = 0, auto E2 = sizeof_t_v<U>, template <typename ...> typename F = std::is_same>
-    struct find_first_of
+    template <typename T, typename U, auto B1, auto E1, auto B2, auto E2, auto N, bool B, template <typename ...> typename F>
+    struct find_element
     {
         template <int i, int j, int k>
-        struct inner : std::conditional_t<predicate_v<F, k, i, T, U>, index_upper<1, c_<k>>, inner<i + 1, j, k>>
+        struct inner : std::conditional_t<predicate_v<F, k, i, T, U>, index_upper<B, c_<k>>, inner<i + 1, j, k>>
         {
         };
 
         template <int j, int k>
-        struct inner<j, j, k> : index_upper<0, c_<j>>
+        struct inner<j, j, k> : index_upper<!B, c_<k>>
         {
         };
 
@@ -6811,7 +6810,7 @@ namespace monster
         struct outer
         {
             using curr = typeof_t<inner<B2, E2, i>>;
-            using type = type_if<typev<curr>, curr, outer<i + 1, j>>;
+            using type = type_if<typev<curr>, curr, outer<i + N, j>>;
         };
 
         template <int j>
@@ -6822,9 +6821,48 @@ namespace monster
         static constexpr auto value = typeof_v<outer<B1, E1>>;
     };
 
+    template <typename T, typename U, auto B1, auto E1, auto B2, auto E2, auto N, bool B, template <typename ...> typename F>
+    inline constexpr auto find_element_v = typev<find_element<T, U, B1, E1, B2, E2, N, B, F>>;
+
+    template <typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>,
+    auto B2 = 0, auto E2 = sizeof_t_v<U>, template <typename ...> typename F = std::is_same>
+    struct find_first_of : find_element<T, U, B1, E1, B2, E2, 1, 1, F>
+    {
+    };
+
     template <typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>,
     auto B2 = 0, auto E2 = sizeof_t_v<U>, template <typename ...> typename F = std::is_same>
     inline constexpr auto find_first_of_v = typev<find_first_of<T, U, B1, E1, B2, E2, F>>;
+
+    template <typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>,
+    auto B2 = 0, auto E2 = sizeof_t_v<U>, template <typename ...> typename F = std::is_same>
+    struct find_first_not_of : find_element<T, U, B1, E1, B2, E2, 1, 0, F>
+    {
+    };
+
+    template <typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>,
+    auto B2 = 0, auto E2 = sizeof_t_v<U>, template <typename ...> typename F = std::is_same>
+    inline constexpr auto find_first_not_of_v = typev<find_first_not_of<T, U, B1, E1, B2, E2, F>>;
+
+    template <typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>,
+    auto B2 = 0, auto E2 = sizeof_t_v<U>, template <typename ...> typename F = std::is_same>
+    struct find_last_of : find_element<T, U, E1 - 1, B1 -1, B2, E2, -1, 1, F>
+    {
+    };
+
+    template <typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>,
+    auto B2 = 0, auto E2 = sizeof_t_v<U>, template <typename ...> typename F = std::is_same>
+    inline constexpr auto find_last_of_v = typev<find_last_of<T, U, B1, E1, B2, E2, F>>;
+
+    template <typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>,
+    auto B2 = 0, auto E2 = sizeof_t_v<U>, template <typename ...> typename F = std::is_same>
+    struct find_last_not_of : find_element<T, U, E1 - 1, B1 -1, B2, E2, -1, 0, F>
+    {
+    };
+
+    template <typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>,
+    auto B2 = 0, auto E2 = sizeof_t_v<U>, template <typename ...> typename F = std::is_same>
+    inline constexpr auto find_last_not_of_v = typev<find_last_not_of<T, U, B1, E1, B2, E2, F>>;
 
     template <typename T, typename U>
     struct is_subset

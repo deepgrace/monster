@@ -2456,6 +2456,15 @@ int main(int argc, char* argv[])
     execute<find_first_of_v<std::tuple<int, char, short, double>, std::tuple<float, nullptr_t, char>>, 1>();
     execute<find_first_of_v<std::index_sequence<4, 0, 3, 7, 5>, std::index_sequence<9, 8, 3, 6>>, 2>();
 
+    execute<find_first_not_of_v<std::tuple<int, char, short, double>, std::tuple<int, nullptr_t, char>>, 2>();
+    execute<find_first_not_of_v<std::index_sequence<4, 0, 3, 7, 6>, std::index_sequence<4, 8, 3, 6>>, 1>();
+
+    execute<find_last_of_v<std::tuple<int, char, short, double>, std::tuple<short, nullptr_t, char>>, 2>();
+    execute<find_last_of_v<std::index_sequence<4, 0, 3, 7, 5>, std::index_sequence<7, 8, 3, 6>>, 3>();
+
+    execute<find_last_not_of_v<std::tuple<int, double, char, float, int>, std::tuple<short, int, char>>, 3>();
+    execute<find_last_not_of_v<std::index_sequence<4, 0, 3, 7, 0, 8>, std::index_sequence<7, 8, 3, 6>>, 4>();
+
     execute<lis_t<std::integer_sequence<int, 10, 22, 9, 33, 21, 50, 70, 60, 80>>, std::index_sequence<0, 1, 3, 5, 7, 8>>();
 
     execute<lcs_t<std::tuple<int, char, short, double, char, short, char, int>,
