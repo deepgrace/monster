@@ -1071,6 +1071,12 @@ int main(int argc, char* argv[])
     execute<nest_unique_t<T0<T1<T2<T1<T3<T4<T4<>>>>>>>>, T0<T1<T2<T3<T4<>>>>>>();
     execute<nest_unique_t<T0<T1<T2<T1<T3<T4<T0<int>>>>>>>>, T0<T1<T2<T3<T4<int>>>>>>();
 
+    execute<nest_unique_elements_t<T0<T1<T2<T1<T3<T4<T4<>>>>>>>>, T0<T2<T3<>>>>();
+    execute<nest_unique_elements_t<T0<T1<T2<T1<T3<T4<T0<int>>>>>>>>, T2<T3<T4<int>>>>();
+
+    execute<nest_duplicate_elements_t<T0<T1<T2<T1<T3<T4<T4<>>>>>>>>, T1<T4<>>>();
+    execute<nest_duplicate_elements_t<T0<T1<T2<T1<T3<T4<T0<int>>>>>>>>, T0<T1<>>>();
+
     execute<nest_midpoint_t<nest1>, T2<T3<T4<>>>>();
     execute<nest_midpoint_t<nest2>, T2<T3<T4<int>>>>();
 

@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 193
+#define MONSTER_VERSION 194
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -10873,6 +10873,22 @@ namespace monster
 
     template <typename T>
     using duplicate_elements_t = typeof_t<duplicate_elements<T>>;
+
+    template <typename T>
+    struct nest_unique_elements : nest_invoke<unique_elements, T>
+    {
+    };
+
+    template <typename T>
+    using nest_unique_elements_t = typeof_t<nest_unique_elements<T>>;
+
+    template <typename T>
+    struct nest_duplicate_elements : nest_invoke<duplicate_elements, T>
+    {
+    };
+
+    template <typename T>
+    using nest_duplicate_elements_t = typeof_t<nest_duplicate_elements<T>>;
 
     template <auto N, typename T, typename U>
     struct find_nth
