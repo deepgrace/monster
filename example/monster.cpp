@@ -2468,11 +2468,17 @@ int main(int argc, char* argv[])
     execute<find_first_not_of_v<std::tuple<int, char, short, double>, std::tuple<int, nullptr_t, char>>, 2>();
     execute<find_first_not_of_v<std::index_sequence<4, 0, 3, 7, 6>, std::index_sequence<4, 8, 3, 6>>, 1>();
 
+    execute<find_first_last_of_v<std::tuple<int, char, short, double>, std::tuple<int, nullptr_t, char>>, 1>();
+    execute<find_first_last_of_v<std::index_sequence<4, 0, 3, 7, 6>, std::index_sequence<4, 8, 3, 6>>, 0>();
+
     execute<find_last_of_v<std::tuple<int, char, short, double>, std::tuple<short, nullptr_t, char>>, 2>();
     execute<find_last_of_v<std::index_sequence<4, 0, 3, 7, 5>, std::index_sequence<7, 8, 3, 6>>, 3>();
 
     execute<find_last_not_of_v<std::tuple<int, double, char, float, int>, std::tuple<short, int, char>>, 3>();
     execute<find_last_not_of_v<std::index_sequence<4, 0, 3, 7, 0, 8>, std::index_sequence<7, 8, 3, 6>>, 4>();
+
+    execute<find_last_first_of_v<std::tuple<int, double, char, float, int>, std::tuple<short, int, char>>, 4>();
+    execute<find_last_first_of_v<std::index_sequence<4, 0, 3, 7, 0, 8>, std::index_sequence<7, 8, 3, 6>>, 5>();
 
     execute<trim_t<std::tuple<int, char, float, char, short>, std::tuple<int, short, char>>, std::tuple<float>>();
     execute<trim_t<std::index_sequence<0, 2, 7, 4, 9, 1>, std::index_sequence<1, 2, 0>>, std::index_sequence<7, 4, 9>>();
