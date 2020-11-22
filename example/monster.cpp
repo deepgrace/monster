@@ -2474,6 +2474,15 @@ int main(int argc, char* argv[])
     execute<find_last_not_of_v<std::tuple<int, double, char, float, int>, std::tuple<short, int, char>>, 3>();
     execute<find_last_not_of_v<std::index_sequence<4, 0, 3, 7, 0, 8>, std::index_sequence<7, 8, 3, 6>>, 4>();
 
+    execute<trim_t<std::tuple<int, char, float, char, short>, std::tuple<int, short, char>>, std::tuple<float>>();
+    execute<trim_t<std::index_sequence<0, 2, 7, 4, 9, 1>, std::index_sequence<1, 2, 0>>, std::index_sequence<7, 4, 9>>();
+
+    execute<trim_left_t<std::tuple<int, char, float, char, short>, std::tuple<int, short, char>>, std::tuple<float, char, short>>();
+    execute<trim_left_t<std::index_sequence<0, 2, 7, 4, 9, 1>, std::index_sequence<1, 2, 0>>, std::index_sequence<7, 4, 9, 1>>();
+
+    execute<trim_right_t<std::tuple<int, char, float, char, short>, std::tuple<int, short, char>>, std::tuple<int, char, float>>();
+    execute<trim_right_t<std::index_sequence<0, 2, 7, 4, 9, 1>, std::index_sequence<1, 2, 0>>, std::index_sequence<0, 2, 7, 4, 9>>();
+
     execute<lis_t<std::integer_sequence<int, 10, 22, 9, 33, 21, 50, 70, 60, 80>>, std::index_sequence<0, 1, 3, 5, 7, 8>>();
 
     execute<lcs_t<std::tuple<int, char, short, double, char, short, char, int>,

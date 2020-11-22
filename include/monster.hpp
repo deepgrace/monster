@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 195
+#define MONSTER_VERSION 196
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6863,6 +6863,38 @@ namespace monster
     template <typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>,
     auto B2 = 0, auto E2 = sizeof_t_v<U>, template <typename ...> typename F = std::is_same>
     inline constexpr auto find_last_not_of_v = typev<find_last_not_of<T, U, B1, E1, B2, E2, F>>;
+
+    template <typename T, typename U>
+    struct trim
+    {
+        static constexpr auto first = find_first_not_of_v<T, U>;
+        static constexpr auto last = find_last_not_of_v<T, U>;
+
+        using type = subset_t<first, last - first + 1, T>;
+    };
+
+    template <typename T, typename U>
+    using trim_t = typeof_t<trim<T, U>>;
+
+    template <typename T, typename U>
+    struct trim_left
+    {
+        static constexpr auto first = find_first_not_of_v<T, U>;
+        using type = subset_t<first, sizeof_t_v<T> - first, T>;
+    };
+
+    template <typename T, typename U>
+    using trim_left_t = typeof_t<trim_left<T, U>>;
+
+    template <typename T, typename U>
+    struct trim_right
+    {
+        static constexpr auto last = find_last_not_of_v<T, U>;
+        using type = subset_t<0, last + 1, T>;
+    };
+
+    template <typename T, typename U>
+    using trim_right_t = typeof_t<trim_right<T, U>>;
 
     template <typename T, typename U>
     struct is_subset
