@@ -1145,6 +1145,9 @@ int main(int argc, char* argv[])
     execute<nest_front_t<nest1>, T0<>>();
     execute<nest_back_t<nest2>, T4<>>();
 
+    execute<nest_count_v<T2, T1<T2<T3<T2<>>>>>, 2>();
+    execute<nest_count_v<T3, T1<T2<T3<T2<int>>>>>, 1>();
+
     execute<binary_search_v<double, std::tuple<short, int, double>>>();
     execute<binary_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>>();
 

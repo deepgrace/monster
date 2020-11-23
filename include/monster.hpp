@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 197
+#define MONSTER_VERSION 198
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6503,6 +6503,17 @@ namespace monster
 
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     inline constexpr auto count_if_not_v = typev<count_if_not_t<F, T, B, E>>;
+
+    template <template <typename ...> typename T, typename U, auto B = 0, auto E = nest_depth_v<U>>
+    struct nest_count : count<T<>, to_flat_t<U>, B, E>
+    {
+    };
+
+    template <template <typename ...> typename T, typename U, auto B = 0, auto E = nest_depth_v<U>>
+    using nest_count_t = typeof_t<nest_count<T, U, B, E>>;
+
+    template <template <typename ...> typename T, typename U, auto B = 0, auto E = nest_depth_v<U>>
+    inline constexpr auto nest_count_v = typev<nest_count_t<T, U, B, E>>;
 
     template <typename T>
     struct mode
