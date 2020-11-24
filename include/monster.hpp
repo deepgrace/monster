@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 200
+#define MONSTER_VERSION 201
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6599,6 +6599,14 @@ namespace monster
 
     template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     using transform_while_t = typeof_t<transform_while<F, P, T, U, B, E>>;
+
+    template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    struct transform_while_not : transform_while<F, negaf<P>::template apply, T, U, B, E>
+    {
+    };
+
+    template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    using transform_while_not_t = typeof_t<transform_while_not<F, P, T, U, B, E>>;
 
     template <auto i, auto j, typename T, typename U = T>
     struct is_same : unary<std::is_same, i, j, T, U>

@@ -1478,6 +1478,8 @@ int main(int argc, char* argv[])
 
     execute<transform_while_t<succ, is_even, std::integer_sequence<int>,
             std::integer_sequence<int, 0, 2, 4, 2, 1, 8, 4>>, std::integer_sequence<int, 1, 3, 5, 3>>();
+    execute<transform_while_not_t<succ, is_even, std::integer_sequence<int>,
+            std::integer_sequence<int, 7, 5, 3, 1, 2, 8, 4>>, std::integer_sequence<int, 8, 6, 4, 2>>();
 
     execute<generate_t<negate_t, std::integer_sequence<int, 4, -3, -6, 5, 0, -2>, 1, 4>,
             std::integer_sequence<int, 4, 3, 6, -5, 0, -2>>();
