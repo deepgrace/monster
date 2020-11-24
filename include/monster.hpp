@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 199
+#define MONSTER_VERSION 200
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4418,6 +4418,15 @@ namespace monster
 
     template <template <typename ...> typename T, typename U, auto B = 0, auto E = nest_depth_v<U>>
     inline constexpr auto nest_find_not_backward_v = typev<nest_find_not_backward<T, U, B, E>>;
+
+    template <template <typename ...> typename T, typename U>
+    struct nest_contains
+    {
+        static constexpr auto value = nest_find_v<T, U> != nest_depth_v<U>;
+    };
+
+    template <template <typename ...> typename T, typename U>
+    inline constexpr auto nest_contains_v = typev<nest_contains<T, U>>;
 
     template <template <typename ...> typename F, typename T>
     struct find_index
