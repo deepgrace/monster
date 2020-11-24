@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 198
+#define MONSTER_VERSION 199
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -10623,6 +10623,14 @@ namespace monster
     template <typename P, typename T>
     using kmp_t = typeof_t<kmp<P, T>>;
 
+    template <template <typename ...> typename P, typename T>
+    struct nest_kmp : kmp<std::tuple<P<>>, to_flat_t<T>>
+    {
+    };
+
+    template <template <typename ...> typename P, typename T>
+    using nest_kmp_t = typeof_t<nest_kmp<P, T>>;
+
     template <typename T, auto N>
     struct offset
     {
@@ -10750,6 +10758,14 @@ namespace monster
 
     template <typename P, typename T>
     using bmh_t = typeof_t<bmh<P, T>>;
+
+    template <template <typename ...> typename P, typename T>
+    struct nest_bmh : bmh<std::tuple<P<>>, to_flat_t<T>>
+    {
+    };
+
+    template <template <typename ...> typename P, typename T>
+    using nest_bmh_t = typeof_t<nest_bmh<P, T>>;
 
     template <typename P, typename T>
     using subtype_indices = bmh<P, T>;
@@ -11006,6 +11022,14 @@ namespace monster
 
     template <auto N, typename T, typename U>
     inline constexpr auto find_nth_v = typev<find_nth<N, T, U>>;
+
+    template <auto N, template <typename ...> typename T, typename U>
+    struct nest_find_nth : find_nth<N, T<>, to_flat_t<U>>
+    {
+    };
+
+    template <auto N, template <typename ...> typename T, typename U>
+    inline constexpr auto nest_find_nth_v = typev<nest_find_nth<N, T, U>>;
 
     template <typename T, typename U>
     struct unordered_match
