@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 201
+#define MONSTER_VERSION 202
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -956,6 +956,12 @@ namespace monster
 
     template <typename L, typename R>
     using rename_t = typeof_t<rename<L, R>>;
+
+    template <bool B, typename L, typename R>
+    using rename_if = std::conditional_t<B, rename<L, R>, std::type_identity<L>>;
+
+    template <bool B, typename L, typename R>
+    using rename_if_t = typeof_t<rename_if<B, L, R>>;
 
     template <typename T>
     requires is_variadic_type_v<T>
@@ -5487,7 +5493,8 @@ namespace monster
         template <template <auto, typename> typename F>
         using call = expand<F, T, index_sequence_of_c<n>>;
 
-        using type = type_if<!has_type_v<T> || !has_value_type_v<T>, call<identity>, call<impl>>;
+        using curr = type_if<!has_type_v<T> || !has_value_type_v<T>, call<identity>, call<impl>>;
+        using type = rename_if_t<is_variadic_type_v<T>, curr, std::tuple<>>;
     };
 
     template <auto n, typename T>
@@ -11003,7 +11010,23 @@ namespace monster
     using duplicate_elements_t = typeof_t<duplicate_elements<T>>;
 
     template <typename T>
-    struct nest_unique_elements : nest_invoke<unique_elements, T>
+    struct nest_remove_unique : nest_invoke<remove_unique, T>
+    {
+    };
+
+    template <typename T>
+    using nest_remove_unique_t = typeof_t<nest_remove_unique<T>>;
+
+    template <typename T>
+    struct nest_remove_duplicate : nest_invoke<remove_duplicate, T>
+    {
+    };
+
+    template <typename T>
+    using nest_remove_duplicate_t = typeof_t<nest_remove_duplicate<T>>;
+
+    template <typename T>
+    struct nest_unique_elements : nest_remove_duplicate<T>
     {
     };
 

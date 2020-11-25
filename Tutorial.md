@@ -1071,6 +1071,12 @@ int main(int argc, char* argv[])
     execute<nest_unique_t<T0<T1<T2<T1<T3<T4<T4<>>>>>>>>, T0<T1<T2<T3<T4<>>>>>>();
     execute<nest_unique_t<T0<T1<T2<T1<T3<T4<T0<int>>>>>>>>, T0<T1<T2<T3<T4<int>>>>>>();
 
+    execute<nest_remove_unique_t<T0<T1<T2<T1<T3<T4<T4<>>>>>>>>, T1<T1<T4<T4<>>>>>();
+    execute<nest_remove_unique_t<T0<T1<T2<T1<T3<T4<T0<int>>>>>>>>, T0<T0<T1<T1<>>>>>();
+
+    execute<nest_remove_duplicate_t<T0<T1<T2<T1<T3<T4<T4<>>>>>>>>, T0<T2<T3<>>>>();
+    execute<nest_remove_duplicate_t<T0<T1<T2<T1<T3<T4<T0<int>>>>>>>>, T2<T3<T4<int>>>>();
+
     execute<nest_unique_elements_t<T0<T1<T2<T1<T3<T4<T4<>>>>>>>>, T0<T2<T3<>>>>();
     execute<nest_unique_elements_t<T0<T1<T2<T1<T3<T4<T0<int>>>>>>>>, T2<T3<T4<int>>>>();
 
@@ -1396,6 +1402,7 @@ int main(int argc, char* argv[])
     execute<fill_t<3, int>, std::tuple<int, int, int>>();
     execute<fill_t<5, c_2>, std::integer_sequence<int, 2, 2, 2, 2, 2>>();
     execute<fill_c<5, 2>, std::integer_sequence<int, 2, 2, 2, 2, 2>>();
+    execute<fill_t<3, T1<>>, std::tuple<T1<>, T1<>, T1<>>>();
 
     execute<assign_t<std::tuple<char, short, double>, int>, std::tuple<int, int, int>>();
     execute<assign_t<std::index_sequence<1, 2, 3, 4>, c_0>, std::index_sequence<0, 0, 0, 0>>();
