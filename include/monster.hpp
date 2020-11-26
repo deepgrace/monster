@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 202
+#define MONSTER_VERSION 203
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -8969,7 +8969,7 @@ namespace monster
     template <size_t N, typename T>
     using prev_partial_permutation_list = ranged_list_t<prev_partial_permutation, T, N>;
 
-    template <typename T>
+    template <typename T, auto N = 0>
     struct permutation_recursive
     {
         template <int l, int r, typename U, typename V>
@@ -9000,8 +9000,38 @@ namespace monster
         using type = second_t<typeof_t<impl<0, sizeof_t_v<T>, T, tuple_t<>>>>;
     };
 
-    template <typename T>
-    using permutation_recursive_t = typeof_t<permutation_recursive<T>>;
+    template <typename T, auto N = 0>
+    using permutation_recursive_t = typeof_t<permutation_recursive<T, N>>;
+
+    template <typename T, template <typename, auto> typename permute, auto N = nest_depth_v<T>>
+    struct nest_permutation
+    {
+        using last = nest_last_t<T>;
+
+        template <typename U>
+        using impl = to_nest<append_if_t<!is_variadic_type_v<last>, U, last>>;
+
+        using type = transform_t<impl, typeof_t<permute<to_flat_t<nest_clear_t<T>>, N>>>;
+    };
+
+    template <typename T, template <typename, auto> typename permute, auto N = nest_depth_v<T>>
+    using nest_permutation_t = typeof_t<nest_permutation<T, permute, N>>;
+
+    template <typename T, auto N = nest_depth_v<T>>
+    struct nest_loop_permutation : nest_permutation<T, loop_permutation, N>
+    {
+    };
+
+    template <typename T, auto N = nest_depth_v<T>>
+    using nest_loop_permutation_t = typeof_t<nest_loop_permutation<T, N>>;
+
+    template <typename T, auto N = nest_depth_v<T>>
+    struct nest_permutation_recursive : nest_permutation<T, permutation_recursive, N>
+    {
+    };
+
+    template <typename T, auto N = nest_depth_v<T>>
+    using nest_permutation_recursive_t = typeof_t<nest_permutation_recursive<T, N>>;
 
     template <size_t B1, size_t E1, size_t B2, size_t E2, typename T, bool ASC>
     struct combination

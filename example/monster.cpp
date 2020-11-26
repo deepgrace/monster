@@ -1172,6 +1172,15 @@ int main(int argc, char* argv[])
     execute<nest_bmh_t<T3, T3<T1<T3<T3<T4<T0<>>>>>>>, std::index_sequence<0, 2, 3>>();
     execute<nest_kmp_t<T2, T4<T2<T0<T2<T2<T1<>>>>>>>, std::index_sequence<1, 3, 4>>();
 
+    using perm1 = std::tuple<T0<T1<T2<int>>>, T0<T2<T1<int>>>, T1<T0<T2<int>>>,
+                            T1<T2<T0<int>>>, T2<T0<T1<int>>>, T2<T1<T0<int>>>>;
+
+    using perm2 = std::tuple<T0<T1<T2<int>>>, T0<T2<T1<int>>>, T1<T0<T2<int>>>,
+                            T1<T2<T0<int>>>, T2<T1<T0<int>>>, T2<T0<T1<int>>>>;
+
+    execute<nest_loop_permutation_t<T0<T1<T2<int>>>>, perm1>();
+    execute<nest_permutation_recursive_t<T0<T1<T2<int>>>>, perm2>();
+
     execute<binary_search_v<double, std::tuple<short, int, double>>>();
     execute<binary_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>>();
 
