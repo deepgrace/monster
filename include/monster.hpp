@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 203
+#define MONSTER_VERSION 204
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1879,7 +1879,7 @@ namespace monster
     };
     
     template <typename T, T lower, T upper, T... Args>
-    struct range_generator : range_generator<T, lower, upper - 1, upper - 1, Args...>
+    struct range_generator : range_generator<T, lower, upper - (lower < upper ) * 2 + 1, upper - (lower < upper ) * 2 + 1, Args...>
     {
     };
     
@@ -9245,6 +9245,27 @@ namespace monster
 
     template <typename T>
     using matrix_combinations_t = typeof_t<matrix_combinations<T>>;
+
+    template <size_t N, typename T, template <size_t, typename ...> typename F, bool B>
+    struct nest_combination
+    {
+        using last = nest_last_t<T>;
+        using curr = to_flat_t<nest_clear_t<T>>;
+
+        template <typename U>
+        using impl = to_nest<append_if_t<!is_variadic_type_v<last>, expand_of_t<curr, U>, last>>;
+
+        using type = transform_t<impl, F<N, reverse_if_t<B, index_sequence_of_t<curr>>>>;
+    };
+
+    template <size_t N, typename T, template <size_t, typename ...> typename F, bool B>
+    using nest_combination_t = typeof_t<nest_combination<N, T, F, B>>;
+
+    template <size_t N, typename T>
+    using nest_prev_combination_list = nest_combination_t<N, T, prev_combination_list, true>;
+
+    template <size_t N, typename T>
+    using nest_next_combination_list = nest_combination_t<N, T, next_combination_list, false>;
 
     template <typename T>
     struct power_set

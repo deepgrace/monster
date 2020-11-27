@@ -609,9 +609,15 @@ int main(int argc, char* argv[])
     execute<index_sequence_for<int, char, double>, index_sequence<0, 1, 2>>();
 
     execute<range_generator_t<size_t, 1, 4>, index_list<size_t, 1, 2, 3>>();
+    execute<range_generator_t<size_t, 4, 1>, index_list<size_t, 4, 3, 2>>();
+
     execute<index_range<2, 5>, std::index_sequence<2, 3, 4>>();
-    execute<repeat_range_t<3>, std::index_sequence<1, 2, 2, 3, 3, 3>>();
+    execute<index_range<5, 2>, std::index_sequence<5, 4, 3>>();
+
     execute<integer_range<-2, 3>, std::integer_sequence<int, -2, -1, 0, 1, 2>>();
+    execute<integer_range<3, -2>, std::integer_sequence<int, 3, 2, 1, 0, -1>>();
+
+    execute<repeat_range_t<3>, std::index_sequence<1, 2, 2, 3, 3, 3>>();
 
     fmap([](auto& v)
     {
@@ -1173,13 +1179,22 @@ int main(int argc, char* argv[])
     execute<nest_kmp_t<T2, T4<T2<T0<T2<T2<T1<>>>>>>>, std::index_sequence<1, 3, 4>>();
 
     using perm1 = std::tuple<T0<T1<T2<int>>>, T0<T2<T1<int>>>, T1<T0<T2<int>>>,
-                            T1<T2<T0<int>>>, T2<T0<T1<int>>>, T2<T1<T0<int>>>>;
+                             T1<T2<T0<int>>>, T2<T0<T1<int>>>, T2<T1<T0<int>>>>;
 
     using perm2 = std::tuple<T0<T1<T2<int>>>, T0<T2<T1<int>>>, T1<T0<T2<int>>>,
-                            T1<T2<T0<int>>>, T2<T1<T0<int>>>, T2<T0<T1<int>>>>;
+                             T1<T2<T0<int>>>, T2<T1<T0<int>>>, T2<T0<T1<int>>>>;
 
     execute<nest_loop_permutation_t<T0<T1<T2<int>>>>, perm1>();
     execute<nest_permutation_recursive_t<T0<T1<T2<int>>>>, perm2>();
+
+    using cmb1 = std::tuple<T0<T1<int>>, T0<T2<int>>, T0<T3<int>>,
+                            T1<T2<int>>, T1<T3<int>>, T2<T3<int>>>;
+
+    using cmb2 = std::tuple<T3<T2<int>>, T3<T1<int>>, T3<T0<int>>,
+                            T2<T1<int>>, T2<T0<int>>, T1<T0<int>>>;
+
+    execute<nest_next_combination_list<2, T0<T1<T2<T3<int>>>>>, cmb1>();
+    execute<nest_prev_combination_list<2, T0<T1<T2<T3<int>>>>>, cmb2>();
 
     execute<binary_search_v<double, std::tuple<short, int, double>>>();
     execute<binary_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>>();
@@ -2374,7 +2389,7 @@ int main(int argc, char* argv[])
                                  std::tuple<short, double>,
                                  std::tuple<int, double>>;
 
-    execute<next_combination_list<2, std::tuple<char, short, int, double>>, comb_list>();
+    execute<next_combination_list<2, comb0>, comb_list>();
 
     execute<prev_combination_list<2, reverse_t<comb0>>,
             std::tuple<std::tuple<double, int>,
@@ -2391,6 +2406,14 @@ int main(int argc, char* argv[])
                        std::integer_sequence<int, 2, 3>,
                        std::integer_sequence<int, 2, 4>,
                        std::integer_sequence<int, 3, 4>>>();
+
+    execute<prev_combination_list<2, std::integer_sequence<int, 4, 3, 2, 1>>,
+            std::tuple<std::integer_sequence<int, 4, 3>,
+                       std::integer_sequence<int, 4, 2>,
+                       std::integer_sequence<int, 4, 1>,
+                       std::integer_sequence<int, 3, 2>,
+                       std::integer_sequence<int, 3, 1>,
+                       std::integer_sequence<int, 2, 1>>>();
 
     execute<next_combination_list<3, std::integer_sequence<int, 1, 2, 3, 4, 5>>,
             std::tuple<std::integer_sequence<int, 1, 2, 3>,
