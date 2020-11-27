@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 204
+#define MONSTER_VERSION 205
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1879,7 +1879,7 @@ namespace monster
     };
     
     template <typename T, T lower, T upper, T... Args>
-    struct range_generator : range_generator<T, lower, upper - (lower < upper ) * 2 + 1, upper - (lower < upper ) * 2 + 1, Args...>
+    struct range_generator : range_generator<T, lower, upper - (lower < upper) * 2 + 1, upper - (lower < upper) * 2 + 1, Args...>
     {
     };
     
@@ -9245,6 +9245,14 @@ namespace monster
 
     template <typename T>
     using matrix_combinations_t = typeof_t<matrix_combinations<T>>;
+
+    template <typename T, typename U>
+    struct nest_slice : to_nest<slice_t<T, to_flat_t<U>>>
+    {
+    };
+
+    template <typename T, typename U>
+    using nest_slice_t = typeof_t<nest_slice<T, U>>;
 
     template <size_t N, typename T, template <size_t, typename ...> typename F, bool B>
     struct nest_combination
