@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 205
+#define MONSTER_VERSION 206
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -9255,7 +9255,7 @@ namespace monster
     using nest_slice_t = typeof_t<nest_slice<T, U>>;
 
     template <size_t N, typename T, template <size_t, typename ...> typename F, bool B>
-    struct nest_combination
+    struct nest_call
     {
         using last = nest_last_t<T>;
         using curr = to_flat_t<nest_clear_t<T>>;
@@ -9267,13 +9267,31 @@ namespace monster
     };
 
     template <size_t N, typename T, template <size_t, typename ...> typename F, bool B>
-    using nest_combination_t = typeof_t<nest_combination<N, T, F, B>>;
+    using nest_call_t = typeof_t<nest_call<N, T, F, B>>;
 
     template <size_t N, typename T>
-    using nest_prev_combination_list = nest_combination_t<N, T, prev_combination_list, true>;
+    using nest_prev_combination_list = nest_call_t<N, T, prev_combination_list, true>;
 
     template <size_t N, typename T>
-    using nest_next_combination_list = nest_combination_t<N, T, next_combination_list, false>;
+    using nest_next_combination_list = nest_call_t<N, T, next_combination_list, false>;
+
+    template <size_t N, typename T>
+    using prev_permutation_call = prev_permutation_list<T>;
+
+    template <size_t N, typename T>
+    using next_permutation_call = next_permutation_list<T>;
+
+    template <typename T>
+    using nest_prev_permutation_list = nest_call_t<0, T, prev_permutation_call, true>;
+
+    template <typename T>
+    using nest_next_permutation_list = nest_call_t<0, T, next_permutation_call, false>;
+
+    template <size_t N, typename T>
+    using nest_prev_partial_permutation_list = nest_call_t<N, T, prev_partial_permutation_list, true>;
+
+    template <size_t N, typename T>
+    using nest_next_partial_permutation_list = nest_call_t<N, T, next_partial_permutation_list, false>;
 
     template <typename T>
     struct power_set

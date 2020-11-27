@@ -1175,8 +1175,16 @@ int main(int argc, char* argv[])
     using perm2 = std::tuple<T0<T1<T2<int>>>, T0<T2<T1<int>>>, T1<T0<T2<int>>>,
                              T1<T2<T0<int>>>, T2<T1<T0<int>>>, T2<T0<T1<int>>>>;
 
+    using perm3 = std::tuple<T0<T1<int>>, T0<T2<int>>, T1<T0<int>>, T1<T2<int>>, T2<T0<int>>, T2<T1<int>>>;
+
     execute<nest_loop_permutation_t<T0<T1<T2<int>>>>, perm1>();
     execute<nest_permutation_recursive_t<T0<T1<T2<int>>>>, perm2>();
+
+    execute<nest_next_permutation_list<T0<T1<T2<int>>>>, perm1>();
+    execute<nest_prev_permutation_list<T0<T1<T2<int>>>>, reverse_t<perm1>>();
+
+    execute<nest_next_partial_permutation_list<2, T0<T1<T2<int>>>>, perm3>();
+    execute<nest_prev_partial_permutation_list<2, T0<T1<T2<int>>>>, reverse_t<perm3>>();
 
     using cmb1 = std::tuple<T0<T1<int>>, T0<T2<int>>, T0<T3<int>>,
                             T1<T2<int>>, T1<T3<int>>, T2<T3<int>>>;
