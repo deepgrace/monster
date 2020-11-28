@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 207
+#define MONSTER_VERSION 208
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -10887,6 +10887,14 @@ namespace monster
 
     template <typename P, typename T>
     using erase_subtype_t = typeof_t<erase_subtype<P, T>>;
+
+    template <typename P, typename T>
+    struct nest_erase_subtype : to_nest<erase_subtype_t<to_flat_t<P>, to_flat_t<T>>>
+    {
+    };
+
+    template <typename P, typename T>
+    using nest_erase_subtype_t = typeof_t<nest_erase_subtype<P, T>>;
 
     template <typename P, typename T>
     struct first_subtype_index : boyer_moore_horspool<P, T, true, true>
