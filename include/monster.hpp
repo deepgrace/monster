@@ -6161,6 +6161,14 @@ namespace monster
     template <typename limit, typename T, template <typename ...> typename F, bool ASC = true>
     using unique_indices_t = typeof_t<unique_indices<limit, T, F, ASC>>;
 
+    template <auto N>
+    struct permutation_index : unique_indices<fill_c<N, N>, tuple_t<>, append, true>
+    {
+    };
+
+    template <auto N>
+    using permutation_index_t = typeof_t<permutation_index<N>>;
+
     template <typename T, auto N = sizeof_t_v<T>>
     struct loop_permutation
     {

@@ -1685,6 +1685,15 @@ int main(int argc, char* argv[])
     execute<loop_permutation_t<std::tuple<char, int, double>>, list_t>();
     execute<loop_permutation_t<std::tuple<double, int, char>>, reverse_t<list_t>>();
 
+    using index3 = std::tuple<std::index_sequence<0, 1, 2>,
+                              std::index_sequence<0, 2, 1>,
+                              std::index_sequence<1, 0, 2>,
+                              std::index_sequence<1, 2, 0>,
+                              std::index_sequence<2, 0, 1>,
+                              std::index_sequence<2, 1, 0>>;
+
+    execute<permutation_index_t<3>, index3>();
+
     using list_n = std::tuple<std::integer_sequence<int, 1, 2, 3>,
                               std::integer_sequence<int, 1, 3, 2>,
                               std::integer_sequence<int, 2, 1, 3>,
