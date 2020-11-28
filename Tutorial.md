@@ -1198,6 +1198,9 @@ int main(int argc, char* argv[])
     execute<nest_slice_t<std::index_sequence<2, 1, 0, 3>, nest1>, T2<T1<T0<T3<>>>>>();
     execute<nest_slice_t<std::index_sequence<3, 0, 2, 1, 4, 5>, nest2>, T3<T0<T2<T1<T4<int>>>>>>();
 
+    execute<nest_is_palindrome_v<T0<T1<T2<T1<T0<int>>>>>>>();
+    execute<!nest_is_palindrome_v<T0<T1<T2<T1<T0<T2<>>>>>>>>();
+
     execute<binary_search_v<double, std::tuple<short, int, double>>>();
     execute<binary_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>>();
 

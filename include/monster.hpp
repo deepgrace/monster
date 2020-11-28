@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 206
+#define MONSTER_VERSION 207
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6698,6 +6698,14 @@ namespace monster
 
     template <typename T>
     inline constexpr auto is_palindrome_v = std::is_same_v<T, reverse_t<T>>;
+
+    template <typename T>
+    struct nest_is_palindrome : is_palindrome<to_flat_t<nest_clear_t<T>>>
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto nest_is_palindrome_v = typev<nest_is_palindrome<T>>;
 
     template <bool B, template <typename ...> typename F, typename T>
     struct for_each
