@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 209
+#define MONSTER_VERSION 210
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -70,6 +70,9 @@ namespace monster
 
     template <typename... Args>
     using tuple_t = std::tuple<Args...>;
+
+    template <auto... N>
+    using is = std::index_sequence<N...>;
 
     template <typename T>
     inline constexpr auto typev = T::value;
@@ -9125,6 +9128,15 @@ namespace monster
 
     template <size_t N, typename T>
     using prev_combination_list = ranged_list_t<prev_combination, T, N>;
+
+    template <auto M, auto N>
+    struct combination_index
+    {
+        using type = next_combination_list<M, index_sequence_of_c<N>>;
+    };
+
+    template <auto M, auto N>
+    using combination_index_t = typeof_t<combination_index<M, N>>;
 
     template <template <size_t, size_t, typename> typename F, size_t B, size_t E, typename T, typename... Args>
     struct next_indices

@@ -1683,7 +1683,19 @@ int main(int argc, char* argv[])
                               std::index_sequence<2, 0, 1>,
                               std::index_sequence<2, 1, 0>>;
 
+    using index4 = std::tuple<std::index_sequence<0, 1, 2>,
+                              std::index_sequence<0, 1, 3>,
+                              std::index_sequence<0, 1, 4>,
+                              std::index_sequence<0, 2, 3>,
+                              std::index_sequence<0, 2, 4>,
+                              std::index_sequence<0, 3, 4>,
+                              std::index_sequence<1, 2, 3>,
+                              std::index_sequence<1, 2, 4>,
+                              std::index_sequence<1, 3, 4>,
+                              std::index_sequence<2, 3, 4>>;
+
     execute<permutation_index_t<3>, index3>();
+    execute<combination_index_t<3, 5>, index4>();
 
     using list_n = std::tuple<std::integer_sequence<int, 1, 2, 3>,
                               std::integer_sequence<int, 1, 3, 2>,
