@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 210
+#define MONSTER_VERSION 211
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -7247,6 +7247,14 @@ namespace monster
 
     template <auto row, auto col, typename T>
     using matrix_t = typeof_t<matrix<row, col, T>>;
+
+    template <auto N, typename T>
+    struct square_matrix : matrix<N, N, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using square_matrix_t = typeof_t<square_matrix<N, T>>;
 
     template <typename T>
     struct matrix_row_size : sizeof_t<T>

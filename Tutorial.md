@@ -1713,7 +1713,7 @@ int main(int argc, char* argv[])
                        std::tuple<int, int, int>,
                        std::tuple<int, int, int>>>();
 
-    execute<matrix_t<3, 3, c_0>,
+    execute<square_matrix_t<3, c_0>,
             std::tuple<std::integer_sequence<int, 0, 0, 0>,
                        std::integer_sequence<int, 0, 0, 0>,
                        std::integer_sequence<int, 0, 0, 0>>>();
