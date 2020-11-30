@@ -1213,6 +1213,12 @@ int main(int argc, char* argv[])
     execute<nest_erase_subtype_t<T2<T3<>>, nest1>, T0<T1<T4<>>>>();
     execute<nest_erase_subtype_t<T3<T4<int>>, nest2>, T0<T1<T2<>>>>();
 
+    execute<nest_eliminate_subtype_t<T2<T3<>>, nest1>, T0<T1<T4<>>>>();
+    execute<nest_eliminate_subtype_t<T3<T4<int>>, nest2>, T0<T1<T2<>>>>();
+
+    execute<nest_replace_subtype_t<T2<T3<>>, T3<T2<T0<>>>, nest1>, T0<T1<T3<T2<T0<T4<>>>>>>>();
+    execute<nest_replace_subtype_t<T3<T4<int>>, T1<T0<T2<char>>>, nest2>, T0<T1<T2<T1<T0<T2<char>>>>>>>();
+
     execute<binary_search_v<double, std::tuple<short, int, double>>>();
     execute<binary_search_v<c_7, std::integer_sequence<int, -2, 0, 3, 7, 8>>>();
 

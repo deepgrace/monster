@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 211
+#define MONSTER_VERSION 212
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -10969,6 +10969,14 @@ namespace monster
     template <typename P, typename T>
     using eliminate_subtype_t = typeof_t<eliminate_subtype<P, T>>;
 
+    template <typename P, typename T>
+    struct nest_eliminate_subtype : to_nest<eliminate_subtype_t<to_flat_t<P>, to_flat_t<T>>>
+    {
+    };
+
+    template <typename P, typename T>
+    using nest_eliminate_subtype_t = typeof_t<nest_eliminate_subtype<P, T>>;
+
     template <typename P, typename U, typename T>
     struct replace_subtype
     {
@@ -10997,6 +11005,14 @@ namespace monster
 
     template <typename P, typename U, typename T>
     using replace_subtype_t = typeof_t<replace_subtype<P, U, T>>;
+
+    template <typename P, typename U, typename T>
+    struct nest_replace_subtype : to_nest<replace_subtype_t<to_flat_t<P>, to_flat_t<U>, to_flat_t<T>>>
+    {
+    };
+
+    template <typename P, typename U, typename T>
+    using nest_replace_subtype_t = typeof_t<nest_replace_subtype<P, U, T>>;
 
     template <typename P, typename T, template <typename, typename> typename searcher = bmh>
     struct number_of
