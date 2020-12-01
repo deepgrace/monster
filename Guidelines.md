@@ -890,7 +890,7 @@ using e8 = expand_of_t<list4, std::index_sequence<1, 3, 5>>;
 using f1 = fill_t<3, int>;
 using f2 = fill_t<4, c_1>;
 using f3 = fill_c<5, 2>;
-using f4 = range_generator_t<int, 1, 7>;
+using f4 = integral_range_t<int, 1, 7>;
 using f5 = index_range<2, 7>;
 using f6 = zero_sequence_t<int, 4>;
 // f1 == std::tuple<int, int, int>

@@ -608,8 +608,8 @@ int main(int argc, char* argv[])
     execute<make_index_sequence<4>, index_sequence<0, 1, 2, 3>>();
     execute<index_sequence_for<int, char, double>, index_sequence<0, 1, 2>>();
 
-    execute<range_generator_t<size_t, 1, 4>, index_list<size_t, 1, 2, 3>>();
-    execute<range_generator_t<size_t, 4, 1>, index_list<size_t, 4, 3, 2>>();
+    execute<integral_range_t<size_t, 1, 4>, index_list<size_t, 1, 2, 3>>();
+    execute<integral_range_t<size_t, 4, 1>, index_list<size_t, 4, 3, 2>>();
 
     execute<index_range<2, 5>, std::index_sequence<2, 3, 4>>();
     execute<index_range<5, 2>, std::index_sequence<5, 4, 3>>();
@@ -829,7 +829,7 @@ int main(int argc, char* argv[])
             std::integer_sequence<int, 4, 0, 6, -5, 7, 4, 3, 2, 11>>,
             std::integer_sequence<int, 4, -1, 3, 5, 7, 2, 5, 2, 11>>();
 
-    execute<sub_t<3, 8, range_generator_t<int, -2, 3>>, index_list<int, -2, -1, 0, 8, 2>>();
+    execute<sub_t<3, 8, integral_range_t<int, -2, 3>>, index_list<int, -2, -1, 0, 8, 2>>();
     execute<sub_t<2, 3, index_list<size_t, 3, 4, 0, 5, 2>>, index_list<size_t, 3, 4, 3, 5, 2>>();
     execute<sub_t<4, -3, std::integer_sequence<int, -1, 8, 0, 2, 4, 7>>,
             std::integer_sequence<int, -1, 8, 0, 2, -3, 7>>();

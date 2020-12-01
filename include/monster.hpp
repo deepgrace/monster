@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 212
+#define MONSTER_VERSION 213
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1873,27 +1873,35 @@ namespace monster
         }
     };
     
-    template <typename T, T lower, T upper, T... values>
-    struct range_generator;
-    
-    template <typename T, T lower, T... values>
-    struct range_generator<T, lower, lower, values...> : std::type_identity<index_list<T, values...>>
+    template <typename T, T begin, T end>
+    struct integral_range
     {
+        static constexpr auto n = 1 - (begin < end) * 2;
+
+        template <T lower, T upper, T... values>
+        struct impl;
+    
+        template <T lower, T... values>
+        struct impl<lower, lower, values...> : std::type_identity<index_list<T, values...>>
+        {
+        };
+
+        template <T lower, T upper, T... values>
+        struct impl : impl<lower, upper + n, upper + n, values...>
+        {
+        };
+
+        using type = typeof_t<impl<begin, end>>;
     };
     
-    template <typename T, T lower, T upper, T... Args>
-    struct range_generator : range_generator<T, lower, upper - (lower < upper) * 2 + 1, upper - (lower < upper) * 2 + 1, Args...>
-    {
-    };
-    
-    template <typename T, T lower, T upper>
-    using range_generator_t = typeof_t<range_generator<T, lower, upper>>;
+    template <typename T, T begin, T end>
+    using integral_range_t = typeof_t<integral_range<T, begin, end>>;
 
-    template <size_t lower, size_t upper>
-    using index_range = rename_t<range_generator_t<size_t, lower, upper>, std::index_sequence<>>;
+    template <size_t begin, size_t end>
+    using index_range = rename_t<integral_range_t<size_t, begin, end>, std::index_sequence<>>;
 
-    template <int lower, int upper>
-    using integer_range = rename_t<range_generator_t<int, lower, upper>, std::integer_sequence<int>>;
+    template <int begin, int end>
+    using integer_range = rename_t<integral_range_t<int, begin, end>, std::integer_sequence<int>>;
     
     template <size_t N, typename T>
     struct base
