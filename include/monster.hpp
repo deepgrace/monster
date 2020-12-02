@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 213
+#define MONSTER_VERSION 214
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -10952,6 +10952,17 @@ namespace monster
     inline constexpr auto contains_subtype_v = typev<contains_subtype_t<P, T>>;
 
     template <typename P, typename T>
+    struct nest_contains_subtype : contains_subtype<to_flat_t<P>, to_flat_t<T>>
+    {
+    };
+
+    template <typename P, typename T>
+    using nest_contains_subtype_t = typeof_t<nest_contains_subtype<P, T>>;
+
+    template <typename P, typename T>
+    inline constexpr auto nest_contains_subtype_v = typev<nest_contains_subtype_t<P, T>>;
+
+    template <typename P, typename T>
     struct eliminate_subtype
     {
         static constexpr auto N = sizeof_t_v<P>;
@@ -11121,6 +11132,14 @@ namespace monster
 
     template <typename T>
     using adjacent_t = typeof_t<adjacent<T>>;
+
+    template <typename T>
+    struct nest_adjacent : nest_invoke<adjacent, T>
+    {
+    };
+
+    template <typename T>
+    using nest_adjacent_t = typeof_t<nest_adjacent<T>>;
 
     template <typename T>
     struct remove_unique : arrange<T, true, true>
