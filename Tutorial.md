@@ -1292,6 +1292,9 @@ int main(int argc, char* argv[])
     element_count(std::vector({1 , 2, 3, 4}));
     element_count(std::forward_list({1 , 2, 3}));
 
+    execute<best_match_t<char*, std::string, void>, std::string>();
+    execute<best_match_t<int, std::string, double, char*>, double>();
+
     overload_set
     {
         [](auto x) { return x; },

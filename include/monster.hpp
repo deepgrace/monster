@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 214
+#define MONSTER_VERSION 215
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4957,6 +4957,34 @@ namespace monster
 
     template <auto lower, auto upper, auto M, typename T>
     using inner_mul_range_t = typeof_t<inner_mul_range<lower, upper, M, T>>;
+
+    template <typename... Args>
+    struct overload
+    {
+        void operator()() const;
+    };
+
+    template <typename T, typename... Args>
+    struct overload<T, Args...> : overload<Args...>
+    {
+        using overload<Args...>::operator();
+        T operator()(T) const;
+    };
+
+    template <typename... Args>
+    struct overload<void, Args...> : overload<Args...>
+    {
+        using overload<Args...>::operator();
+        void operator()() const;
+    };
+
+    template <typename T, typename... Args>
+    struct best_match : std::invoke_result<overload<Args...>, T>
+    {
+    };
+
+    template <typename T, typename... Args>
+    using best_match_t = typeof_t<best_match<T, Args...>>;
 
     template <typename... F>
     struct overload_set : F...
