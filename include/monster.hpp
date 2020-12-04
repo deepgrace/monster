@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 215
+#define MONSTER_VERSION 216
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3198,6 +3198,14 @@ namespace monster
 
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using generate_t = typeof_t<generate<F, T, B, E>>;
+
+    template <template <typename ...> typename F, typename T, auto N, auto B = 0>
+    struct generate_n : generate<F, T, B, B + N>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T, auto N, auto B = 0>
+    using generate_n_t = typeof_t<generate_n<F, T, N, B>>;
 
     template <template <typename, typename> typename F, typename T,
     typename init = element_t<0, T>, auto B = 0, auto E = sizeof_t_v<T>>

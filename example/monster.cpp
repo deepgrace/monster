@@ -1549,6 +1549,11 @@ int main(int argc, char* argv[])
     execute<generate_t<std::add_pointer, std::tuple<int, char, int*, short, double, int*>, 2, 5>,
             std::tuple<int, char, int**, short*, double*, int*>>();
 
+    execute<generate_n_t<negate_t, std::integer_sequence<int, 4, -3, -6, 5, 0, -2>, 3, 2>,
+            std::integer_sequence<int, 4, -3, 6, -5, 0, -2>>();
+    execute<generate_n_t<std::add_pointer, std::tuple<int, char, int*, short, double, int*>, 4>,
+            std::tuple<int*, char*, int**, short*, double, int*>>();
+
     execute<is_palindrome_v<std::tuple<int, double, int, int, double, int>>>();
     execute<is_palindrome_v<std::integer_sequence<int, 3, 0, 2, 1, 2, 0, 3>>>();
     execute<!is_palindrome_v<std::tuple<int, double, char, int, int, double, int>>>();
