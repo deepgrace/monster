@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 216
+#define MONSTER_VERSION 217
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4632,6 +4632,30 @@ namespace monster
 
     template <typename T, typename U>
     using reverse_subrange_t = typeof_t<reverse_subrange<T, U>>;
+
+    template <auto N, typename T>
+    struct subranges
+    {
+        static constexpr auto e = sizeof_t_v<T>;
+        static constexpr auto n = min_v<e, N>;
+
+        template <int i, int j, int k, typename U, bool = i < n - 1>
+        struct impl
+        {
+            static constexpr auto l = e / n + !!k;
+            using type = typeof_t<impl<i + 1, j + l, k - !!k, append_t<U, subset_t<j, l, T>>>>;
+        };
+
+        template <int i, int j, int k, typename U>
+        struct impl<i, j, k, U, false> : append<U, range_t<j, e, T>>
+        {
+        };
+
+        using type = typeof_t<impl<0, 0, e % n, std::tuple<>>>;
+    };
+
+    template <auto N, typename T>
+    using subranges_t = typeof_t<subranges<N, T>>;
 
     template <auto N, typename T>
     struct tuple_element_size
