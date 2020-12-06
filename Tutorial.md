@@ -293,6 +293,9 @@ int main(int argc, char* argv[])
     execute<element_t<2, std::integer_sequence<int, 1, -2, 7, 4>>, c_7>();
     execute<element_v<3, std::integer_sequence<int, 1, -2, 7, 4>>, 4>();
 
+    execute<tuple_offset_v<1, std::tuple<int, int, int>>, 4>();
+    execute<tuple_offset_v<2, std::tuple<int, double, int>>, 12>();
+
     execute<midpoint_t<std::tuple<char, double, int>>, double>();
     execute<midpoint_t<std::integer_sequence<int, 1, -2, 7, 4>>, c_<-2>>();
     execute<midpoint_v<std::integer_sequence<int, 1, -2, 7, 4>>, -2>();

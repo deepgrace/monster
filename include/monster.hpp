@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 217
+#define MONSTER_VERSION 218
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1169,6 +1169,21 @@ namespace monster
 
     template <size_t N, typename T>
     using tuple_element_t = typeof_t<tuple_element<N, T>>;
+
+    template <size_t N, typename T>
+    struct tuple_offset
+    {
+        static constexpr auto value = tuple_offset<N - 1, T>::value + sizeof(tuple_element_t<N - 1, T>);
+    };
+
+    template <typename T>
+    struct tuple_offset<0, T>
+    {
+        static constexpr auto value = 0;
+    };
+
+    template <size_t N, typename T>
+    inline constexpr auto tuple_offset_v = typev<tuple_offset<N, T>>;
 
     template <auto N, typename T>
     struct element : std::conditional_t<is_variadic_type_v<T>, tuple_element<N, T>, get<N, T>>
