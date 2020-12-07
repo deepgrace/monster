@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 218
+#define MONSTER_VERSION 219
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6355,6 +6355,35 @@ namespace monster
         using next = next_cartesian_product<0, sizeof_t_v<std::remove_cvref_t<T>>, indices>;
 
         return call_apply<next>(std::forward<T>(t), std::forward<U>(u));
+    }
+
+    template <typename T>
+    inline constexpr auto tuple_size_v = std::tuple_size_v<std::decay_t<T>>;
+
+    template <auto N, typename T>
+    inline constexpr auto tuple_size_of = tuple_size_v<std::tuple_element_t<N, T>>;
+
+    template <auto m, auto n, typename T, auto... N>
+    constexpr auto indexof(const std::index_sequence<N...>&)
+    {
+        return m / (1 * ... * (n < N ? tuple_size_of<N, T> : 1)) % tuple_size_of<n, T>;
+    }
+
+    template <typename... Args>
+    constexpr decltype(auto) tuple_cartesian_product(Args&&... args)
+    {
+        constexpr auto size = (sizeof...(Args) != 0) * (1 * ... * tuple_size_v<Args>);
+
+        return [&]<typename T, auto... N>(T&& t, const std::index_sequence<N...>&)
+        {
+            auto indices = std::make_index_sequence<std::tuple_size_v<T>>();
+
+            return std::make_tuple([&]<auto m, auto... n>(const std::index_sequence<n...>&)
+            {
+                return std::forward_as_tuple(std::get<indexof<m, n, T>(indices)>(std::get<n>(t))...);
+            }.template operator()<N>(indices)...);
+        }
+        (std::forward_as_tuple(std::forward<Args>(args)...), std::make_index_sequence<size>());
     }
 
     template <typename T, template <typename, bool> typename comp, bool b, typename... Args>
