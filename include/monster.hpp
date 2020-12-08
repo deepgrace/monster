@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 219
+#define MONSTER_VERSION 220
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -198,7 +198,7 @@ namespace monster
     template <typename T>
     using second_t = typename T::second;
 
-    template <auto p, auto q>
+    template <int p, int q>
     struct pair_v
     {
         static constexpr auto first = p;
@@ -6385,6 +6385,32 @@ namespace monster
         }
         (std::forward_as_tuple(std::forward<Args>(args)...), std::make_index_sequence<size>());
     }
+
+    template <int N>
+    struct holder
+    {
+        static constexpr auto value = N;
+    };
+
+    template <typename T>
+    struct cartesian_product_indices
+    {
+        using indices = index_sequence_of_t<T>;
+
+        template <auto N, typename U>
+        using next = pair_v<N, indexof<typev<U>, N, T>(indices())>;
+
+        template <auto N, typename U>
+        using impl = expand_t<next, holder<N>, indices>;
+
+        template <typename... Args>
+        using call = index_sequence_of_c<(sizeof...(Args) != 0) * (1 * ... * sizeof_t_v<Args>)>;
+
+        using type = unpack_t<concat_t, expand_t<impl, holder<0>, unpack_t<call, T>>>;
+    };
+
+    template <typename T>
+    using cartesian_product_indices_t = typeof_t<cartesian_product_indices<T>>;
 
     template <typename T, template <typename, bool> typename comp, bool b, typename... Args>
     using extreme = std::conditional_t<!sizeof_v<Args...>, std::type_identity<T>, comp<tuple_t<T, Args...>, b>>;

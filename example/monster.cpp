@@ -1579,6 +1579,15 @@ int main(int argc, char* argv[])
     execute<cartesian_product_t<std::integer_sequence<int, 1, 2>, std::integer_sequence<int, 3, 4, 5>>,
             std::integer_sequence<int, 1, 3, 1, 4, 1, 5, 2, 3, 2, 4, 2, 5>>();
 
+    using tuples = std::tuple<std::tuple<int, char>, std::tuple<float, double>>;
+
+    using pairs = std::tuple<pair_v<0, 0>, pair_v<1, 0>,
+                             pair_v<0, 0>, pair_v<1, 1>,
+                             pair_v<0, 1>, pair_v<1, 0>,
+                             pair_v<0, 1>, pair_v<1, 1>>;
+
+    execute<cartesian_product_indices_t<tuples>, pairs>();
+
     execute<elements_t<std::index_sequence<2, 0, 1, 3>,
             std::tuple<std::tuple<int, char, int>,
                        std::tuple<double, float>,
