@@ -1580,6 +1580,12 @@ int main(int argc, char* argv[])
             std::integer_sequence<int, 1, 3, 1, 4, 1, 5, 2, 3, 2, 4, 2, 5>>();
 
     using tuples = std::tuple<std::tuple<int, char>, std::tuple<float, double>, std::tuple<short, bool, nullptr_t>>;
+    using result = std::tuple<std::tuple<int, float, short>, std::tuple<int, float, bool>,
+                              std::tuple<int, float, nullptr_t>, std::tuple<int, double, short>,
+                              std::tuple<int, double, bool>, std::tuple<int, double, nullptr_t>,
+                              std::tuple<char, float, short>, std::tuple<char, float, bool>,
+                              std::tuple<char, float, nullptr_t>, std::tuple<char, double, short>,
+                              std::tuple<char, double, bool>, std::tuple<char, double, nullptr_t>>;
 
     using pairs = std::tuple<std::tuple<pair_v<0, 0>, pair_v<1, 0>, pair_v<2, 0>>,
                              std::tuple<pair_v<0, 0>, pair_v<1, 0>, pair_v<2, 1>>,
@@ -1595,6 +1601,7 @@ int main(int argc, char* argv[])
                              std::tuple<pair_v<0, 1>, pair_v<1, 1>, pair_v<2, 2>>>;
 
     execute<cartesian_product_indices_t<tuples>, pairs>();
+    execute<expand_cartesian_product_t<pairs, tuples>, result>();
 
     execute<elements_t<std::index_sequence<2, 0, 1, 3>,
             std::tuple<std::tuple<int, char, int>,

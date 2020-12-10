@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 221
+#define MONSTER_VERSION 222
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -8998,6 +8998,21 @@ namespace monster
 
     template <template <typename ...> typename F, typename... Args>
     using product_t = typeof_t<product<F, Args...>>;
+
+    template <typename indices, typename T>
+    struct expand_cartesian_product
+    {
+        template <typename U>
+        using call = get_matrix_element_t<first_v<U>, second_v<U>, T>;
+
+        template <typename U>
+        using impl = transform_t<call, U>;
+
+        using type = transform_t<impl, indices>;
+    };
+
+    template <typename indices, typename T>
+    using expand_cartesian_product_t = typeof_t<expand_cartesian_product<indices, T>>;
 
     template <template <typename ...> typename F, typename T>
     struct pairwise_fold
