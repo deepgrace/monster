@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 222
+#define MONSTER_VERSION 223
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3422,10 +3422,16 @@ namespace monster
     template <typename T, typename indices, bool B = false>
     using apply_permutation_t = typeof_t<apply_permutation<T, indices, B>>;
 
+    template <bool B, template <typename ...> typename F, typename T>
+    using apply_if = std::conditional_t<B, F<T>, std::type_identity<T>>;
+
+    template <bool B, template <typename ...> typename F, typename T>
+    using apply_if_t = typeof_t<apply_if<B, F, T>>;
+
     template <typename T, template <typename ...> typename F>
     struct reverse_with
     {
-        using call = std::conditional_t<is_tuple_v<T>, F<T>, std::type_identity<T>>;
+        using call = apply_if<is_tuple_v<T>, F, T>;
         using type = type_if<is_sequence_v<T>, reverse<T>, call>;
     };
 
@@ -6358,10 +6364,10 @@ namespace monster
     }
 
     template <typename T>
-    inline constexpr auto tuple_size_v = std::tuple_size_v<std::decay_t<T>>;
+    inline constexpr auto tuple_size_v = sizeof_t_v<std::decay_t<T>>;
 
     template <auto N, typename T>
-    inline constexpr auto tuple_size_of = tuple_size_v<std::tuple_element_t<N, T>>;
+    inline constexpr auto tuple_size_of = sizeof_t_v<std::tuple_element_t<N, T>>;
 
     template <auto m, auto n, typename T, auto... N>
     constexpr auto indexof(const std::index_sequence<N...>&)
@@ -9002,11 +9008,13 @@ namespace monster
     template <typename indices, typename T>
     struct expand_cartesian_product
     {
+        static constexpr auto value = is_sequence_v<element_t<0, T>>;
+
         template <typename U>
         using call = get_matrix_element_t<first_v<U>, second_v<U>, T>;
 
         template <typename U>
-        using impl = transform_t<call, U>;
+        using impl = apply_if_t<value, to_sequence, transform_t<call, U>>;
 
         using type = transform_t<impl, indices>;
     };
