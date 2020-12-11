@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 223
+#define MONSTER_VERSION 224
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -7213,6 +7213,30 @@ namespace monster
 
     template <template <typename ...> typename F, typename T>
     using erase_if_not_t = typeof_t<erase_if_not<F, T>>;
+
+    template <typename T, auto B = 0, auto E = sizeof_t_v<T>, template <typename, typename> typename F = std::is_same>
+    struct unique_copy
+    {
+        template <int i, int j, typename prev, typename V>
+        struct impl
+        {
+            using curr = element_t<i, T>;
+            using type = typeof_t<impl<i + 1, j, curr, append_if_t<!typev<F<prev, curr>>, V, curr>>>;
+        };
+
+        template <int j, typename prev, typename V>
+        struct impl<j, j, prev, V> : std::type_identity<V>
+        {
+        };
+
+        using base = clear<T>;
+
+        using prev = element_if_t<B != E, B, T, base>;
+        using type = type_if<B == E, base, impl<B + 1, E, prev, append_if_t<B != E, clear_t<T>, prev>>>;
+    };
+
+    template <typename T, auto B = 0, auto E = sizeof_t_v<T>, template <typename, typename> typename F = std::is_same>
+    using unique_copy_t = typeof_t<unique_copy<T, B, E, F>>;
 
     template <typename T, typename U>
     struct remove_copy : erase_if<bind_front<std::is_same, T>::template apply, U>

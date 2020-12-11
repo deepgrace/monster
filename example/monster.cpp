@@ -687,6 +687,11 @@ int main(int argc, char* argv[])
     execute<remove_copy_c<4, std::integer_sequence<int, 4, 3, 2, 4, 7, 3>>,
             std::integer_sequence<int, 3, 2, 7, 3>>();
 
+    execute<unique_copy_t<std::tuple<int, int, short, char, char, double, double, bool>>,
+            std::tuple<int, short, char, double, bool>>();
+    execute<unique_copy_t<std::index_sequence<1, 2, 3, 8, 7, 5, 4, 6, 0>, 0, 9, less_t>,
+            std::index_sequence<1, 7, 5, 4, 0>>();
+
     execute<max_element_t<std::tuple<short, int, char>>, int>();
     execute<min_element_t<std::tuple<short, int, char>>, char>();
     execute<max_element_t<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>, c_4>();
