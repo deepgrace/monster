@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 224
+#define MONSTER_VERSION 225
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4678,6 +4678,18 @@ namespace monster
     template <auto N, typename T>
     using subranges_t = typeof_t<subranges<N, T>>;
 
+    template <template <typename ...> typename F, auto N, typename T>
+    struct apply_subranges
+    {
+        template <auto i, typename U>
+        using impl = visit_t<F, i, U>;
+
+        using type = expand_t<impl, subranges_t<N, T>>;
+    };
+
+    template <template <typename ...> typename F, auto N, typename T>
+    using apply_subranges_t = typeof_t<apply_subranges<F, N, T>>;
+
     template <auto N, typename T>
     struct tuple_element_size
     {
@@ -7378,7 +7390,7 @@ namespace monster
         template <auto i, typename V>
         using impl = unary_t<store, i, i, V, U>;
 
-        using type = unpack_t<concat_t, expand_t<impl, T, index_sequence_of_c<(M < N ? M : N)>>>;
+        using type = unpack_t<concat_t, expand_t<impl, T, index_sequence_of_c<min_v<M, N>>>>;
     };
 
     template <typename T, typename U>
@@ -7394,7 +7406,7 @@ namespace monster
         template <auto i, typename V>
         using impl = unary<F, i, i, V, U>;
 
-        using type = expand_t<impl, T, index_sequence_of_c<(M < N ? M : N)>>;
+        using type = expand_t<impl, T, index_sequence_of_c<min_v<M, N>>>;
     };
 
     template <template <typename ...> typename F, typename T, typename U>
