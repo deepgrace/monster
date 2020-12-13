@@ -548,6 +548,9 @@ int main(int argc, char* argv[])
     execute<increase_t<integer_t, 3>, std::integer_sequence<int, 5, 10, 7>>();
     execute<increase_t<integer_t, -3>, std::integer_sequence<int, -1, 4, 1>>();
 
+    execute<offset_sequence_t<2, std::index_sequence<0, 1, 2>>, std::index_sequence<2, 3, 4>>();
+    execute<offset_sequence_t<-2, std::index_sequence<3, 4, 5>>, std::index_sequence<1, 2, 3>>();
+
     using add_one_t = transform_apply_t<currying_t, succ, to_tuple_t<integer_t>>;
     execute<add_one_t, std::tuple<c_<3, int>, c_<8, int>, c_<5, int>>>();
 

@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 225
+#define MONSTER_VERSION 226
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -9554,6 +9554,18 @@ namespace monster
 
     template <typename T>
     using power_set_t = typeof_t<power_set<T>>;
+
+    template <auto N, typename T>
+    struct offset_sequence;
+
+    template <auto N, template <typename, auto ...> typename T, typename U, auto... values>
+    struct offset_sequence<N, T<U, values...>>
+    {
+        using type = T<U, values + N...>;
+    };
+
+    template <auto N, typename T>
+    using offset_sequence_t = typeof_t<offset_sequence<N, T>>;
 
     template <typename T, auto N = 1>
     struct increase
