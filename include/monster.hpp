@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 226
+#define MONSTER_VERSION 227
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5800,6 +5800,29 @@ namespace monster
     consteval auto index_value(T&& t)
     {
         return std::remove_cvref_t<decltype(t)>::value;
+    }
+
+    template <size_t N, size_t index, typename F, typename T>
+    constexpr decltype(auto) tuple_fold(F&& f, T&& t)
+    {
+        if constexpr(N == index)
+            return std::get<index>(t);
+        else if constexpr(N == 0)
+            return std::invoke(f, tuple_fold<N, index - 1>(f, t), std::get<index>(t));
+        else
+            return std::invoke(f, std::get<index>(t), tuple_fold<N, index + 1>(f, t));
+    }
+
+    template <typename F, typename T>
+    constexpr decltype(auto) tuple_foldl(F&& f, T&& t)
+    {
+        return tuple_fold<0, std::tuple_size_v<std::decay_t<T>> - 1>(std::forward<F>(f), std::forward<T>(t));
+    }
+
+    template <typename F, typename T>
+    constexpr decltype(auto) tuple_foldr(F&& f, T&& t)
+    {
+        return tuple_fold<std::tuple_size_v<std::decay_t<T>> - 1, 0>(std::forward<F>(f), std::forward<T>(t));
     }
 
     template <typename F, typename... Args>
