@@ -560,6 +560,10 @@ int main(int argc, char* argv[])
     execute<offset_sequence_t<2, std::index_sequence<0, 1, 2>>, std::index_sequence<2, 3, 4>>();
     execute<offset_sequence_t<-2, std::index_sequence<3, 4, 5>>, std::index_sequence<1, 2, 3>>();
 
+    using typelist_ = std::tuple<std::tuple<bool, float>, std::tuple<int, double, short>, std::tuple<char>>;
+    using pairindex = pair_t<std::index_sequence<0, 0, 1, 1, 1, 2>, std::index_sequence<0, 1, 0, 1, 2, 0>>;
+    execute<matrix_index_sequences_t<typelist_>, pairindex>();
+
     using add_one_t = transform_apply_t<currying_t, succ, to_tuple_t<integer_t>>;
     execute<add_one_t, std::tuple<c_<3, int>, c_<8, int>, c_<5, int>>>();
 

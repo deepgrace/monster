@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 227
+#define MONSTER_VERSION 228
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6238,6 +6238,41 @@ namespace monster
 
     template <bool B, typename T, typename U = size_t>
     using alter_if_t = typeof_t<alter_if<B, T, U>>;
+
+    template <typename T>
+    struct matrix_index_sequences
+    {
+        template <auto N, typename U>
+        using outer = fill_c<sizeof_t_v<std::remove_cvref_t<element_t<N, U>>>, N>;
+
+        template <auto N, typename U>
+        using inner = index_sequence_of_t<std::remove_cvref_t<element_t<N, U>>>;
+
+        template <template <auto, typename> typename F>
+        using call = unpack_t<concat_t, expand_t<F, T>>;
+
+        using type = pair_t<alter_t<call<outer>, size_t>, call<inner>>;
+    };
+
+    template <typename T>
+    using matrix_index_sequences_t = typeof_t<matrix_index_sequences<T>>;
+
+    template <typename F, typename... Args>
+    constexpr decltype(auto) multi_apply(F&& f, Args&&... args)
+    {
+        using type = std::tuple<std::remove_cvref_t<Args>...>;
+        using pair = matrix_index_sequences_t<type>;
+
+        if constexpr(sizeof_t_v<type> == 0)
+            return std::forward<F>(f)();
+        else
+            return [&]<typename T, auto... m, auto... n>
+            (std::index_sequence<m...>, std::index_sequence<n...>, T&& t)
+            {
+                return std::invoke(std::forward<F>(f), std::get<n>(std::get<m>(std::move(t)))...);
+            }
+            (first_t<pair>(), second_t<pair>(), std::forward_as_tuple(std::forward<Args>(args)...));
+    }
 
     template <typename limit, typename T, template <typename ...> typename F, bool ASC = true>
     requires is_sequence_v<limit>
