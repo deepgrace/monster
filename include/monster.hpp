@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 229
+#define MONSTER_VERSION 230
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1912,12 +1912,15 @@ namespace monster
     template <typename T, T begin, T end>
     using integral_range_t = typeof_t<integral_range<T, begin, end>>;
 
-    template <size_t begin, size_t end>
-    using index_range = rename_t<integral_range_t<size_t, begin, end>, std::index_sequence<>>;
+    template <typename T, T begin, T end>
+    using range_of = rename_t<integral_range_t<T, begin, end>, std::integer_sequence<T>>;
 
     template <int begin, int end>
-    using integer_range = rename_t<integral_range_t<int, begin, end>, std::integer_sequence<int>>;
+    using integer_range = range_of<int, begin, end>;
     
+    template <size_t begin, size_t end>
+    using index_range = range_of<size_t, begin, end>;
+
     template <size_t N, typename T>
     struct base
     {
@@ -6226,7 +6229,7 @@ namespace monster
     using alter_t = typeof_t<alter<T, U>>;
 
     template <auto i, auto n, typename T>
-    struct splat : expand_of<T, alter_t<fill_c<n, i>, size_t>>
+    struct splat : expand_of<T, alter_t<fill_c<n, i>>>
     {
     };
 
@@ -6256,7 +6259,10 @@ namespace monster
         template <auto N, typename U>
         using inner = index_sequence_of_t<element_t<N, U>>;
 
-        using type = pair_t<alter_t<repack_t<outer, T>, size_t>, repack_t<inner, T>>;
+        template <template <auto, typename> typename F>
+        using call = repack_t<F, T>;
+
+        using type = pair_t<alter_t<call<outer>>, call<inner>>;
     };
 
     template <typename T>
@@ -6265,7 +6271,7 @@ namespace monster
     template <typename F, typename... Args>
     constexpr decltype(auto) multi_apply(F&& f, Args&&... args)
     {
-        using type = std::tuple<std::remove_cvref_t<Args>...>;
+        using type = std::tuple<std::decay_t<Args>...>;
         using pair = matrix_index_sequences_t<type>;
 
         if constexpr(sizeof_t_v<type> == 0)
