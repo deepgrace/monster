@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 228
+#define MONSTER_VERSION 229
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6239,19 +6239,24 @@ namespace monster
     template <bool B, typename T, typename U = size_t>
     using alter_if_t = typeof_t<alter_if<B, T, U>>;
 
+    template <template <auto, typename> typename F, typename T, typename indices = index_sequence_of_t<T>>
+    struct repack : unpack<concat_t, expand_t<F, T, indices>>
+    {
+    };
+
+    template <template <auto, typename> typename F, typename T, typename indices = index_sequence_of_t<T>>
+    using repack_t = typeof_t<repack<F, T, indices>>;
+
     template <typename T>
     struct matrix_index_sequences
     {
         template <auto N, typename U>
-        using outer = fill_c<sizeof_t_v<std::remove_cvref_t<element_t<N, U>>>, N>;
+        using outer = fill_c<sizeof_t_v<element_t<N, U>>, N>;
 
         template <auto N, typename U>
-        using inner = index_sequence_of_t<std::remove_cvref_t<element_t<N, U>>>;
+        using inner = index_sequence_of_t<element_t<N, U>>;
 
-        template <template <auto, typename> typename F>
-        using call = unpack_t<concat_t, expand_t<F, T>>;
-
-        using type = pair_t<alter_t<call<outer>, size_t>, call<inner>>;
+        using type = pair_t<alter_t<repack_t<outer, T>, size_t>, repack_t<inner, T>>;
     };
 
     template <typename T>
@@ -7414,7 +7419,7 @@ namespace monster
         template <auto i, typename U>
         using impl = store_t<Args..., element_t<i, U>>;
 
-        using type = unpack_t<concat_t, expand_t<impl, T>>;
+        using type = repack_t<impl, T>;
     };
 
     template <typename T, typename... Args>
@@ -7429,7 +7434,7 @@ namespace monster
         template <auto i, typename U>
         using impl = store_t<element_t<i, U>, Args...>;
 
-        using type = unpack_t<concat_t, expand_t<impl, T>>;
+        using type = repack_t<impl, T>;
     };
 
     template <typename T, typename... Args>
@@ -7448,7 +7453,7 @@ namespace monster
         template <auto i, typename V>
         using impl = unary_t<store, i, i, V, U>;
 
-        using type = unpack_t<concat_t, expand_t<impl, T, index_sequence_of_c<min_v<M, N>>>>;
+        using type = repack_t<impl, T, index_sequence_of_c<min_v<M, N>>>;
     };
 
     template <typename T, typename U>
