@@ -20,7 +20,7 @@ namespace monster
     using index_t = std::integral_constant<size_t, N>;
 
     template <const auto& t>
-    constexpr auto sort_tuple()
+    constexpr decltype(auto) sorted_indices()
     {
         using type = std::decay_t<decltype(t)>;
 
@@ -42,8 +42,22 @@ namespace monster
                 return index;
             }();
 
-            return std::tuple<std::tuple_element_t<indices[N].index(), type>...>(std::get<indices[N].index()>(t)...);
+            return std::index_sequence<indices[N].index()...>();
         }(std::make_index_sequence<std::tuple_size_v<type>>());
+    }
+
+    template <const auto& t>
+    using sorted_indices_t = decltype(sorted_indices<t>());
+
+    template <const auto& t>
+    constexpr decltype(auto) sort_tuple()
+    {
+        using type = std::decay_t<decltype(t)>;
+
+        return [&]<auto... N>(std::index_sequence<N...>)
+        {
+            return std::tuple<std::tuple_element_t<N, type>...>(std::get<N>(t)...);
+        }(sorted_indices_t<t>());
     }
 }
 
