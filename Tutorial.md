@@ -1511,6 +1511,9 @@ int main(int argc, char* argv[])
     execute<even_t<std::tuple<int, char, double, int, char>>, std::tuple<int, double, char>>();
     execute<even_t<std::integer_sequence<int, 1, 9, 0, 4, 2>>, std::integer_sequence<int, 1, 0, 2>>();
 
+    execute<stride_t<2, std::tuple<int, char, double, int, char>>, std::tuple<int, double, char>>();
+    execute<stride_t<3, std::index_sequence<1, 9, 0, 4, 2, 5, 7, 4>>, std::index_sequence<1, 4, 7>>();
+
     execute<count_v<c_1, std::integer_sequence<int, 1, 2, 3, 1>>, 2>();
     execute<count_v<char, std::tuple<char, double, char, int, float, char, int, double>>, 3>();
 

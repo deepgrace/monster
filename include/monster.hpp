@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 230
+#define MONSTER_VERSION 231
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5782,6 +5782,27 @@ namespace monster
 
     template <typename T>
     using even_t = typeof_t<even<T>>;
+
+    template <auto N, typename T>
+    struct stride
+    {
+        static constexpr auto size = sizeof_t_v<T>;
+
+        template <int i, typename U, bool = i * N < size>
+        struct impl : impl<i + 1, append_t<U, element_t<i * N, T>>>
+        {
+        };
+
+        template <int i, typename U>
+        struct impl<i, U, false> : std::type_identity<U>
+        {
+        };
+
+        using type = typeof_t<impl<0, clear_t<T>>>;
+    };
+
+    template <auto N, typename T>
+    using stride_t = typeof_t<stride<N, T>>;
 
     template <typename T>
     struct is_odd : bool_<typev<T> % 2 == 1>
