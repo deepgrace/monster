@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 231
+#define MONSTER_VERSION 232
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -11214,6 +11214,41 @@ namespace monster
 
     template <typename P, typename T>
     using erase_subtype_t = typeof_t<erase_subtype<P, T>>;
+
+    template <typename T, typename U, template <typename, typename> typename F>
+    struct remove_all
+    {
+        template <int i, int j, typename V, typename W>
+        struct impl : impl<i + 1, j, pop_front_t<V>, typeof_t<F<front_t<V>, W>>>
+        {
+        };
+
+        template <int j, typename V, typename W>
+        struct impl<j, j, V, W> : std::type_identity<W>
+        {
+        };
+
+        using type = typeof_t<impl<0, sizeof_t_v<T>, T, U>>;
+    };
+
+    template <typename T, typename U, template <typename, typename> typename F>
+    using remove_all_t = typeof_t<remove_all<T, U, F>>;
+
+    template <typename T, typename U>
+    struct remove_elements : remove_all<T, U, remove_copy>
+    {
+    };
+
+    template <typename T, typename U>
+    using remove_elements_t = typeof_t<remove_elements<T, U>>;
+
+    template <typename T, typename U>
+    struct remove_subtypes : remove_all<T, U, erase_subtype>
+    {
+    };
+
+    template <typename T, typename U>
+    using remove_subtypes_t = typeof_t<remove_subtypes<T, U>>;
 
     template <typename P, typename T>
     struct nest_erase_subtype : to_nest<erase_subtype_t<to_flat_t<P>, to_flat_t<T>>>

@@ -685,6 +685,16 @@ int main(int argc, char* argv[])
     execute<remove_copy_c<4, std::integer_sequence<int, 4, 3, 2, 4, 7, 3>>,
             std::integer_sequence<int, 3, 2, 7, 3>>();
 
+    execute<remove_elements_t<std::tuple<int, char>, std::tuple<char, double, int, short, bool, char, int>>,
+            std::tuple<double, short, bool>>();
+    execute<remove_elements_t<std::index_sequence<1, 0, 3, 5>, std::index_sequence<2, 1, 5, 7, 4, 0, 6, 9>>,
+            std::index_sequence<2, 7, 4, 6, 9>>();
+
+    execute<remove_subtypes_t<std::tuple<std::tuple<int, short>, std::tuple<char, int>>,
+            std::tuple<char, double, int, short, bool, char, int>>, std::tuple<char, double, bool>>();
+    execute<remove_subtypes_t<std::tuple<std::index_sequence<5, 7, 4>, std::index_sequence<6, 9>>,
+            std::index_sequence<2, 1, 5, 7, 4, 0, 6, 9>>, std::index_sequence<2, 1, 0>>();
+
     execute<unique_copy_t<std::tuple<int, int, short, char, char, double, double, bool>>,
             std::tuple<int, short, char, double, bool>>();
     execute<unique_copy_t<std::index_sequence<1, 2, 3, 8, 7, 5, 4, 6, 0>, 0, 9, less_t>,
