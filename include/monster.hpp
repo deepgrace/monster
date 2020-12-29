@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 232
+#define MONSTER_VERSION 233
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5824,6 +5824,16 @@ namespace monster
     consteval auto index_value(T&& t)
     {
         return std::remove_cvref_t<decltype(t)>::value;
+    }
+
+    template <typename indices, typename T>
+    decltype(auto) tuple_select(T&& t)
+    {
+        return [&]<size_t... N>(const std::index_sequence<N...>&)
+        {
+            return std::make_tuple(std::get<N>(t)...);
+        }
+        (indices());
     }
 
     template <size_t N, size_t index, typename F, typename T>
