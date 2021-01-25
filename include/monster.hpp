@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 233
+#define MONSTER_VERSION 234
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3417,6 +3417,33 @@ namespace monster
     template <bool B, typename T>
     using reverse_if_t = typeof_t<reverse_if<B, T>>;
 
+    template <typename T>
+    struct reverse_unique : reverse<unique_t<T>>
+    {
+    };
+
+    template <typename T>
+    using reverse_unique_t = typeof_t<reverse_unique<T>>;
+
+    template <typename T, typename U, typename V>
+    struct reverse_replace_with : reverse<replace_with_t<T, U, V>>
+    {
+    };
+
+    template <typename T, typename U, typename V>
+    using reverse_replace_with_t = typeof_t<reverse_replace_with<T, U, V>>;
+
+    template <auto M, auto N, typename V>
+    using reverse_replace_with_c = reverse_replace_with_t<c_<M>, c_<N>, V>;
+
+    template <template <typename ...> typename F, typename T>
+    struct reverse_transform : reverse<transform_t<F, T>>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T>
+    using reverse_transform_t = typeof_t<reverse_transform<F, T>>;
+
     template <typename T, typename indices, bool B = false>
     struct apply_permutation : expand_of<reverse_if_t<B, T>, reverse_if_t<B, indices>>
     {
@@ -3624,12 +3651,28 @@ namespace monster
     using remove_if_t = typeof_t<remove_if<F, T, B, E>>;
 
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    struct reverse_remove_if : reverse<remove_if_t<F, T, B, E>>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    using reverse_remove_if_t = typeof_t<reverse_remove_if<F, T, B, E>>;
+
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     struct remove_if_not : remove_if<negaf<F>::template apply, T, B, E>
     {
     };
 
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using remove_if_not_t = typeof_t<remove_if_not<F, T, B, E>>;
+
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    struct reverse_remove_if_not : reverse<remove_if_not_t<F, T, B, E>>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    using reverse_remove_if_not_t = typeof_t<reverse_remove_if_not<F, T, B, E>>;
 
     template <template <typename ...> typename F, typename T, auto B, auto E, bool value>
     struct copy
@@ -3652,6 +3695,14 @@ namespace monster
     template <template <typename ...> typename F, typename T, auto B, auto E, bool value>
     using copy_t = typeof_t<copy<F, T, B, E, value>>;
 
+    template <template <typename ...> typename F, typename T, auto B, auto E, bool value>
+    struct reverse_copy : reverse<copy_t<F, T, B, E, value>>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T, auto B, auto E, bool value>
+    using reverse_copy_t = typeof_t<reverse_copy<F, T, B, E, value>>;
+
     template <auto N, auto K, typename T, typename U>
     struct copy_n : concat<T, subset_t<N, K, U>>
     {
@@ -3669,12 +3720,28 @@ namespace monster
     using copy_if_t = typeof_t<copy_if<F, T, B, E>>;
 
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    struct reverse_copy_if : reverse_copy<F, T, B, E, true>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    using reverse_copy_if_t = typeof_t<reverse_copy_if<F, T, B, E>>;
+
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     struct copy_if_not : copy<F, T, B, E, false>
     {
     };
 
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using copy_if_not_t = typeof_t<copy_if_not<F, T, B, E>>;
+
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    struct reverse_copy_if_not : reverse_copy<F, T, B, E, false>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
+    using reverse_copy_if_not_t = typeof_t<reverse_copy_if_not<F, T, B, E>>;
 
     template <typename T, typename indices>
     struct exclude : expand_of<T, set_difference_t<less_t, index_sequence_of_t<T>, indices>>
@@ -3772,8 +3839,19 @@ namespace monster
     template <auto i, auto j, typename T, typename... Args>
     using replace_t = typeof_t<replace<i, j, T, Args...>>;
 
+    template <auto i, auto j, typename T, typename... Args>
+    struct reverse_replace : reverse<replace_t<i, j, T, Args...>>
+    {
+    };
+
+    template <auto i, auto j, typename T, typename... Args>
+    using reverse_replace_t = typeof_t<reverse_replace<i, j, T, Args...>>;
+
     template <auto i, auto j, typename T, auto... values>
     using replace_c = replace_t<i, j, T, c_<values>...>;
+
+    template <auto i, auto j, typename T, auto... values>
+    using reverse_replace_c = reverse_replace_t<i, j, T, c_<values>...>;
 
     template <auto i, auto j, template <typename ...> typename F, typename T, typename U>
     struct replace_if
@@ -3787,8 +3865,19 @@ namespace monster
     template <auto i, auto j, template <typename ...> typename F, typename T, typename U>
     using replace_if_t = typeof_t<replace_if<i, j, F, T, U>>;
 
+    template <auto i, auto j, template <typename ...> typename F, typename T, typename U>
+    struct reverse_replace_if : reverse<replace_if_t<i, j, F, T, U>>
+    {
+    };
+
+    template <auto i, auto j, template <typename ...> typename F, typename T, typename U>
+    using reverse_replace_if_t = typeof_t<reverse_replace_if<i, j, F, T, U>>;
+
     template <auto i, auto j, template <typename ...> typename F, auto N, typename U>
     using replace_if_c = replace_if_t<i, j, F, c_<N>, U>;
+
+    template <auto i, auto j, template <typename ...> typename F, auto N, typename U>
+    using reverse_replace_if_c = reverse_replace_if_t<i, j, F, c_<N>, U>;
 
     template <auto i, auto j, template <typename ...> typename F, typename T, typename U>
     struct replace_if_not : replace_if<i, j, negaf<F>::template apply, T, U>
@@ -3798,8 +3887,19 @@ namespace monster
     template <auto i, auto j, template <typename ...> typename F, typename T, typename U>
     using replace_if_not_t = typeof_t<replace_if_not<i, j, F, T, U>>;
 
+    template <auto i, auto j, template <typename ...> typename F, typename T, typename U>
+    struct reverse_replace_if_not : reverse<replace_if_not_t<i, j, F, T, U>>
+    {
+    };
+
+    template <auto i, auto j, template <typename ...> typename F, typename T, typename U>
+    using reverse_replace_if_not_t = typeof_t<reverse_replace_if_not<i, j, F, T, U>>;
+
     template <auto i, auto j, template <typename ...> typename F, auto N, typename U>
     using replace_if_not_c = replace_if_not_t<i, j, F, c_<N>, U>;
+
+    template <auto i, auto j, template <typename ...> typename F, auto N, typename U>
+    using reverse_replace_if_not_c = reverse_replace_if_not_t<i, j, F, c_<N>, U>;
 
     template <auto i, auto j, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     requires is_variadic_pack_v<T, U>
@@ -6581,7 +6681,8 @@ namespace monster
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
             return std::make_tuple(call_operator<N>(row)...);
-        }(index_sequence_of_c<min_element_v<indices>>());
+        }
+        (index_sequence_of_c<min_element_v<indices>>());
     }
 
     template <typename... Args>
@@ -6859,12 +6960,28 @@ namespace monster
     using transform_if_t = typeof_t<transform_if<F, P, T, U, B, E>>;
 
     template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    struct reverse_transform_if : reverse<transform_if_t<F, P, T, U, B, E>>
+    {
+    };
+
+    template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    using reverse_transform_if_t = typeof_t<reverse_transform_if<F, P, T, U, B, E>>;
+
+    template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     struct transform_if_not : transform_if<F, negaf<P>::template apply, T, U, B, E>
     {
     };
 
     template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     using transform_if_not_t = typeof_t<transform_if_not<F, P, T, U, B, E>>;
+
+    template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    struct reverse_transform_if_not : reverse<transform_if_not_t<F, P, T, U, B, E>>
+    {
+    };
+
+    template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    using reverse_transform_if_not_t = typeof_t<reverse_transform_if_not<F, P, T, U, B, E>>;
 
     template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     struct transform_while : transform_of<F, P, T, U, B, E, false>
@@ -6875,12 +6992,28 @@ namespace monster
     using transform_while_t = typeof_t<transform_while<F, P, T, U, B, E>>;
 
     template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    struct reverse_transform_while : transform_while<F, P, T, reverse_t<U>, B, E>
+    {
+    };
+
+    template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    using reverse_transform_while_t = typeof_t<reverse_transform_while<F, P, T, U, B, E>>;
+
+    template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     struct transform_while_not : transform_while<F, negaf<P>::template apply, T, U, B, E>
     {
     };
 
     template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     using transform_while_not_t = typeof_t<transform_while_not<F, P, T, U, B, E>>;
+
+    template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    struct reverse_transform_while_not : transform_while_not<F, P, T, reverse_t<U>, B, E>
+    {
+    };
+
+    template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
+    using reverse_transform_while_not_t = typeof_t<reverse_transform_while_not<F, P, T, U, B, E>>;
 
     template <auto i, auto j, typename T, typename U = T>
     struct is_same : unary<std::is_same, i, j, T, U>
@@ -9816,6 +9949,14 @@ namespace monster
     using partition_t = typeof_t<partition<p, r, T, comparator>>;
 
     template <int p, int r, typename T, template <typename, typename> typename comparator = less_equal_t>
+    struct reverse_partition : reverse<partition_t<p, r, T, comparator>>
+    {
+    };
+
+    template <int p, int r, typename T, template <typename, typename> typename comparator = less_equal_t>
+    using reverse_partition_t = typeof_t<reverse_partition<p, r, T, comparator>>;
+
+    template <int p, int r, typename T, template <typename, typename> typename comparator = less_equal_t>
     struct randomized_partition : partition<p, r, prng_t<p, r, T>, comparator>
     {
     };
@@ -9892,6 +10033,14 @@ namespace monster
 
     template <int p, int r, typename T, template <typename ...> typename comparator>
     using stable_partition_t = typeof_t<stable_partition<p, r, T, comparator>>;
+
+    template <int p, int r, typename T, template <typename ...> typename comparator>
+    struct reverse_stable_partition : reverse<stable_partition_t<p, r, T, comparator>>
+    {
+    };
+
+    template <int p, int r, typename T, template <typename ...> typename comparator>
+    using reverse_stable_partition_t = typeof_t<reverse_stable_partition<p, r, T, comparator>>;
 
     template <int p, int r, typename T, template <typename, typename> typename comparator = less_equal_t>
     struct randomized_stable_partition
@@ -10117,7 +10266,8 @@ namespace monster
         using type = decltype([]<size_t... indices>(const std::index_sequence<indices...>&)
                      {
                          return std::integer_sequence<T, nth<indices>()...>();
-                     }(std::make_index_sequence<sizeof...(values)>()));
+                     }
+                     (std::make_index_sequence<sizeof...(values)>()));
     };
 
     template <typename T>
@@ -10186,7 +10336,8 @@ namespace monster
                      ([]<size_t... indices>(std::index_sequence<indices...>)
                      {
                          return std::tuple<field<indices, Args>...>{};
-                     }(index{})
+                     }
+                     (index{})
                      )));
 
     };
