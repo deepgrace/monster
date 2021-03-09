@@ -28,7 +28,7 @@ constexpr auto t = std::make_tuple(X<short>{4}, X<int>{8}, X<float>{5.4f}, X<dou
 constexpr auto s = sort_tuple<t>();
 
 using result = std::tuple<X<int>, X<short>, X<double>, X<float>, X<int>>;
-static_assert(std::is_same_v<result, std::decay_t<decltype(s)>>);
+static_assert(std::is_same_v<result, tuple_type<s>>);
 
 int main(int argc, char* argv[])
 {

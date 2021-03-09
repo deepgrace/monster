@@ -1334,7 +1334,8 @@ int main(int argc, char* argv[])
         [](auto x) { return x; },
         [](int x) { return x * 10; },
         [](double x) { return x / 10.; }
-    }(10.0);
+    }
+    (10.0);
 
     for_value<1, -2, 3>([]<auto N>()
     {
