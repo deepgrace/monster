@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 235
+#define MONSTER_VERSION 236
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -2044,8 +2044,9 @@ namespace monster
     };
 
     template <template <typename, auto ...> typename T, typename U, auto... values>
-    struct unique<T<U, values...>>
+    struct unique<T<U, values...>> : unpack<concat_t, typeof_t<unique<std::tuple<T<U, values>...>>>>
     {
+        /*
         template <typename V, auto... args>
         struct impl : std::type_identity<T<U, args...>>
         {
@@ -2058,6 +2059,7 @@ namespace monster
         };
 
         using type = typeof_t<impl<T<U>, values...>>;
+        */
     };
 
     template <typename T>

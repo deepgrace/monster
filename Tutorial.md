@@ -182,8 +182,9 @@ int main(int argc, char* argv[])
     execute<adjacent_t<not_adjacent_value>, adjacent_value>();
     execute<remove_unique_t<not_adjacent_value>, std::index_sequence<2, 2, 3, 3, 5, 5, 5, 8, 8>>();
     execute<remove_duplicate_t<not_adjacent_value>, std::index_sequence<1, 7, 9>>();
-    execute<group_t<not_adjacent_value>, std::tuple<std::index_sequence<2, 2>,
-            std::index_sequence<3, 3>, std::index_sequence<5, 5, 5>, std::index_sequence<8, 8>>>();
+    execute<group_t<not_adjacent_value>, std::tuple<std::index_sequence<2, 2>, std::index_sequence<1>,
+            std::index_sequence<3, 3>, std::index_sequence<5, 5, 5>, std::index_sequence<8, 8>,
+            std::index_sequence<7>, std::index_sequence<9>>>();
 
     std::cout << e<double> << std::endl; // 2.71828
     std::cout << pi<double> << std::endl; // 3.14159
@@ -1325,7 +1326,8 @@ int main(int argc, char* argv[])
         [](auto x) { return x; },
         [](int x) { return x * 10; },
         [](double x) { return x / 10.; }
-    }(10.0);
+    }
+    (10.0);
 
     for_value<1, -2, 3>([]<auto N>()
     {
@@ -2565,7 +2567,7 @@ int main(int argc, char* argv[])
 
     execute<power_v<10, digit_v<1234>>, 10000>();
 
-    /*
+    /* this takes too long to compile
     execute<edit_distance_v<std::tuple<char, short, float, int, double, uint64_t>,
             std::tuple<char, double, nullptr_t, short, uint32_t, int, double, uint64_t>>, 3>();
 
