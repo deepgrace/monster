@@ -9,7 +9,7 @@
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_BUILD_TYPE Release)
-SET(CMAKE_CXX_FLAGS "-m64 -std=c++2a -fconcepts -s -Wall -Wno-unused-variable -Os")
+SET(CMAKE_CXX_FLAGS "-m64 -std=c++20 -fconcepts -s -Wall -Wno-unused-variable -Os")
 
 include(GNUInstallDirs)
 

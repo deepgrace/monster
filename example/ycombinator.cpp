@@ -7,7 +7,7 @@
 // Official repository: https://github.com/deepgrace/monster
 //
 
-// g++ -I include -m64 -std=c++2a -s -Wall -Os -o /tmp/ycombinator example/ycombinator.cpp
+// g++ -I include -m64 -std=c++20 -s -Wall -Os -o /tmp/ycombinator example/ycombinator.cpp
 
 #include <iostream>
 #include <ycombinator.hpp>

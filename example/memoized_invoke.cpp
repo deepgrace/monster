@@ -7,7 +7,7 @@
 // Official repository: https://github.com/deepgrace/monster
 //
 
-// g++ -I include -m64 -std=c++2a -s -Wall -Os -o /tmp/memoized_invoke example/memoized_invoke.cpp
+// g++ -I include -m64 -std=c++20 -s -Wall -Os -o /tmp/memoized_invoke example/memoized_invoke.cpp
 
 #include <memoized_invoke.hpp>
 

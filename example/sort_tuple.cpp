@@ -7,7 +7,7 @@
 // Official repository: https://github.com/deepgrace/monster
 //
 
-// g++ -I include -m64 -std=c++2a -s -Wall -Os -o /tmp/sort_tuple example/sort_tuple.cpp
+// g++ -I include -m64 -std=c++20 -s -Wall -Os -o /tmp/sort_tuple example/sort_tuple.cpp
 
 #include <sort_tuple.hpp>
 

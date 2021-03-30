@@ -7,7 +7,7 @@
 // Official repository: https://github.com/deepgrace/monster
 //
 
-// g++ -I include -m64 -std=c++2a -s -Wall -Os -o /tmp/tensor example/tensor.cpp
+// g++ -I include -m64 -std=c++20 -s -Wall -Os -o /tmp/tensor example/tensor.cpp
 
 #include <iostream>
 #include <tensor.hpp>
