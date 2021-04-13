@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 236
+#define MONSTER_VERSION 237
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -7249,6 +7249,22 @@ namespace monster
 
     template <typename T, typename U, auto B1 = 0, auto E1 = sizeof_t_v<T>, auto B2 = 0, auto E2 = sizeof_t_v<U>>
     inline constexpr auto is_permutation_v = typev<is_permutation<T, U, B1, E1, B2, E2>>;
+
+    template <typename T, typename U>
+    consteval decltype(auto) is_permutation_of()
+    {
+        constexpr auto m = sizeof_t_v<T>;
+        constexpr auto n = sizeof_t_v<U>;
+
+        return m == n && []<auto... N>(auto f, std::index_sequence<N...>)
+        {
+            return (f.template operator()<element_t<N, T>>() && ...);
+        }
+        ([]<typename V>()
+        {
+            return count_v<V, T> == count_v<V, U>;
+        }, index_sequence_of_c<min_v<m, n>>());
+    }
 
     template <typename T, typename U, auto B1, auto E1, auto B2, auto E2, auto N, bool B, template <typename ...> typename F>
     struct find_element

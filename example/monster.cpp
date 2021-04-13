@@ -443,6 +443,9 @@ int main(int argc, char* argv[])
     execute<is_permutation_v<std::index_sequence<1, 2, 3, 4, 5>, std::index_sequence<3, 5, 4, 1, 2>>>();
     execute<!is_permutation_v<std::index_sequence<1, 2, 3, 4, 5>, std::index_sequence<3, 5, 4, 1, 1>>>();
 
+    execute<is_permutation_of<std::tuple<int, char, short, double>, std::tuple<char, double, int, short>>()>();
+    execute<!is_permutation_of<std::tuple<bool, char, short, double>, std::tuple<char, double, int, short>>()>();
+
     execute<adjacent_difference_t<minus_t, std::integer_sequence<int, 2, 4, 6, 8>>,
             std::integer_sequence<int, 2, 2, 2, 2>>();
 
