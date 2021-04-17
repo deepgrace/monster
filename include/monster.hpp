@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 238
+#define MONSTER_VERSION 239
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -9842,15 +9842,42 @@ namespace monster
     template <auto N, typename T>
     using arithmetic_sequence_t = typeof_t<arithmetic_sequence<N, T>>;
 
-    template <auto N, typename T>
-    struct take_nth
+    template <auto N, typename T, bool B, template <typename ...> typename F>
+    struct apply_nth
     {
         static constexpr auto M = sizeof_t_v<T>;
-        using type = slice_t<arithmetic_sequence_t<N, index_sequence_of_c<M / N + !!(M % N)>>, T>;
+
+        template <typename U, bool>
+        struct impl : F<U, T>
+        {
+        };
+
+        template <typename U>
+        struct impl<U, false> : F<T, U>
+        {
+        };
+
+        using type = typeof_t<impl<arithmetic_sequence_t<N, index_sequence_of_c<M / N + !!(M % N)>>, B>>;
+    };
+
+    template <auto N, typename T, bool B, template <typename, typename> typename F>
+    using apply_nth_t = typeof_t<apply_nth<N, T, B, F>>;
+
+    template <auto N, typename T>
+    struct take_nth : apply_nth<N, T, 1, slice>
+    {
     };
 
     template <auto N, typename T>
     using take_nth_t = typeof_t<take_nth<N, T>>;
+
+    template <auto N, typename T>
+    struct drop_nth : apply_nth<N, T, 0, exclude>
+    {
+    };
+
+    template <auto N, typename T>
+    using drop_nth_t = typeof_t<drop_nth<N, T>>;
 
     template <typename T, auto N = 1>
     struct increase
