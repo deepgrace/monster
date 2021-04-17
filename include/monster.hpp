@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 237
+#define MONSTER_VERSION 238
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -9829,6 +9829,28 @@ namespace monster
 
     template <auto N, typename T>
     using offset_sequence_t = typeof_t<offset_sequence<N, T>>;
+
+    template <auto N, typename T>
+    struct arithmetic_sequence;
+
+    template <auto N, template <typename, auto ...> typename T, typename U, auto... values>
+    struct arithmetic_sequence<N, T<U, values...>>
+    {
+        using type = T<U, values * N...>;
+    };
+
+    template <auto N, typename T>
+    using arithmetic_sequence_t = typeof_t<arithmetic_sequence<N, T>>;
+
+    template <auto N, typename T>
+    struct take_nth
+    {
+        static constexpr auto M = sizeof_t_v<T>;
+        using type = slice_t<arithmetic_sequence_t<N, index_sequence_of_c<M / N + !!(M % N)>>, T>;
+    };
+
+    template <auto N, typename T>
+    using take_nth_t = typeof_t<take_nth<N, T>>;
 
     template <typename T, auto N = 1>
     struct increase
