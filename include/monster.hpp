@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 239
+#define MONSTER_VERSION 240
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5277,6 +5277,7 @@ namespace monster
     static constexpr universal wildcard{};
 
     template <typename T>
+    requires std::is_aggregate_v<T>
     consteval auto aggregate_arity(auto... Args)
     {
         if constexpr (! requires { T{ Args... }; })
@@ -5287,6 +5288,25 @@ namespace monster
 
     template <typename T>
     constexpr auto aggregate_arity_v = aggregate_arity<T>();
+
+    /*
+    template <typename T>
+    requires std::is_aggregate_v<T>
+    constexpr decltype(auto) aggregate_fields_count()
+    {
+        auto [...Args] = T();
+
+        return sizeof...(Args);
+    }
+
+    template <typename T>
+    constexpr decltype(auto) aggregate_to_tuple(T&& t)
+    {
+        auto&& [...Args] = t;
+
+        return std::forward_as_tuple(std::forward<decltype(Args)>(Args)...);
+    }
+    */
 
     template <auto N, typename F, typename... Args>
     void loop(F&& f, Args&&... args)
