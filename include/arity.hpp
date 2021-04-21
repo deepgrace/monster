@@ -18,7 +18,7 @@ namespace monster
     template <typename T>
     constexpr decltype(auto) arity()
     {
-        if constexpr(is_lambda_v<T> || std::is_invocable_v<T>)
+        if constexpr(invocable<T>)
             return function_traits_v<T>;
         else if constexpr(std::is_class_v<T>)
             return aggregate_arity_v<T>;

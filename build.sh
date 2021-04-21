@@ -3,7 +3,7 @@
 dst=/tmp
 path=example
 flags=(-I include -m64 -std=c++2a -s -Wall -Os)
-executables=(curry tensor object_pool is_lambda stream ycombinator sort_tuple)
+executables=(curry tensor object_pool is_lambda stream ycombinator sort_tuple memoized_invoke)
 
 for bin in ${executables[@]}; do
     g++ "${flags[@]}" -o ${dst}/${bin} ${path}/${bin}.cpp
