@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 240
+#define MONSTER_VERSION 241
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5549,6 +5549,29 @@ namespace monster
 
     template <size_t N, typename T>
     using nth_level_pointer_t = typeof_t<nth_level_pointer<N, T>>;
+
+    template <bool... B>
+    struct bool_pack
+    {
+    };
+
+    template <typename ...>
+    struct choose;
+
+    template <template <bool ...> typename T, bool... B, template <typename ...> typename U, typename... Args>
+    requires (sizeof...(B) == sizeof...(Args))
+    struct choose<T<B...>, U<Args...>> : concat<std::conditional_t<B, std::tuple<Args>, std::tuple<>>...>
+    {
+    };
+
+    template <template <bool ...> typename T, bool... B, template <typename, auto ...> typename U, typename V, auto... Args>
+    requires (sizeof...(B) == sizeof...(Args))
+    struct choose<T<B...>, U<V, Args...>> : concat<std::conditional_t<B, U<V, Args>, U<V>>...>
+    {
+    };
+
+    template <typename T, typename U>
+    using choose_t = typeof_t<choose<T, U>>;
 
     template <bool... B>
     struct fast_and : std::is_same<fast_and<true, B...>, fast_and<B..., true>>

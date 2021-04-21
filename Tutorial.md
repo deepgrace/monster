@@ -740,6 +740,11 @@ int main(int argc, char* argv[])
     execute<slice_t<std::index_sequence<3, 1, 4>, std::integer_sequence<int, -1, 3, 7, 0, 5>>,
             std::integer_sequence<int, 0, 3, 5>>();
 
+    execute<choose_t<bool_pack<0, 1, 1, 0>, std::tuple<int, float, char, double>>,
+            std::tuple<float, char>>();
+    execute<choose_t<bool_pack<1, 0, 1, 1, 0>, std::integer_sequence<int, -1, 3, 7, 0, 5>>,
+            std::integer_sequence<int, -1, 7, 0>>();
+
     execute<apply_permutation_t<std::tuple<char, int, float, double, short>,
             std::index_sequence<0, 2, 4, 1, 3>>, std::tuple<char, float, short, int, double>>();
     execute<apply_permutation_t<std::integer_sequence<int, 8, 3, 5, -2, 7>,
