@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 241
+#define MONSTER_VERSION 242
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5929,12 +5929,24 @@ namespace monster
     using even_t = typeof_t<even<T>>;
 
     template <auto N, typename T>
-    struct stride
+    struct slide
+    {
+        template <auto M, typename U>
+        using impl = subset_t<M, N, T>;
+
+        using type = expand_t<impl, T, index_sequence_of_c<sizeof_t_v<T> - N + 1>>;
+    };
+
+    template <auto N, typename T>
+    using slide_t = typeof_t<slide<N, T>>;
+
+    template <auto N, typename T, bool B>
+    struct divvy
     {
         static constexpr auto size = sizeof_t_v<T>;
 
         template <int i, typename U, bool = i * N < size>
-        struct impl : impl<i + 1, append_t<U, element_t<i * N, T>>>
+        struct impl : impl<i + 1, append_t<U, type_if<B, element<i * N, T>, subset<i * N, min_v<N, size - i * N>, T>>>>
         {
         };
 
@@ -5943,7 +5955,20 @@ namespace monster
         {
         };
 
-        using type = typeof_t<impl<0, clear_t<T>>>;
+        using type = typeof_t<impl<0, std::conditional_t<B, clear_t<T>, std::tuple<>>>>;
+    };
+
+    template <auto N, typename T>
+    struct chunk : divvy<N, T, 0>
+    {
+    };
+
+    template <auto N, typename T>
+    using chunk_t = typeof_t<chunk<N, T>>;
+
+    template <auto N, typename T>
+    struct stride : divvy<N, T, 1>
+    {
     };
 
     template <auto N, typename T>

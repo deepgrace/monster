@@ -1531,6 +1531,19 @@ int main(int argc, char* argv[])
     execute<even_t<std::tuple<int, char, double, int, char>>, std::tuple<int, double, char>>();
     execute<even_t<std::integer_sequence<int, 1, 9, 0, 4, 2>>, std::integer_sequence<int, 1, 0, 2>>();
 
+    execute<chunk_t<2, std::tuple<int, char, double, int, char, short>>,
+            std::tuple<std::tuple<int, char>, std::tuple<double, int>, std::tuple<char, short>>>();
+    execute<chunk_t<3, std::index_sequence<1, 9, 0, 4, 2, 5, 7, 4>>,
+            std::tuple<std::index_sequence<1, 9, 0>, std::index_sequence<4, 2, 5>, std::index_sequence<7, 4>>>();
+
+    execute<slide_t<3, std::tuple<int, char, double, int, char, short>>,
+            std::tuple<std::tuple<int, char, double>, std::tuple<char, double, int>,
+            std::tuple<double, int, char>, std::tuple<int, char, short>>>();
+
+    execute<slide_t<4, std::index_sequence<1, 9, 0, 4, 2, 5, 7, 4>>,
+            std::tuple<std::index_sequence<1, 9, 0, 4>, std::index_sequence<9, 0, 4, 2>,
+            std::index_sequence<0, 4, 2, 5>, std::index_sequence<4, 2, 5, 7>, std::index_sequence<2, 5, 7, 4>>>();
+
     execute<stride_t<2, std::tuple<int, char, double, int, char>>, std::tuple<int, double, char>>();
     execute<stride_t<3, std::index_sequence<1, 9, 0, 4, 2, 5, 7, 4>>, std::index_sequence<1, 4, 7>>();
 
