@@ -1692,10 +1692,20 @@ int main(int argc, char* argv[])
     execute<product_t<max, std::tuple<int, char>, std::tuple<short, uint64_t>>,
             std::tuple<int, uint64_t, short, uint64_t>>();
 
-    execute<pairwise_fold_t<std::is_same, std::tuple<int, int, char, int, int>>,
+    execute<adjacent_transform_t<std::is_same, std::tuple<int, int, char, int, int>>,
             std::tuple<std::true_type, std::false_type, std::false_type, std::true_type>>();
-    execute<pairwise_fold_t<plus_t, std::integer_sequence<int, 1, 2, 3, -4, 5, 6>>,
+    execute<adjacent_transform_t<plus_t, std::integer_sequence<int, 1, 2, 3, -4, 5, 6>>,
             std::integer_sequence<int, 3, 5, -1, 1, 11>>();
+
+    execute<adjacent_filter_t<negaf<std::is_same>::template apply, std::tuple<int, int, char, int, int, short>>,
+            std::tuple<int, char, int, short>>();
+    execute<adjacent_filter_t<negaf<std::is_same>::template apply, std::integer_sequence<int, 1, 2, 2, 4, 5, 5>>,
+            std::integer_sequence<int, 1, 2, 4, 5>>();
+
+    execute<adjacent_remove_if_t<negaf<std::is_same>::template apply, std::tuple<int, int, char, int, int, short>>,
+            std::tuple<int, char, int, short>>();
+    execute<adjacent_remove_if_t<negaf<std::is_same>::template apply, std::integer_sequence<int, 1, 2, 2, 4, 5, 5>>,
+            std::integer_sequence<int, 1, 2, 4, 5>>();
 
     using mat = std::tuple<std::index_sequence<1, 2, 3>,
                            std::index_sequence<4, 5, 6>,
