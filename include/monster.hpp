@@ -4511,6 +4511,14 @@ namespace monster
     template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     inline constexpr auto find_v = typev<find<T, U, B, E>>;
 
+    template <typename T, typename U>
+    struct delimit : range<0, find_v<T, U>, U>
+    {
+    };
+
+    template <typename T, typename U>
+    using delimit_t = typeof_t<delimit<T, U>>;
+
     template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     struct find_backward
     {
