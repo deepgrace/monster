@@ -909,6 +909,9 @@ int main(int argc, char* argv[])
     execute<drop_while_t<std::is_pointer, std::tuple<int*, double*, int, char>>, std::tuple<int, char>>();
     execute<take_while_t<std::is_pointer, std::tuple<int*, double*, int, char>>, std::tuple<int*, double*>>();
 
+    execute<drop_last_while_t<std::is_pointer, std::tuple<int, double, int*, char*>>, std::tuple<int, double>>();
+    execute<take_last_while_t<std::is_pointer, std::tuple<int, double, int*, char*>>, std::tuple<int*, char*>>();
+
     execute<trim_if_t<std::is_pointer, std::tuple<int*, double*, int, char, int*>>, std::tuple<int, char>>();
     execute<trim_if_not_t<std::is_pointer, std::tuple<int, short, int*, char*, int>>, std::tuple<int*, char*>>();
 

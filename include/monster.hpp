@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 244
+#define MONSTER_VERSION 245
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3569,12 +3569,28 @@ namespace monster
     using drop_while_t = typeof_t<drop_while<F, T>>;
 
     template <template <typename ...> typename F, typename T>
+    struct drop_last_while : reverse<drop_while_t<F, reverse_t<T>>>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T>
+    using drop_last_while_t = typeof_t<drop_last_while<F, T>>;
+
+    template <template <typename ...> typename F, typename T>
     struct take_while : apply_while<F, T, false>
     {
     };
 
     template <template <typename ...> typename F, typename T>
     using take_while_t = typeof_t<take_while<F, T>>;
+
+    template <template <typename ...> typename F, typename T>
+    struct take_last_while : reverse<take_while_t<F, reverse_t<T>>>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T>
+    using take_last_while_t = typeof_t<take_last_while<F, T>>;
 
     template <template <typename ...> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     struct unique_if
