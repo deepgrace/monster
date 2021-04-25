@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 243
+#define MONSTER_VERSION 244
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -7461,6 +7461,22 @@ namespace monster
 
     template <typename T, typename U>
     using trim_right_t = typeof_t<trim_right<T, U>>;
+
+    template <template <typename ...> typename F, typename T>
+    struct trim_if : reverse<drop_while_t<F, reverse_t<drop_while_t<F, T>>>>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T>
+    using trim_if_t = typeof_t<trim_if<F, T>>;
+
+    template <template <typename ...> typename F, typename T>
+    struct trim_if_not : trim_if<negaf<F>::template apply, T>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T>
+    using trim_if_not_t = typeof_t<trim_if_not<F, T>>;
 
     template <typename T, typename U>
     struct is_subset
