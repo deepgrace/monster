@@ -1762,6 +1762,11 @@ int main(int argc, char* argv[])
     execute<zip_with_t<pair_t, std::tuple<int, char, short, double>, std::tuple<char, double, float>>,
             std::tuple<pair_t<int, char>, pair_t<char, double>, pair_t<short, float>>>();
 
+    execute<zip_transform_t<mul, std::integer_sequence<int, 1, 2, -3>,
+            std::integer_sequence<int, 3, 4, 5>>, std::integer_sequence<int, 3, 8, -15>>();
+    execute<zip_transform_t<max_element, std::tuple<int, char, double>, std::tuple<char, double, float>>,
+            std::tuple<int, double, double>>();
+
     execute<next_permutation_t<std::tuple<char, int, double>>, std::tuple<char, double, int>>();
     execute<next_permutation_t<std::tuple<char, double, int>>, std::tuple<int, char, double>>();
     execute<next_permutation_t<std::tuple<int, char, double>>, std::tuple<int, double, char>>();

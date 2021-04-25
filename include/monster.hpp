@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 245
+#define MONSTER_VERSION 246
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1084,7 +1084,7 @@ namespace monster
     template <auto N, typename... Args>
     struct tuple_depth
     {
-        static constexpr auto value = N * sizeof...(Args);
+        static constexpr auto value = N * sizeof_v<Args...>;
     };
 
     template <auto N, template <typename ...> typename T, typename... Args>
@@ -5583,7 +5583,7 @@ namespace monster
     struct choose;
 
     template <template <bool ...> typename T, bool... B, template <typename ...> typename U, typename... Args>
-    requires (sizeof...(B) == sizeof...(Args))
+    requires (sizeof...(B) == sizeof_v<Args...>)
     struct choose<T<B...>, U<Args...>> : concat<std::conditional_t<B, std::tuple<Args>, std::tuple<>>...>
     {
     };
@@ -6731,7 +6731,7 @@ namespace monster
         using impl = expand_t<next, holder<N>, indices>;
 
         template <typename... Args>
-        using call = index_sequence_of_c<(sizeof...(Args) != 0) * (1 * ... * sizeof_t_v<Args>)>;
+        using call = index_sequence_of_c<(sizeof_v<Args...> != 0) * (1 * ... * sizeof_t_v<Args>)>;
 
         using type = expand_t<impl, holder<0>, unpack_t<call, T>>;
     };
@@ -8163,7 +8163,7 @@ namespace monster
     template <typename T>
     inline constexpr auto det_v = typev<det_t<T>>;
 
-    template <typename T, template <typename> typename F1, template <auto, typename> typename F2, template <typename> typename F3>
+    template <typename T, template <typename> typename F1, template <auto, typename> typename F2, template <typename ...> typename F3>
     struct line_summator
     {
         template <int i, int j, typename U>
@@ -8174,7 +8174,7 @@ namespace monster
         using type = matrix_col_transform_t<0, typev<F1<T>>, T, impl, 1, 1, 1, 1>;
     };
 
-    template <typename T, template <typename> typename F1, template <auto, typename> typename F2, template <typename> typename F3>
+    template <typename T, template <typename> typename F1, template <auto, typename> typename F2, template <typename ...> typename F3>
     using line_summator_t = typeof_t<line_summator<T, F1, F2, F3>>;
 
     template <auto N, typename T>
@@ -8221,8 +8221,24 @@ namespace monster
     template <auto N, typename T>
     inline constexpr auto product_col_v = typev<product_col_t<N, T>>;
 
+    template <template <typename ...> typename F, typename T>
+    struct matrix_row_apply : line_summator<T, matrix_row_size, get_matrix_row, F>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T>
+    using matrix_row_apply_t = typeof_t<matrix_row_apply<F, T>>;
+
+    template <template <typename ...> typename F, typename T>
+    struct matrix_col_apply : line_summator<T, matrix_col_size, get_matrix_col, F>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T>
+    using matrix_col_apply_t = typeof_t<matrix_col_apply<F, T>>;
+
     template <typename T>
-    struct matrix_row_sum : line_summator<T, matrix_col_size, get_matrix_col, sum>
+    struct matrix_row_sum : matrix_col_apply<sum, T>
     {
     };
 
@@ -8230,7 +8246,7 @@ namespace monster
     using matrix_row_sum_t = typeof_t<matrix_row_sum<T>>;
 
     template <typename T>
-    struct matrix_col_sum : line_summator<T, matrix_row_size, get_matrix_row, sum>
+    struct matrix_col_sum : matrix_row_apply<sum, T>
     {
     };
 
@@ -8238,7 +8254,7 @@ namespace monster
     using matrix_col_sum_t = typeof_t<matrix_col_sum<T>>;
 
     template <typename T>
-    struct matrix_row_means : line_summator<T, matrix_col_size, get_matrix_col, means>
+    struct matrix_row_means : matrix_col_apply<means, T>
     {
     };
 
@@ -8246,7 +8262,7 @@ namespace monster
     using matrix_row_means_t = typeof_t<matrix_row_means<T>>;
 
     template <typename T>
-    struct matrix_col_means : line_summator<T, matrix_row_size, get_matrix_row, means>
+    struct matrix_col_means : matrix_row_apply<means, T>
     {
     };
 
@@ -8276,7 +8292,7 @@ namespace monster
     inline constexpr auto matrix_means_v = typev<matrix_means_t<T>>;
 
     template <typename T>
-    struct matrix_row_mul : line_summator<T, matrix_col_size, get_matrix_col, mul>
+    struct matrix_row_mul : matrix_col_apply<mul, T>
     {
     };
 
@@ -8284,7 +8300,7 @@ namespace monster
     using matrix_row_mul_t = typeof_t<matrix_row_mul<T>>;
 
     template <typename T>
-    struct matrix_col_mul : line_summator<T, matrix_row_size, get_matrix_row, mul>
+    struct matrix_col_mul : matrix_row_apply<mul, T>
     {
     };
 
@@ -8301,22 +8317,6 @@ namespace monster
 
     template <typename T>
     inline constexpr auto matrix_mul_v = typev<matrix_mul_t<T>>;
-
-    template <template <typename> typename F, typename T>
-    struct matrix_row_apply : line_summator<T, matrix_row_size, get_matrix_row, F>
-    {
-    };
-
-    template <template <typename> typename F, typename T>
-    using matrix_row_apply_t = typeof_t<matrix_row_apply<F, T>>;
-
-    template <template <typename> typename F, typename T>
-    struct matrix_col_apply : line_summator<T, matrix_col_size, get_matrix_col, F>
-    {
-    };
-
-    template <template <typename> typename F, typename T>
-    using matrix_col_apply_t = typeof_t<matrix_col_apply<F, T>>;
 
     template <typename T>
     struct matrix_row_maximum : matrix_row_apply<max_element, T>
@@ -9325,6 +9325,15 @@ namespace monster
 
     template <typename T, typename U>
     using matrix_vertical_concat_t = typeof_t<matrix_vertical_concat<T, U>>;
+
+    template <template <typename ...> typename F, typename... Args>
+    requires is_variadic_pack_v<Args...>
+    struct zip_transform : matrix_col_apply<F, std::tuple<Args...>>
+    {
+    };
+
+    template <template <typename ...> typename F, typename... Args>
+    using zip_transform_t = typeof_t<zip_transform<F, Args...>>;
 
     template <typename T>
     struct is_variadic_tuple : unpack_t<is_variadic_pack, T>
