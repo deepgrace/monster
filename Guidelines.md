@@ -705,14 +705,14 @@ int main(int argc, char* argv[])
 ### Delete elements
 ```cpp
 // delete the first element
-using p1 = pop_front_t<std::tuple<float, double, int>>;
-using p2 = pop_front_t<std::integer_sequence<int, 1, 2, 3>>;
+using p1 = tail_t<std::tuple<float, double, int>>;
+using p2 = tail_t<std::integer_sequence<int, 1, 2, 3>>;
 // p1 == std::tuple<double, int>
 // p2 == std::integer_sequence<int, 2, 3>
 
 // delete the last element
-using p3 = pop_back_t<std::tuple<float, double, int>>;
-using p4 = pop_back_t<std::integer_sequence<int, 1, 2, 3>>;
+using p3 = head_t<std::tuple<float, double, int>>;
+using p4 = head_t<std::integer_sequence<int, 1, 2, 3>>;
 // p3 == std::tuple<float, double>
 // p4 == std::integer_sequence<int, 1, 2>
 

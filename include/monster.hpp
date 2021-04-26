@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 246
+#define MONSTER_VERSION 247
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4033,34 +4033,28 @@ namespace monster
     using pop_t = typeof_t<pop<B, T>>;
 
     template <typename T>
-    using pop_front = pop<1, T>;
+    using head = pop<0, T>;
 
     template <typename T>
-    using pop_front_t = typeof_t<pop_front<T>>;
+    using head_t = typeof_t<head<T>>;
 
     template <bool B, typename T>
-    using pop_front_if = std::conditional_t<B, pop_front<T>, std::type_identity<T>>;
+    using head_if = std::conditional_t<B, head<T>, std::type_identity<T>>;
 
     template <bool B, typename T>
-    using pop_front_if_t = typeof_t<pop_front_if<B, T>>;
+    using head_if_t = typeof_t<head_if<B, T>>;
 
     template <typename T>
-    using pop_back = pop<0, T>;
+    using tail = pop<1, T>;
 
     template <typename T>
-    using pop_back_t = typeof_t<pop_back<T>>;
+    using tail_t = typeof_t<tail<T>>;
 
     template <bool B, typename T>
-    using pop_back_if = std::conditional_t<B, pop_back<T>, std::type_identity<T>>;
+    using tail_if = std::conditional_t<B, tail<T>, std::type_identity<T>>;
 
     template <bool B, typename T>
-    using pop_back_if_t = typeof_t<pop_back_if<B, T>>;
-
-    template <typename T>
-    using rest = pop_front<T>;
-
-    template <typename T>
-    using rest_t = typeof_t<rest<T>>;
+    using tail_if_t = typeof_t<tail_if<B, T>>;
 
     template <typename T>
     struct to_flat
@@ -4116,7 +4110,7 @@ namespace monster
         };
 
         template <typename U>
-        struct call<U, false> : impl<prepend_t<pop_back_t<U>, front_t<T>>>
+        struct call<U, false> : impl<prepend_t<head_t<U>, front_t<T>>>
         {
         };
 
@@ -4191,20 +4185,20 @@ namespace monster
     using nest_unique_t = typeof_t<nest_unique<T>>;
 
     template <typename T>
-    struct nest_pop_front : nest_invoke<pop_front, T>
+    struct nest_head : nest_invoke<head, T>
     {
     };
 
     template <typename T>
-    using nest_pop_front_t = typeof_t<nest_pop_front<T>>;
+    using nest_head_t = typeof_t<nest_head<T>>;
 
     template <typename T>
-    struct nest_pop_back : nest_invoke<pop_back, T>
+    struct nest_tail : nest_invoke<tail, T>
     {
     };
 
     template <typename T>
-    using nest_pop_back_t = typeof_t<nest_pop_back<T>>;
+    using nest_tail_t = typeof_t<nest_tail<T>>;
 
     template <typename T>
     struct nest_midpoint : nest_element<(nest_size_v<T> + 1) /  2 - 1, T>
@@ -4251,14 +4245,6 @@ namespace monster
 
     template <auto lower, auto upper, typename T, auto N = nest_depth_v<T>>
     using nest_degree_t = typeof_t<nest_degree<lower, upper, T, N>>;
-
-    template <typename T>
-    struct nest_rest : nest_invoke<rest, T>
-    {
-    };
-
-    template <typename T>
-    using nest_rest_t = typeof_t<nest_rest<T>>;
 
     template <typename T>
     struct nest_front : nest_invoke<front, T>
@@ -4607,7 +4593,7 @@ namespace monster
     struct find_index
     {
         template <size_t N, typename U, typename V, bool = sizeof_t_v<U> != 0>
-        struct impl : impl<N + 1, pop_front_t<U>, append_if_t<visit_v<F, 0, U>, V, c_<N>>>
+        struct impl : impl<N + 1, tail_t<U>, append_if_t<visit_v<F, 0, U>, V, c_<N>>>
         {
         };
 
@@ -4659,7 +4645,7 @@ namespace monster
         struct impl
         {
             static constexpr auto value = unary_v<std::is_same, 0, 0, V, W>;
-            using next = impl<N + 1, pop_front_if_t<value, V>, pop_front_t<W>, append_if_t<value, X, c_<N>>>;
+            using next = impl<N + 1, tail_if_t<value, V>, tail_t<W>, append_if_t<value, X, c_<N>>>;
 
             using type = type_if<equal_v<V, W> && !std::is_same_v<V, W>, clear<X>, next>;
         };
@@ -5680,7 +5666,7 @@ namespace monster
     struct clamp<N, std::integer_sequence<T, values...>>
     {
         using indices = std::integer_sequence<T, values...>;
-        using type = prepend_t<typeof_t<clamp<N - 1, pop_front_t<indices>>>, get<0, indices>>;
+        using type = prepend_t<typeof_t<clamp<N - 1, tail_t<indices>>>, get<0, indices>>;
     };
 
     template <size_t N, typename T>
@@ -6445,7 +6431,7 @@ namespace monster
         template <auto N, template <typename ...> typename U, typename... Args>
         struct impl<N, U<Args...>>
         {
-            using type = type_if<std::is_invocable_v<F, Args...>, c_<N>, invocable<F, pop_back_t<T>>>;
+            using type = type_if<std::is_invocable_v<F, Args...>, c_<N>, invocable<F, head_t<T>>>;
         };
 
         using type = typeof_t<impl<sizeof_t_v<T>, T>>;
@@ -7753,6 +7739,17 @@ namespace monster
 
     template <typename T, auto... values>
     using suffix_c = suffix_t<T, c_<values>...>;
+
+    template <typename T, typename... Args>
+    struct intersperse : prepend<prefix_t<tail_t<T>, Args...>, front_t<T>>
+    {
+    };
+
+    template <typename T, typename... Args>
+    using intersperse_t = typeof_t<intersperse<T, Args...>>;
+
+    template <typename T, auto... values>
+    using intersperse_c = intersperse_t<T, c_<values>...>;
 
     template <typename T, typename U>
     requires is_variadic_pack_v<T, U>
@@ -10992,7 +10989,7 @@ namespace monster
             static constexpr auto B1 = value - 1 > p;
             static constexpr auto B2 = value + 1 < r - 1;
 
-            using curr = pop_front_t<pop_front_t<U>>;
+            using curr = tail_t<tail_t<U>>;
             using call = cond<B2, cond<B1, curr, p, value>, value + 1, r>;
 
             using type = typeof_t<sort<i + (B1 + B2 - 1) * 2, call, typeof_t<pivot>>>;
@@ -11264,7 +11261,7 @@ namespace monster
         {
             static constexpr auto n = sizeof_t_v<V>;
 
-            using call = typeof_t<next<0, 0, N - 1, append_t<base, front_t<U>>, pop_front_t<U>>>;
+            using call = typeof_t<next<0, 0, N - 1, append_t<base, front_t<U>>, tail_t<U>>>;
             using first = first_t<call>;
 
             using curr = concat_t<V, first>;
@@ -11617,7 +11614,7 @@ namespace monster
     struct remove_all
     {
         template <int i, int j, typename V, typename W>
-        struct impl : impl<i + 1, j, pop_front_t<V>, typeof_t<F<front_t<V>, W>>>
+        struct impl : impl<i + 1, j, tail_t<V>, typeof_t<F<front_t<V>, W>>>
         {
         };
 
@@ -11970,7 +11967,7 @@ namespace monster
             using curr = element_t<0, V>;
             using pair = std::tuple<curr, bmh_t<append_t<base, curr>, U>>;
 
-            using type = typeof_t<maps<pop_front_t<V>, append_t<W, pair>>>;
+            using type = typeof_t<maps<tail_t<V>, append_t<W, pair>>>;
         };
 
         template <typename V, typename W>
@@ -11984,8 +11981,8 @@ namespace monster
             static constexpr auto N = map_find_v<element_t<0, V>, W>;
             using indices = get_matrix_element_t<N, 1, W>;
 
-            using next = set_matrix_element_t<N, 1, pop_front_t<indices>, W>;
-            using type = typeof_t<impl<pop_front_t<V>, next, append_t<X, element_t<0, indices>>>>;
+            using next = set_matrix_element_t<N, 1, tail_t<indices>, W>;
+            using type = typeof_t<impl<tail_t<V>, next, append_t<X, element_t<0, indices>>>>;
         };
 
         template <typename V, typename W, typename X>
@@ -12082,7 +12079,7 @@ namespace monster
             using last = element_t<from, first>;
             using next = change_t<to, prepend_t<element_t<to, first>, get<0, last>>, first>;
 
-            using curr = change_t<from, pop_front_t<last>, next>;
+            using curr = change_t<from, tail_t<last>, next>;
             using type = typeof_t<impl<i - 1, curr, use, to, from, append_t<second, c_<from>, c_<to>>>>;
         };
 
