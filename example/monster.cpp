@@ -1702,6 +1702,11 @@ int main(int argc, char* argv[])
     execute<adjacent_transform_t<plus_t, std::integer_sequence<int, 1, 2, 3, -4, 5, 6>>,
             std::integer_sequence<int, 3, 5, -1, 1, 11>>();
 
+    execute<partial_fold_t<max, std::tuple<char, int, short, double, float>>,
+            std::tuple<int, int, double, double>>();
+    execute<partial_fold_t<plus_t, std::integer_sequence<int, 1, 2, 3, -4, 5, 6>>,
+            std::integer_sequence<int, 3, 6, 2, 7, 13>>();
+
     execute<adjacent_filter_t<negaf<std::is_same>::template apply, std::tuple<int, int, char, int, int, short>>,
             std::tuple<int, char, int, short>>();
     execute<adjacent_filter_t<negaf<std::is_same>::template apply, std::integer_sequence<int, 1, 2, 2, 4, 5, 5>>,

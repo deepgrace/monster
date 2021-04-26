@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 248
+#define MONSTER_VERSION 249
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -7465,7 +7465,7 @@ namespace monster
     using trim_right_t = typeof_t<trim_right<T, U>>;
 
     template <template <typename ...> typename F, typename T>
-    struct trim_if : reverse<drop_while_t<F, reverse_t<drop_while_t<F, T>>>>
+    struct trim_if : drop_last_while<F, drop_while_t<F, T>>
     {
     };
 
@@ -9469,6 +9469,14 @@ namespace monster
 
     template <template <typename ...> typename F, typename T>
     using adjacent_transform_t = typeof_t<adjacent_transform<F, T>>;
+
+    template <template <typename, typename> typename F, typename T>
+    struct partial_fold : tail<inclusive_scan_t<F, T>>
+    {
+    };
+
+    template <template <typename, typename> typename F, typename T>
+    using partial_fold_t = typeof_t<partial_fold<F, T>>;
 
     template <template <typename ...> typename F, typename T, bool B, template <typename ...> typename G, template <typename ...>typename H>
     struct pairwise_apply
