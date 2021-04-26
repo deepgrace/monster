@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 247
+#define MONSTER_VERSION 248
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -3505,34 +3505,34 @@ namespace monster
     using erase_t = typeof_t<erase<i, j, T>>;
 
     template <auto i, typename T>
-    using drop = erase<i, i + 1, T>;
+    using erase_at = erase<i, i + 1, T>;
 
     template <auto i, typename T>
-    using drop_t = typeof_t<drop<i, T>>;
+    using erase_at_t = typeof_t<erase_at<i, T>>;
 
     template <auto n, typename T>
-    using remove_prefix = range<n, sizeof_t_v<T>, T>;
+    using drop = range<n, sizeof_t_v<T>, T>;
 
     template <auto n, typename T>
-    using remove_prefix_t = typeof_t<remove_prefix<n, T>>;
+    using drop_t = typeof_t<drop<n, T>>;
 
     template <auto n, typename T>
-    using remove_suffix = range<0, sizeof_t_v<T> - n, T>;
+    using drop_last = range<0, sizeof_t_v<T> - n, T>;
 
     template <auto n, typename T>
-    using remove_suffix_t = typeof_t<remove_suffix<n, T>>;
+    using drop_last_t = typeof_t<drop_last<n, T>>;
 
     template <auto n, typename T>
-    using take_prefix = range<0, n, T>;
+    using take = range<0, n, T>;
 
     template <auto n, typename T>
-    using take_prefix_t = typeof_t<take_prefix<n, T>>;
+    using take_t = typeof_t<take<n, T>>;
 
     template <auto n, typename T>
-    using take_suffix = range<sizeof_t_v<T> - n, sizeof_t_v<T>, T>;
+    using take_last = range<sizeof_t_v<T> - n, sizeof_t_v<T>, T>;
 
     template <auto n, typename T>
-    using take_suffix_t = typeof_t<take_suffix<n, T>>;
+    using take_last_t = typeof_t<take_last<n, T>>;
 
     template <template <typename ...> typename F, typename T, bool B>
     struct apply_while
@@ -3550,7 +3550,7 @@ namespace monster
         };
 
         template <int i, int j>
-        struct impl<i, j, false> : std::conditional_t<B, remove_prefix<i, T>, take_prefix<i, T>>
+        struct impl<i, j, false> : std::conditional_t<B, drop<i, T>, take<i, T>>
         {
         };
 
@@ -4341,44 +4341,44 @@ namespace monster
     using nest_change_t = typeof_t<nest_change<N, T, U>>;
 
     template <auto N, typename T>
-    struct nest_remove_prefix : nest_apply<remove_prefix, N, T>
-    {
-    };
-
-    template <auto N, typename T>
-    using nest_remove_prefix_t = typeof_t<nest_remove_prefix<N, T>>;
-
-    template <auto N, typename T>
-    struct nest_remove_suffix : nest_apply<remove_suffix, N, T, 0>
-    {
-    };
-
-    template <auto N, typename T>
-    using nest_remove_suffix_t = typeof_t<nest_remove_suffix<N, T>>;
-
-    template <auto N, typename T>
-    struct nest_take_prefix : nest_apply<take_prefix, N, T>
-    {
-    };
-
-    template <auto N, typename T>
-    using nest_take_prefix_t = typeof_t<nest_take_prefix<N, T>>;
-
-    template <auto N, typename T>
-    struct nest_take_suffix : nest_apply<take_suffix, N, T, 0>
-    {
-    };
-
-    template <auto N, typename T>
-    using nest_take_suffix_t = typeof_t<nest_take_suffix<N, T>>;
-
-    template <auto N, typename T>
-    struct nest_drop : nest_apply<drop, N, T, 0>
+    struct nest_drop : nest_apply<drop, N, T>
     {
     };
 
     template <auto N, typename T>
     using nest_drop_t = typeof_t<nest_drop<N, T>>;
+
+    template <auto N, typename T>
+    struct nest_drop_last : nest_apply<drop_last, N, T, 0>
+    {
+    };
+
+    template <auto N, typename T>
+    using nest_drop_last_t = typeof_t<nest_drop_last<N, T>>;
+
+    template <auto N, typename T>
+    struct nest_take : nest_apply<take, N, T>
+    {
+    };
+
+    template <auto N, typename T>
+    using nest_take_t = typeof_t<nest_take<N, T>>;
+
+    template <auto N, typename T>
+    struct nest_take_last : nest_apply<take_last, N, T, 0>
+    {
+    };
+
+    template <auto N, typename T>
+    using nest_take_last_t = typeof_t<nest_take_last<N, T>>;
+
+    template <auto N, typename T>
+    struct nest_erase_at : nest_apply<erase_at, N, T, 0>
+    {
+    };
+
+    template <auto N, typename T>
+    using nest_erase_at_t = typeof_t<nest_erase_at<N, T>>;
 
     template <auto N, typename T>
     struct nest_pivot : nest_apply<pivot, N, T>
@@ -6107,7 +6107,7 @@ namespace monster
         {
             return std::make_tuple(std::get<N>(t)...);
         }
-        (drop_t<i, std::index_sequence_for<Args...>>());
+        (erase_at_t<i, std::index_sequence_for<Args...>>());
     }
 
     template <auto i, auto j, typename... Args>
@@ -6216,7 +6216,7 @@ namespace monster
     }
 
     template <auto n, typename... Args>
-    constexpr decltype(auto) tuple_take_prefix(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_take(const std::tuple<Args...>& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -6226,7 +6226,7 @@ namespace monster
     }
 
     template <auto n, typename... Args>
-    constexpr decltype(auto) tuple_take_suffix(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_take_last(const std::tuple<Args...>& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -6236,15 +6236,15 @@ namespace monster
     }
 
     template <auto n, typename... Args>
-    constexpr decltype(auto) tuple_remove_prefix(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_drop(const std::tuple<Args...>& t)
     {
-        return tuple_take_suffix<sizeof_v<Args...> - n>(t);
+        return tuple_take_last<sizeof_v<Args...> - n>(t);
     }
 
     template <auto n, typename... Args>
-    constexpr decltype(auto) tuple_remove_suffix(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_drop_last(const std::tuple<Args...>& t)
     {
-        return tuple_take_prefix<sizeof_v<Args...> - n>(t);
+        return tuple_take<sizeof_v<Args...> - n>(t);
     }
 
     template <size_t N, typename T>
@@ -6361,7 +6361,7 @@ namespace monster
     }
 
     template <auto n, typename T, auto m>
-    constexpr decltype(auto) array_take_prefix(const std::array<T, m>& a)
+    constexpr decltype(auto) array_take(const std::array<T, m>& a)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -6371,7 +6371,7 @@ namespace monster
     }
 
     template <auto n, typename T, auto m>
-    constexpr decltype(auto) array_take_suffix(const std::array<T, m>& a)
+    constexpr decltype(auto) array_take_last(const std::array<T, m>& a)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -6381,15 +6381,15 @@ namespace monster
     }
 
     template <auto n, typename T, auto m>
-    constexpr decltype(auto) array_remove_prefix(const std::array<T, m>& a)
+    constexpr decltype(auto) array_drop(const std::array<T, m>& a)
     {
-        return array_take_suffix<m - n>(a);
+        return array_take_last<m - n>(a);
     }
 
     template <auto n, typename T, auto m>
-    constexpr decltype(auto) array_remove_suffix(const std::array<T, m>& a)
+    constexpr decltype(auto) array_drop_last(const std::array<T, m>& a)
     {
-        return array_take_prefix<m - n>(a);
+        return array_take<m - n>(a);
     }
 
     template <size_t lower, size_t upper>
@@ -6614,7 +6614,7 @@ namespace monster
                 }
                 curr[i] += 1 - 2 * !ASC;
                 if (i + 1 >= depth)
-                    std::apply(std::forward<F>(f), array_take_prefix<N>(curr));
+                    std::apply(std::forward<F>(f), array_take<N>(curr));
                 else
                     ++i;
             }
@@ -8096,7 +8096,7 @@ namespace monster
     using horizontal_append_t = typeof_t<horizontal_append<T, U>>;
 
     template <auto N, typename T>
-    struct remove_matrix_row : drop<N, T>
+    struct remove_matrix_row : erase_at<N, T>
     {
     };
 
@@ -8107,7 +8107,7 @@ namespace monster
     struct remove_matrix_col
     {
         template <int i, int j, typename U>
-        using impl = drop<i, U>;
+        using impl = erase_at<i, U>;
 
         using type = matrix_col_transform_t<N, N, T, impl>;
     };
@@ -9198,7 +9198,7 @@ namespace monster
         static constexpr auto N = matrix_row_size_v<T>;
 
         template <int i, int j, typename V>
-        struct impl : impl<i + 1, j, append_t<V, concat_t<subset_t<N - i - 1, i, w>, remove_suffix_t<i, T>>>>
+        struct impl : impl<i + 1, j, append_t<V, concat_t<subset_t<N - i - 1, i, w>, drop_last_t<i, T>>>>
         {
         };
 
@@ -11245,7 +11245,7 @@ namespace monster
             static constexpr auto value = typev<comparator<back_t<U>, curr>>;
 
             using lhs = append_if_t<value, U, curr>;
-            using rhs = type_if<value, drop<i, V>, std::type_identity<V>>;
+            using rhs = type_if<value, erase_at<i, V>, std::type_identity<V>>;
 
             using type = typeof_t<next<i + !value, j + 1, k, lhs, rhs>>;
         };

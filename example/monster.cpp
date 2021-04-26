@@ -902,16 +902,16 @@ int main(int argc, char* argv[])
     execute<erase_t<1, 4, std::integer_sequence<int, 1, 2, -2, 4, 3, 5>>,
             std::integer_sequence<int, 1, 3, 5>>();
 
-    execute<drop_t<2, std::tuple<int, double, int, char>>, std::tuple<int, double, char>>();
-    execute<drop_t<1, std::integer_sequence<int, 1, 2, -2, 4, 5>>,
+    execute<erase_at_t<2, std::tuple<int, double, int, char>>, std::tuple<int, double, char>>();
+    execute<erase_at_t<1, std::integer_sequence<int, 1, 2, -2, 4, 5>>,
             std::integer_sequence<int, 1, -2, 4, 5>>();
 
-    execute<remove_prefix_t<2, std::tuple<int, double, int, char>>, std::tuple<int, char>>();
-    execute<remove_suffix_t<2, std::integer_sequence<int, 1, 2, -2, 4, 5>>,
+    execute<drop_t<2, std::tuple<int, double, int, char>>, std::tuple<int, char>>();
+    execute<drop_last_t<2, std::integer_sequence<int, 1, 2, -2, 4, 5>>,
             std::integer_sequence<int, 1, 2, -2>>();
 
-    execute<take_prefix_t<2, std::tuple<int, double, int, char>>, std::tuple<int, double>>();
-    execute<take_suffix_t<2, std::integer_sequence<int, 1, 2, -2, 4, 5>>,
+    execute<take_t<2, std::tuple<int, double, int, char>>, std::tuple<int, double>>();
+    execute<take_last_t<2, std::integer_sequence<int, 1, 2, -2, 4, 5>>,
             std::integer_sequence<int, 4, 5>>();
 
     execute<drop_while_t<std::is_pointer, std::tuple<int*, double*, int, char>>, std::tuple<int, char>>();
@@ -1164,14 +1164,14 @@ int main(int argc, char* argv[])
     execute<nest_shift_left_t<3, nest1>, T3<T4<T0<T1<T2<>>>>>>();
     execute<nest_shift_right_t<3, nest2>, T2<T3<T4<T0<T1<int>>>>>>();
 
-    execute<nest_remove_prefix_t<2, nest1>, T2<T3<T4<>>>>();
-    execute<nest_remove_suffix_t<2, nest2>, T0<T1<T2<T3<>>>>>();
+    execute<nest_drop_t<2, nest1>, T2<T3<T4<>>>>();
+    execute<nest_drop_last_t<2, nest2>, T0<T1<T2<T3<>>>>>();
 
-    execute<nest_take_prefix_t<3, nest1>, T0<T1<T2<>>>>();
-    execute<nest_take_suffix_t<3, nest2>, T3<T4<int>>>();
+    execute<nest_take_t<3, nest1>, T0<T1<T2<>>>>();
+    execute<nest_take_last_t<3, nest2>, T3<T4<int>>>();
 
-    execute<nest_drop_t<3, nest1>, T0<T1<T2<T4<>>>>>();
-    execute<nest_drop_t<3, nest2>, T0<T1<T2<T4<int>>>>>();
+    execute<nest_erase_at_t<3, nest1>, T0<T1<T2<T4<>>>>>();
+    execute<nest_erase_at_t<3, nest2>, T0<T1<T2<T4<int>>>>>();
 
     execute<nest_pivot_t<3, nest1>, T3<T4<T0<T1<T2<>>>>>>();
     execute<nest_pivot_t<3, nest2>, T3<T4<T0<T1<T2<int>>>>>>();
@@ -1434,10 +1434,10 @@ int main(int argc, char* argv[])
     std::cout << "tuple_rotate " << std::get<2>(tuple_rotate<0, 2, 4>(tuple)) << std::endl;
     std::cout << "tuple_shift_left " << std::get<1>(tuple_shift_left<2>(tuple)) << std::endl;
     std::cout << "tuple_shift_right " << std::get<1>(tuple_shift_right<2>(tuple)) << std::endl;
-    std::cout << "tuple_take_prefix " << std::get<1>(tuple_take_prefix<3>(tuple)) << std::endl;
-    std::cout << "tuple_take_suffix " << std::get<2>(tuple_take_suffix<3>(tuple)) << std::endl;
-    std::cout << "tuple_remove_prefix " << std::get<0>(tuple_remove_prefix<3>(tuple)) << std::endl;
-    std::cout << "tuple_remove_suffix " << std::get<1>(tuple_remove_suffix<3>(tuple)) << std::endl;
+    std::cout << "tuple_take " << std::get<1>(tuple_take<3>(tuple)) << std::endl;
+    std::cout << "tuple_take_last " << std::get<2>(tuple_take_last<3>(tuple)) << std::endl;
+    std::cout << "tuple_drop " << std::get<0>(tuple_drop<3>(tuple)) << std::endl;
+    std::cout << "tuple_drop_last " << std::get<1>(tuple_drop_last<3>(tuple)) << std::endl;
     auto trans = tuple_transpose(std::make_tuple(tuple, std::make_tuple(7, 5)));
     std::cout << "tuple_transpose " << std::get<0>(std::get<1>(trans)) << std::endl;
     tuple_fill<3>(tuple, 3, 5);
