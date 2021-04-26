@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 249
+#define MONSTER_VERSION 250
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -7046,6 +7046,9 @@ namespace monster
         using type = typeof_t<impl<B, E, T>>;
     };
 
+    template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B, auto E, bool W>
+    using transform_of_t = typeof_t<transform_of<F, P, T, U, B, E, W>>;
+
     template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     struct transform_if : transform_of<F, P, T, U, B, E, true>
     {
@@ -7055,7 +7058,7 @@ namespace monster
     using transform_if_t = typeof_t<transform_if<F, P, T, U, B, E>>;
 
     template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
-    struct reverse_transform_if : reverse<transform_if_t<F, P, T, U, B, E>>
+    struct reverse_transform_if : reverse<transform_if_t<F, P, T, reverse_t<U>, B, E>>
     {
     };
 
@@ -7071,7 +7074,7 @@ namespace monster
     using transform_if_not_t = typeof_t<transform_if_not<F, P, T, U, B, E>>;
 
     template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
-    struct reverse_transform_if_not : reverse<transform_if_not_t<F, P, T, U, B, E>>
+    struct reverse_transform_if_not : reverse<transform_if_not_t<F, P, T, reverse_t<U>, B, E>>
     {
     };
 
@@ -7087,7 +7090,7 @@ namespace monster
     using transform_while_t = typeof_t<transform_while<F, P, T, U, B, E>>;
 
     template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
-    struct reverse_transform_while : transform_while<F, P, T, reverse_t<U>, B, E>
+    struct reverse_transform_while : reverse<transform_while_t<F, P, T, reverse_t<U>, B, E>>
     {
     };
 
@@ -7103,12 +7106,20 @@ namespace monster
     using transform_while_not_t = typeof_t<transform_while_not<F, P, T, U, B, E>>;
 
     template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
-    struct reverse_transform_while_not : transform_while_not<F, P, T, reverse_t<U>, B, E>
+    struct reverse_transform_while_not : reverse<transform_while_not_t<F, P, T, reverse_t<U>, B, E>>
     {
     };
 
     template <template <typename ...> typename F, template <typename> typename P, typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     using reverse_transform_while_not_t = typeof_t<reverse_transform_while_not<F, P, T, U, B, E>>;
+
+    template <template <typename ...> typename F, template <typename ...> typename P, typename T>
+    struct transform_maybe : transform_if<F, P, clear_t<T>, T>
+    {
+    };
+
+    template <template <typename ...> typename F, template <typename ...> typename P, typename T>
+    using transform_maybe_t = typeof_t<transform_maybe<F, P, T>>;
 
     template <auto i, auto j, typename T, typename U = T>
     struct is_same : unary<std::is_same, i, j, T, U>

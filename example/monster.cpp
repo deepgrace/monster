@@ -1596,10 +1596,15 @@ int main(int argc, char* argv[])
     execute<transform_nth_t<2, succ, std::integer_sequence<int, 7, 5, -2, 3, 1>>,
             std::integer_sequence<int, 7, 5, -1, 3, 1>>();
 
-    execute<transform_if_t<succ, is_even, std::integer_sequence<int>,
+    execute<transform_if_t<succ, is_even, std::integer_sequence<int, 2>,
+            std::integer_sequence<int, 0, 3, 1, 2, 8, 4>>, std::integer_sequence<int, 2, 1, 3, 9, 5>>();
+    execute<transform_if_not_t<succ, is_odd, std::integer_sequence<int, 3>,
+            std::integer_sequence<int, 0, 3, 1, 2, 8, 4>>, std::integer_sequence<int, 3, 1, 3, 9, 5>>();
+
+    execute<transform_maybe_t<succ, is_even,
             std::integer_sequence<int, 0, 3, 1, 2, 8, 4>>, std::integer_sequence<int, 1, 3, 9, 5>>();
-    execute<transform_if_not_t<succ, is_odd, std::integer_sequence<int>,
-            std::integer_sequence<int, 0, 3, 1, 2, 8, 4>>, std::integer_sequence<int, 1, 3, 9, 5>>();
+    execute<transform_maybe_t<succ, is_odd,
+            std::integer_sequence<int, 0, 3, 1, 2, 7, 5>>, std::integer_sequence<int, 4, 2, 8, 6>>();
 
     execute<transform_while_t<succ, is_even, std::integer_sequence<int>,
             std::integer_sequence<int, 0, 2, 4, 2, 1, 8, 4>>, std::integer_sequence<int, 1, 3, 5, 3>>();
