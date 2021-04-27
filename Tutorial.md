@@ -621,6 +621,9 @@ int main(int argc, char* argv[])
     execute<integer_range<-2, 3>, std::integer_sequence<int, -2, -1, 0, 1, 2>>();
     execute<integer_range<3, -2>, std::integer_sequence<int, 3, 2, 1, 0, -1>>();
 
+    execute<reverse_index_sequence<0>, std::index_sequence<>>();
+    execute<reverse_index_sequence<5>, std::index_sequence<4, 3, 2, 1, 0>>();
+
     execute<repeat_range_t<3>, std::index_sequence<1, 2, 2, 3, 3, 3>>();
 
     fmap([](auto& v)

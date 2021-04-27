@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 250
+#define MONSTER_VERSION 251
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1920,6 +1920,9 @@ namespace monster
     
     template <size_t begin, size_t end>
     using index_range = range_of<size_t, begin, end>;
+
+    template <size_t N>
+    using reverse_index_sequence = rename_t<integer_range<N - 1, -1>, std::index_sequence<>>;
 
     template <size_t N, typename T>
     struct base
