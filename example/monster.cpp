@@ -956,6 +956,9 @@ int main(int argc, char* argv[])
     execute<find_v<char, std::tuple<float, char, double, int, char>>, 1>();
     execute<find_v<c_6, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>, 2>();
 
+    execute<tuple_find_v<char, std::tuple<float, char, double, int, char>>, 1>();
+    execute<tuple_find<c_6, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>() == 2>();
+
     execute<delimit_t<double, std::tuple<float, char, double, int, char>>, std::tuple<float, char>>();
     execute<delimit_t<c_8, std::index_sequence<3, 9, 6, 7, 8, 5>>, std::index_sequence<3, 9, 6, 7>>();
 

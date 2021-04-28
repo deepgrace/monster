@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 251
+#define MONSTER_VERSION 252
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4515,6 +4515,14 @@ namespace monster
 
     template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     inline constexpr auto find_v = typev<find<T, U, B, E>>;
+
+    template <typename T, typename U>
+    struct tuple_find : c_<find_v<T, U>, size_t>
+    {
+    };
+
+    template <typename T, typename U>
+    inline constexpr auto tuple_find_v = typev<tuple_find<T, U>>;
 
     template <typename T, typename U>
     struct delimit : range<0, find_v<T, U>, U>
