@@ -1435,6 +1435,8 @@ int main(int argc, char* argv[])
     std::cout << "tuple_take_last " << std::get<2>(tuple_take_last<3>(tuple)) << std::endl;
     std::cout << "tuple_drop " << std::get<0>(tuple_drop<3>(tuple)) << std::endl;
     std::cout << "tuple_drop_last " << std::get<1>(tuple_drop_last<3>(tuple)) << std::endl;
+    std::cout << "tuple_head " << std::get<3>(tuple_head(tuple)) << std::endl;
+    std::cout << "tuple_tail " << std::get<3>(tuple_tail(tuple)) << std::endl;
     auto trans = tuple_transpose(std::make_tuple(tuple, std::make_tuple(7, 5)));
     std::cout << "tuple_transpose " << std::get<0>(std::get<1>(trans)) << std::endl;
     tuple_fill<3>(tuple, 3, 5);

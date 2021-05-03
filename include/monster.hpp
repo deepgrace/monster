@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 252
+#define MONSTER_VERSION 253
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6224,6 +6224,26 @@ namespace monster
             return std::make_tuple(std::get<N>(t)...);
         }
         (shift_right_t<i, std::index_sequence_for<Args...>>());
+    }
+
+    template <typename... Args>
+    constexpr decltype(auto) tuple_head(const std::tuple<Args...>& t)
+    {
+        return [&]<size_t... N>(const std::index_sequence<N...>&)
+        {
+            return std::make_tuple(std::get<N>(t)...);
+        }
+        (head_t<std::index_sequence_for<Args...>>());
+    }
+
+    template <typename... Args>
+    constexpr decltype(auto) tuple_tail(const std::tuple<Args...>& t)
+    {
+        return [&]<size_t... N>(const std::index_sequence<N...>&)
+        {
+            return std::make_tuple(std::get<N>(t)...);
+        }
+        (tail_t<std::index_sequence_for<Args...>>());
     }
 
     template <auto n, typename... Args>
