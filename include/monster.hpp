@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 253
+#define MONSTER_VERSION 254
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6020,6 +6020,28 @@ namespace monster
         return std::remove_cvref_t<decltype(t)>::value;
     }
 
+    template <typename T>
+    concept is_empty = std::is_same_v<T, clear_t<T>>;
+
+    template <typename T>
+    struct axial_symmetry
+    {
+        template <auto N, bool = N % 2>
+        struct impl : pivot<N / 2, T>
+        {
+        };
+
+        template <auto N>
+        struct impl<N, true> : concat<append_t<range_t<N / 2 + 1, N, T>, midpoint_t<T>>, range_t<0, N / 2, T>>
+        {
+        };
+
+        using type = type_if<is_empty<T>, std::type_identity<T>, impl<sizeof_t_v<T>>>;
+    };
+
+    template <typename T>
+    using axial_symmetry_t = typeof_t<axial_symmetry<T>>;
+
     template <typename indices, typename T>
     decltype(auto) tuple_select(T&& t)
     {
@@ -6028,6 +6050,12 @@ namespace monster
             return std::make_tuple(std::get<N>(t)...);
         }
         (indices());
+    }
+
+    template <typename... Args>
+    decltype(auto) tuple_axial_symmetry(const std::tuple<Args...>& t)
+    {
+        return tuple_select<axial_symmetry_t<std::index_sequence_for<Args...>>>(t);
     }
 
     template <size_t N, size_t index, typename F, typename T>

@@ -887,6 +887,12 @@ int main(int argc, char* argv[])
     execute<pivot_t<3, std::tuple<int, char, char, int, int>>, std::tuple<int, int, int, char, char>>();
     execute<pivot_t<3, std::index_sequence<0, 1, 2, 3, 4, 5>>, std::index_sequence<3, 4, 5, 0, 1, 2>>();
 
+    execute<axial_symmetry_t<std::tuple<int>>, std::tuple<int>>();
+    execute<axial_symmetry_t<std::index_sequence<>>, std::index_sequence<>>();
+
+    execute<axial_symmetry_t<std::tuple<int, char, char, int, int>>, std::tuple<int, int, char, int, char>>();
+    execute<axial_symmetry_t<std::index_sequence<0, 1, 2, 3, 4, 5>>, std::index_sequence<3, 4, 5, 0, 1, 2>>();
+
     execute<starts_with_v<std::tuple<int, char, short>, std::tuple<int, char>>>();
     execute<ends_with_v<std::index_sequence<7, 4, 2>, std::index_sequence<4, 2>>>();
 
@@ -1423,7 +1429,7 @@ int main(int argc, char* argv[])
         (std::cout << ... << args) << std::endl;
     }, 1, 2.3, "[]<typename ...>(){}();");
 
-    auto tuple = std::make_tuple(1, 2, 3.0, 2, 4);
+    auto tuple = std::make_tuple(1, 2, 3.0, 5, 4);
     std::cout << "tuple_apply " << tuple_apply(tuple, [](auto... args){ return (args + ...); }) << std::endl;
     std::cout << "tuple_reverse " << std::get<0>(tuple_reverse(tuple)) << std::endl;
     std::cout << "tuple_prepend " << std::get<0>(tuple_prepend(tuple, 0)) << std::endl;
@@ -1446,6 +1452,8 @@ int main(int argc, char* argv[])
     std::cout << "tuple_drop_last " << std::get<1>(tuple_drop_last<3>(tuple)) << std::endl;
     std::cout << "tuple_head " << std::get<3>(tuple_head(tuple)) << std::endl;
     std::cout << "tuple_tail " << std::get<3>(tuple_tail(tuple)) << std::endl;
+    std::cout << "tuple_axial_symmetry " << std::get<1>(tuple_axial_symmetry(tuple)) << std::endl;
+    std::cout << "tuple_axial_symmetry " << std::get<1>(tuple_axial_symmetry(tuple_head(tuple))) << std::endl;
     auto trans = tuple_transpose(std::make_tuple(tuple, std::make_tuple(7, 5)));
     std::cout << "tuple_transpose " << std::get<0>(std::get<1>(trans)) << std::endl;
     tuple_fill<3>(tuple, 3, 5);
