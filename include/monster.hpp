@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 254
+#define MONSTER_VERSION 255
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6052,6 +6052,12 @@ namespace monster
         (indices());
     }
 
+    template <auto... N, typename... Args>
+    decltype(auto) tuple_extract(const std::tuple<Args...>& t)
+    {
+        return tuple_select<std::index_sequence<N...>>(t);
+    }
+
     template <typename... Args>
     decltype(auto) tuple_axial_symmetry(const std::tuple<Args...>& t)
     {
@@ -11722,6 +11728,12 @@ namespace monster
 
     template <typename T, typename U>
     using remove_subtypes_t = typeof_t<remove_subtypes<T, U>>;
+
+    template <auto... N, typename... Args>
+    decltype(auto) tuple_exclude(const std::tuple<Args...>& t)
+    {
+        return tuple_select<remove_elements_t<std::index_sequence<N...>, std::index_sequence_for<Args...>>>(t);
+    }
 
     template <typename P, typename T>
     struct nest_erase_subtype : to_nest<erase_subtype_t<to_flat_t<P>, to_flat_t<T>>>

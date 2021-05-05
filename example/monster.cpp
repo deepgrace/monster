@@ -1454,6 +1454,8 @@ int main(int argc, char* argv[])
     std::cout << "tuple_tail " << std::get<3>(tuple_tail(tuple)) << std::endl;
     std::cout << "tuple_axial_symmetry " << std::get<1>(tuple_axial_symmetry(tuple)) << std::endl;
     std::cout << "tuple_axial_symmetry " << std::get<1>(tuple_axial_symmetry(tuple_head(tuple))) << std::endl;
+    std::cout << "tuple_extract " << std::get<1>(tuple_extract<0, 2, 3>(tuple)) << std::endl;
+    std::cout << "tuple_exclude " << std::get<1>(tuple_exclude<0, 2, 3>(tuple)) << std::endl;
     auto trans = tuple_transpose(std::make_tuple(tuple, std::make_tuple(7, 5)));
     std::cout << "tuple_transpose " << std::get<0>(std::get<1>(trans)) << std::endl;
     tuple_fill<3>(tuple, 3, 5);
