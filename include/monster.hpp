@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 255
+#define MONSTER_VERSION 256
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5286,6 +5286,19 @@ namespace monster
                 }, Args()), ...);
         }
         (std::index_sequence_for<Args...>());
+    }
+
+    template <typename T>
+    constexpr decltype(auto) indices_for(T&& t)
+    {
+        return []<auto... N>(std::index_sequence<N...>)
+        {
+            return []<typename F>(F&& f) -> decltype(auto)
+            {
+                return std::invoke(std::forward<F>(f), index<N>...);
+            };
+        }
+        (index_sequence_of_t<std::remove_cvref_t<T>>());
     }
 
     struct universal

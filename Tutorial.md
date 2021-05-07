@@ -1421,6 +1421,8 @@ int main(int argc, char* argv[])
     }, 1, 2.3, "[]<typename ...>(){}();");
 
     auto tuple = std::make_tuple(1, 2, 3.0, 5, 4);
+    indices_for(tuple)([&tuple](auto... N){ (std::cout << ... << std::get<N>(tuple)) << std::endl; });
+
     std::cout << "tuple_apply " << tuple_apply(tuple, [](auto... args){ return (args + ...); }) << std::endl;
     std::cout << "tuple_reverse " << std::get<0>(tuple_reverse(tuple)) << std::endl;
     std::cout << "tuple_prepend " << std::get<0>(tuple_prepend(tuple, 0)) << std::endl;
