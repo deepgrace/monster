@@ -1461,6 +1461,9 @@ int main(int argc, char* argv[])
     std::cout << "tuple_repeat " << std::get<2>(tuple_repeat<4>(9)) << std::endl;
     std::cout << "tuple_filter " << std::get<2>(tuple_filter<std::is_arithmetic>(dupt)) << std::endl;
     std::cout << "tuple_chunk " << std::get<1>(std::get<1>(tuple_chunk<2>(tuple))) << std::endl;
+    std::cout << "tuple_slide " << std::get<1>(std::get<1>(tuple_slide<3>(tuple))) << std::endl;
+    std::cout << "tuple_stride " << std::get<1>(tuple_stride<2>(tuple)) << std::endl;
+    std::cout << "tuple_subranges " << std::get<1>(std::get<1>(tuple_slide<2>(tuple))) << std::endl;
 
     execute<nth_level_pointer_t<4, int>, int****>();
     execute<call_ntimes_t<4, int, std::add_pointer>, int****>();

@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 259
+#define MONSTER_VERSION 260
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6438,24 +6438,38 @@ namespace monster
         (index_sequence_of_c<(sizeof_t_v<std::decay_t<Args>> + ...)>());
     }
 
-    template <auto N, typename... Args>
-    constexpr decltype(auto) tuple_chunk(const std::tuple<Args...>& t)
+    template <template <auto, typename> typename F, auto N, typename... Args>
+    constexpr decltype(auto) tuple_divvy(const std::tuple<Args...>& t)
     {
         return [&]<typename... indices>(std::tuple<indices...>)
         {
             return std::make_tuple(tuple_slice<indices>(t)...);
         }
-        (chunk_t<N, std::index_sequence_for<Args...>>());
+        (typeof_t<F<N, std::index_sequence_for<Args...>>>());
+    }
+
+    template <auto N, typename... Args>
+    constexpr decltype(auto) tuple_chunk(const std::tuple<Args...>& t)
+    {
+        return tuple_divvy<chunk, N>(t);
+    }
+
+    template <auto N, typename... Args>
+    constexpr decltype(auto) tuple_slide(const std::tuple<Args...>& t)
+    {
+        return tuple_divvy<slide, N>(t);
+    }
+
+    template <auto N, typename... Args>
+    constexpr decltype(auto) tuple_stride(const std::tuple<Args...>& t)
+    {
+        return tuple_slice<stride_t<N, std::index_sequence_for<Args...>>>(t);
     }
 
     template <auto N, typename... Args>
     constexpr decltype(auto) tuple_subranges(const std::tuple<Args...>& t)
     {
-        return [&]<typename... indices>(std::tuple<indices...>)
-        {
-            return std::make_tuple(tuple_slice<indices>(t)...);
-        }
-        (subranges_t<N, std::index_sequence_for<Args...>>());
+        return tuple_divvy<subranges, N>(t);
     }
 
     template <auto n, typename T, auto m>
