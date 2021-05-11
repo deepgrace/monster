@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 258
+#define MONSTER_VERSION 259
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6446,6 +6446,16 @@ namespace monster
             return std::make_tuple(tuple_slice<indices>(t)...);
         }
         (chunk_t<N, std::index_sequence_for<Args...>>());
+    }
+
+    template <auto N, typename... Args>
+    constexpr decltype(auto) tuple_subranges(const std::tuple<Args...>& t)
+    {
+        return [&]<typename... indices>(std::tuple<indices...>)
+        {
+            return std::make_tuple(tuple_slice<indices>(t)...);
+        }
+        (subranges_t<N, std::index_sequence_for<Args...>>());
     }
 
     template <auto n, typename T, auto m>
