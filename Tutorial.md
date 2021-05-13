@@ -624,6 +624,8 @@ int main(int argc, char* argv[])
     execute<reverse_index_sequence<0>, std::index_sequence<>>();
     execute<reverse_index_sequence<5>, std::index_sequence<4, 3, 2, 1, 0>>();
 
+    execute<rotated_index_sequence_t<3, 7>, std::index_sequence<3, 4, 5, 6, 0, 1, 2>>();
+
     execute<repeat_range_t<3>, std::index_sequence<1, 2, 2, 3, 3, 3>>();
 
     fmap([](auto& v)

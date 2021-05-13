@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 260
+#define MONSTER_VERSION 261
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1989,6 +1989,14 @@ namespace monster
 
     template <typename... Args>
     using concat_t = typeof_t<concat<Args...>>;
+
+    template <auto M, auto N>
+    struct rotated_index_sequence : concat<index_range<M, N>, index_range<0, M>>
+    {
+    };
+
+    template <auto M, auto N>
+    using rotated_index_sequence_t = typeof_t<rotated_index_sequence<M, N>>;
 
     template <typename T>
     struct flat : std::type_identity<T>
