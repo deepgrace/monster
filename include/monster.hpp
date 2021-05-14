@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 261
+#define MONSTER_VERSION 262
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5872,6 +5872,14 @@ namespace monster
 
     template <auto i, auto j, auto k, typename T>
     using rotate_t = typeof_t<rotate<i, j, k, T>>;
+
+    template <auto i, auto j, auto k, typename T, typename U>
+    struct rotate_copy : concat<U, concat_t<range_t<j, k, T>, range_t<i, j, T>>>
+    {
+    };
+
+    template <auto i, auto j, auto k, typename T, typename U>
+    using rotate_copy_t = typeof_t<rotate_copy<i, j, k, T, U>>;
 
     template <auto N, typename T>
     struct shift_left : rotate<0, N, sizeof_t_v<T>, T>

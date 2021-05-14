@@ -1549,6 +1549,11 @@ int main(int argc, char* argv[])
     execute<rotate_t<2, 4, 7, std::integer_sequence<int, 9, 8, 1, 2, 3, 4, 5, 7, 6>>,
             std::integer_sequence<int, 9, 8, 3, 4, 5, 1, 2, 7, 6>>();
 
+    execute<rotate_copy_t<1, 2, 4, std::tuple<int, char, short, bool, double>,
+            std::tuple<float>>, std::tuple<float, short, bool, char>>();
+    execute<rotate_copy_t<2, 3, 7, std::index_sequence<1, 2, 3, 4, 5, 6, 9>,
+            std::index_sequence<7, 8>>, std::index_sequence<7, 8, 4, 5, 6, 9, 3>>();
+
     execute<shift_left_t<2, std::tuple<int, char, double, float, int64_t>>,
             std::tuple<double, float, int64_t, int, char>>();
     execute<shift_left_t<2, std::integer_sequence<int, 1, 2, 3, 4, 5>>,
