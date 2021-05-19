@@ -630,9 +630,10 @@ int main(int argc, char* argv[])
 
     {
         int i = 3;
-        auto tuple_ = make_lambda_tuple(1, 2, i);
+        auto tuple_ = make_lambda_tuple(1, 2.8, i);
         get_lambda_tuple<2>(tuple_) = i + 1;
         std::cout << "get_lambda_tuple " << get_lambda_tuple<2>(tuple_) << std::endl;
+        std::cout << "get_lambda_tuple " << get_lambda_tuple<double>(tuple_) << std::endl;
     }
 
     fmap([](auto& v)

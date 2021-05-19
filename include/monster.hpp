@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 264
+#define MONSTER_VERSION 265
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4547,6 +4547,15 @@ namespace monster
 
     template <typename T, typename U, auto B = 0, auto E = sizeof_t_v<U>>
     inline constexpr auto find_v = typev<find<T, U, B, E>>;
+
+    template <typename T, typename F>
+    constexpr decltype(auto) get_lambda_tuple(F&& f)
+    {
+        return std::invoke(std::forward<F>(f), []<typename... Args>(Args&&... args) -> decltype(auto)
+        {
+            return nth_value_v<find_v<T, std::tuple<std::decay_t<Args>...>>>(std::forward<Args>(args)...);
+        });
+    };
 
     template <typename T, typename U>
     struct tuple_find : c_<find_v<T, U>, size_t>
