@@ -628,6 +628,13 @@ int main(int argc, char* argv[])
 
     execute<repeat_range_t<3>, std::index_sequence<1, 2, 2, 3, 3, 3>>();
 
+    {
+        int i = 3;
+        auto tuple_ = make_lambda_tuple(1, 2, i);
+        get_lambda_tuple<2>(tuple_) = i + 1;
+        std::cout << "get_lambda_tuple " << get_lambda_tuple<2>(tuple_) << std::endl;
+    }
+
     fmap([](auto& v)
     {
         std::cout << v << std::endl;

@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 263
+#define MONSTER_VERSION 264
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1862,21 +1862,45 @@ namespace monster
     requires (N > 0)
     decltype(auto) nth_value_v(T&& t, Args&&... args)
     {
-        return std::forward<nth_type_t<N - 1, Args...>>(nth_value_v<N - 1>((std::forward<Args>(args))...));
+        return std::forward<nth_type_t<N - 1, Args...>>(nth_value_v<N - 1>(std::forward<Args>(args)...));
     }
     
     template <typename... Args>
     decltype(auto) first_value(Args&&... args)
     {
-        return std::forward<first_type<Args...>>(nth_value_v<0>((std::forward<Args>(args))...));
+        return std::forward<first_type<Args...>>(nth_value_v<0>(std::forward<Args>(args)...));
     }
     
     template <typename... Args>
     decltype(auto) last_value(Args&&... args)
     {
-        return std::forward<last_type<Args...>>(nth_value_v<sizeof_v<Args...> - 1>((std::forward<Args>(args))...));
+        return std::forward<last_type<Args...>>(nth_value_v<sizeof_v<Args...> - 1>(std::forward<Args>(args)...));
     }
     
+    template <typename T>
+    struct element_wrapper
+    {
+        T value;
+    };
+
+    template <typename... Args>
+    constexpr decltype(auto) make_lambda_tuple(Args&&... args)
+    {
+        return [...args = element_wrapper<Args>(args)]<typename F>(F&& f) mutable -> decltype(auto)
+        {
+            return std::invoke(std::forward<F>(f), args.value...);
+        };
+    }
+
+    template <size_t N, typename F>
+    constexpr decltype(auto) get_lambda_tuple(F&& f)
+    {
+        return std::invoke(std::forward<F>(f), []<typename... Args>(Args&&... args) -> decltype(auto)
+        {
+            return nth_value_v<N>(std::forward<Args>(args)...);
+        });
+    };
+
     template <typename T, T... values>
     struct index_list
     {
