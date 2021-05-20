@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 265
+#define MONSTER_VERSION 266
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1893,13 +1893,52 @@ namespace monster
     }
 
     template <size_t N, typename F>
-    constexpr decltype(auto) get_lambda_tuple(F&& f)
+    constexpr decltype(auto) lambda_tuple_get(F&& f)
     {
         return std::invoke(std::forward<F>(f), []<typename... Args>(Args&&... args) -> decltype(auto)
         {
             return nth_value_v<N>(std::forward<Args>(args)...);
         });
     };
+
+    template <typename F>
+    constexpr decltype(auto) lambda_tuple_size(F&& f)
+    {
+        return std::invoke(std::forward<F>(f), []<typename... Args>(Args&&... args) -> decltype(auto)
+        {
+            return sizeof...(Args);
+        });
+    };
+
+    template <typename F>
+    constexpr decltype(auto) lambda_capture_cat(F&& f)
+    {
+        return std::invoke(std::forward<F>(f));
+    }
+
+    template <typename F, typename T, typename... Args>
+    constexpr decltype(auto) lambda_capture_cat(F&& f, T&& t, Args&&... args)
+    {
+        return lambda_capture_cat([&f, &t]<typename... Outer>(Outer&&... outer)
+        {
+            return std::invoke(std::forward<T>(t), [&f, &outer...]<typename... Inner>(Inner&&... inner)
+            {
+                return std::invoke(std::forward<F>(f), std::forward<Inner>(inner)..., std::forward<Outer>(outer)...);
+            });
+        }, std::forward<Args>(args)...);
+    }
+
+    template <typename F, typename... Args>
+    constexpr decltype(auto) lambda_tuple_cat(F&& f, Args&&... args)
+    {
+        return lambda_capture_cat([&f]<typename... Outer>(Outer&&... outer)
+        {
+            return std::invoke(std::forward<F>(f), [&outer...]<typename... Inner>(Inner&&... inner)
+            {
+                return make_lambda_tuple(std::forward<Inner>(inner)..., std::forward<Outer>(outer)...);
+            });
+        }, std::forward<Args>(args)...);
+    }
 
     template <typename T, T... values>
     struct index_list
@@ -4549,7 +4588,7 @@ namespace monster
     inline constexpr auto find_v = typev<find<T, U, B, E>>;
 
     template <typename T, typename F>
-    constexpr decltype(auto) get_lambda_tuple(F&& f)
+    constexpr decltype(auto) lambda_tuple_get(F&& f)
     {
         return std::invoke(std::forward<F>(f), []<typename... Args>(Args&&... args) -> decltype(auto)
         {
