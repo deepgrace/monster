@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 266
+#define MONSTER_VERSION 267
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1938,6 +1938,16 @@ namespace monster
                 return make_lambda_tuple(std::forward<Inner>(inner)..., std::forward<Outer>(outer)...);
             });
         }, std::forward<Args>(args)...);
+    }
+
+    template <typename indices, typename F>
+    constexpr decltype(auto) lambda_tuple_select(F&& f)
+    {
+        return [&]<size_t... N>(const std::index_sequence<N...>&)
+        {
+            return make_lambda_tuple(lambda_tuple_get<N>(std::forward<F>(f))...);
+        }
+        (indices());
     }
 
     template <typename T, T... values>
