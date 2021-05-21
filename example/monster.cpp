@@ -643,10 +643,12 @@ int main(int argc, char* argv[])
         lambda_tuple_get<2>(tuple_) = i + 1;
         auto tuples = lambda_tuple_cat(tuple_, make_lambda_tuple(nullptr, 'x', 9.8f));
         auto select = lambda_tuple_select<std::index_sequence<2, 0, 4, 5>>(tuples);
+        auto extrac = lambda_tuple_extract<1, 3, 2, 4, 0>(tuples);
 
         std::cout << "lambda_tuple_get " << lambda_tuple_get<2>(tuple_) << std::endl;
         std::cout << "lambda_tuple_get " << lambda_tuple_get<double>(tuple_) << std::endl;
         std::cout << "lambda_tuple_size " << lambda_tuple_size(select) << std::endl;
+        std::cout << "lambda_tuple_size " << lambda_tuple_size(extrac) << std::endl;
         std::cout << "lambda_tuple_size " << lambda_tuple_size(tuples) << std::endl;
     }
 
