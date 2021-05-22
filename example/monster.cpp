@@ -645,10 +645,12 @@ int main(int argc, char* argv[])
         auto select = lambda_tuple_select<std::index_sequence<2, 0, 4, 5>>(tuples);
         auto extrac = lambda_tuple_extract<1, 3, 2, 4, 0>(tuples);
         auto revers = lambda_tuple_reverse(extrac);
+        auto range = lambda_tuple_range<2, 5>(tuples);
 
         std::cout << "lambda_tuple_get " << lambda_tuple_get<2>(tuple_) << std::endl;
         std::cout << "lambda_tuple_get " << lambda_tuple_get<double>(tuple_) << std::endl;
         std::cout << "lambda_tuple_get " << lambda_tuple_get<1>(revers) << std::endl;
+        std::cout << "lambda_tuple_get " << lambda_tuple_get<2>(range) << std::endl;
         std::cout << "lambda_tuple_size " << lambda_tuple_size(select) << std::endl;
         std::cout << "lambda_tuple_size " << lambda_tuple_size(extrac) << std::endl;
         std::cout << "lambda_tuple_size " << lambda_tuple_size(tuples) << std::endl;
