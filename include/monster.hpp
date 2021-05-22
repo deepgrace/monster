@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 268
+#define MONSTER_VERSION 269
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -2032,6 +2032,15 @@ namespace monster
         }
         (std::forward<T>(t), index_range<0, sizeof_v<Outer...>>(), std::forward<Outer>(outer)...);
     }
+
+    template <typename F>
+    constexpr decltype(auto) lambda_tuple_reverse(F&& f)
+    {
+        return std::invoke(std::forward<F>(f), [&f]<typename... Args>(Args&&... args) -> decltype(auto)
+        {
+            return lambda_tuple_select<reverse_index_sequence<sizeof_v<Args...>>>(std::forward<F>(f));
+        });
+    };
 
     template <typename... Args>
     struct concat;
