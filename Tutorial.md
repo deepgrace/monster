@@ -632,19 +632,22 @@ int main(int argc, char* argv[])
         int i = 3;
         auto tuple_ = make_lambda_tuple(1, 2.8, i);
         lambda_tuple_get<2>(tuple_) = i + 1;
-        auto tuples = lambda_tuple_cat(tuple_, make_lambda_tuple(nullptr, std::string("CPP-TMP"), 9.8f));
-        auto select = lambda_tuple_select<std::index_sequence<2, 0, 4, 5>>(tuples);
-        auto extrac = lambda_tuple_extract<1, 3, 2, 4, 0>(tuples);
+        auto tuples0 = make_lambda_tuple(nullptr, std::string("CPP-TMP"), 9.8f);
+        auto tuples1 = lambda_tuple_cat(tuple_, tuples0);
+        auto tuples2 = lambda_tuple_reverse_cat(tuple_, tuples0, make_lambda_tuple(7, 4));
+        auto select = lambda_tuple_select<std::index_sequence<2, 0, 4, 5>>(tuples1);
+        auto extrac = lambda_tuple_extract<1, 3, 2, 4, 0>(tuples1);
         auto revers = lambda_tuple_reverse(extrac);
-        auto range = lambda_tuple_range<2, 5>(tuples);
+        auto range = lambda_tuple_range<2, 5>(tuples1);
 
         std::cout << "lambda_tuple_get " << lambda_tuple_get<2>(tuple_) << std::endl;
         std::cout << "lambda_tuple_get " << lambda_tuple_get<double>(tuple_) << std::endl;
         std::cout << "lambda_tuple_get " << lambda_tuple_get<1>(revers) << std::endl;
         std::cout << "lambda_tuple_get " << lambda_tuple_get<2>(range) << std::endl;
+        std::cout << "lambda_tuple_get " << lambda_tuple_get<6>(tuples2) << std::endl;
         std::cout << "lambda_tuple_size " << lambda_tuple_size(select) << std::endl;
         std::cout << "lambda_tuple_size " << lambda_tuple_size(extrac) << std::endl;
-        std::cout << "lambda_tuple_size " << lambda_tuple_size(tuples) << std::endl;
+        std::cout << "lambda_tuple_size " << lambda_tuple_size(tuples1) << std::endl;
     }
 
     fmap([](auto& v)
