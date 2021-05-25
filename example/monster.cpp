@@ -230,6 +230,8 @@ int main(int argc, char* argv[])
     execute<!is_unique_value_v<1, 2, 2, 3, 4>>();
     execute<has_duplicates_value_v<1, 2, 3, 1, 4>>();
 
+    execute<is_base_template_of_v<std::tuple, std::tuple<int, char>>>();
+
     execute<is_unique_v<std::tuple<int, double, char, float>>>();
     execute<is_unique_v<std::integer_sequence<int, 1, 2, 3, 4>>>();
 

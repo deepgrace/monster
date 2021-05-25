@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 272
+#define MONSTER_VERSION 273
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -184,6 +184,19 @@ namespace monster
 
     template <typename T>
     inline constexpr auto is_type_complete_v = typev<is_type_complete<T>>;
+
+    template <template <typename ...> typename B, typename T, typename = std::void_t<>>
+    struct is_base_template_of : std::false_type
+    {
+    };
+
+    template <template <typename ...> typename B, typename T>
+    struct is_base_template_of<B, T, std::void_t<decltype([]<typename... Args>(B<Args...>*){}(std::declval<T*>()))>> : std::true_type
+    {
+    };
+
+    template <template <typename ...> typename B, typename T>
+    inline constexpr auto is_base_template_of_v = typev<is_base_template_of<B, T>>;
 
     template <typename T, typename U>
     struct pair_t
