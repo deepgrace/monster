@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 271
+#define MONSTER_VERSION 272
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1877,6 +1877,18 @@ namespace monster
         return std::forward<last_type<Args...>>(nth_value_v<sizeof_v<Args...> - 1>(std::forward<Args>(args)...));
     }
     
+    template <typename F, typename... Args>
+    constexpr decltype(auto) reverse_invoke(F&& f, Args&&... args)
+    {
+        constexpr auto M = sizeof_v<Args...>;
+
+        return [&]<size_t... N>(const std::index_sequence<N...>&) -> decltype(auto)
+        {
+            return std::invoke(std::forward<F>(f), nth_value_v<M - N - 1>(std::forward<Args>(args)...)...);
+        }
+        (std::make_index_sequence<M>());
+    }
+
     template <typename T>
     struct element_wrapper
     {

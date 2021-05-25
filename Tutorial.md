@@ -650,6 +650,8 @@ int main(int argc, char* argv[])
         std::cout << "lambda_tuple_size " << lambda_tuple_size(tuples1) << std::endl;
     }
 
+    reverse_invoke([](auto&&... args){ (std::cout << ... << args) << std::endl; }, 1, 2, 3, 4);
+
     fmap([](auto& v)
     {
         std::cout << v << std::endl;
