@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 273
+#define MONSTER_VERSION 274
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -5488,6 +5488,19 @@ namespace monster
 
         return std::forward_as_tuple(std::forward<decltype(Args)>(Args)...);
     }
+
+    template <template auto T>
+    struct is_template : std::false_type
+    {
+    };
+
+    template <template <template auto ...> typename T>
+    struct is_template<T> : std::true_type
+    {
+    };
+
+    template <template auto T>
+    inline constexpr auto is_template_v = typev<is_template<T>>;
     */
 
     template <auto N, typename F, typename... Args>
