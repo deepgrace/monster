@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 274
+#define MONSTER_VERSION 275
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6025,6 +6025,15 @@ namespace monster
 
     template <auto i, auto j, auto k, typename T>
     using rotate_t = typeof_t<rotate<i, j, k, T>>;
+
+    template <auto i, auto j, auto k, typename F>
+    constexpr decltype(auto) lambda_tuple_rotate(F&& f)
+    {
+        return std::invoke(std::forward<F>(f), [&f]<typename... Args>(Args&&... args) -> decltype(auto)
+        {
+            return lambda_tuple_select<rotate_t<i, j, k, std::index_sequence_for<Args...>>>(std::forward<F>(f));
+        });
+    }
 
     template <auto i, auto j, auto k, typename T>
     struct revolve : concat<range_t<j, k, T>, range_t<i, j, T>>

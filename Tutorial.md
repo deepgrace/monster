@@ -221,6 +221,8 @@ int main(int argc, char* argv[])
     execute<!is_unique_value_v<1, 2, 2, 3, 4>>();
     execute<has_duplicates_value_v<1, 2, 3, 1, 4>>();
 
+    execute<is_base_template_of_v<std::tuple, std::tuple<int, char>>>();
+
     execute<is_unique_v<std::tuple<int, double, char, float>>>();
     execute<is_unique_v<std::integer_sequence<int, 1, 2, 3, 4>>>();
 
@@ -639,12 +641,14 @@ int main(int argc, char* argv[])
         auto extrac = lambda_tuple_extract<1, 3, 2, 4, 0>(tuples1);
         auto revers = lambda_tuple_reverse(extrac);
         auto range = lambda_tuple_range<2, 5>(tuples1);
+        auto rotat = lambda_tuple_rotate<1, 3, 5>(tuples1);
 
         std::cout << "lambda_tuple_get " << lambda_tuple_get<2>(tuple_) << std::endl;
         std::cout << "lambda_tuple_get " << lambda_tuple_get<double>(tuple_) << std::endl;
         std::cout << "lambda_tuple_get " << lambda_tuple_get<1>(revers) << std::endl;
         std::cout << "lambda_tuple_get " << lambda_tuple_get<2>(range) << std::endl;
         std::cout << "lambda_tuple_get " << lambda_tuple_get<6>(tuples2) << std::endl;
+        std::cout << "lambda_tuple_get " << lambda_tuple_get<2>(rotat) << std::endl;
         std::cout << "lambda_tuple_size " << lambda_tuple_size(select) << std::endl;
         std::cout << "lambda_tuple_size " << lambda_tuple_size(extrac) << std::endl;
         std::cout << "lambda_tuple_size " << lambda_tuple_size(tuples1) << std::endl;
