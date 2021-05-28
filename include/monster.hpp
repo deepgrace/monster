@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 275
+#define MONSTER_VERSION 276
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -9676,6 +9676,24 @@ namespace monster
 
     template <typename indices, typename T>
     using elements_t = typeof_t<elements<indices, T>>;
+
+    template <auto N, typename T, typename... Args>
+    struct cat_element
+    {
+        static constexpr auto size = sizeof_t_v<T>;
+        using type = type_if<N < size, element<N, T>, cat_element<N - size, Args...>>;
+    };
+
+    template <auto N, typename T>
+    struct cat_element<N, T> : element<N, T>
+    {
+    };
+
+    template <auto N, typename... Args>
+    using cat_element_t = typeof_t<cat_element<N, Args...>>;
+
+    template <auto N, typename... Args>
+    inline constexpr auto cat_element_v = typev<cat_element_t<N, Args...>>;
 
     template <typename T, typename U>
     requires (is_variadic_tuple_v<T> && is_variadic_tuple_v<U>)

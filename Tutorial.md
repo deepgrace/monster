@@ -295,6 +295,9 @@ int main(int argc, char* argv[])
     execute<element_t<2, std::integer_sequence<int, 1, -2, 7, 4>>, c_7>();
     execute<element_v<3, std::integer_sequence<int, 1, -2, 7, 4>>, 4>();
 
+    execute<cat_element_t<3, std::tuple<int, char, bool>, std::tuple<short, double>>, short>();
+    execute<cat_element_v<3, std::index_sequence<0, 1, 2>, std::index_sequence<4, 5, 6>>, 4>();
+
     execute<tuple_offset_v<1, std::tuple<int, int, int>>, 4>();
     execute<tuple_offset_v<2, std::tuple<int, double, int>>, 12>();
 
