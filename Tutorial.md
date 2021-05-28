@@ -645,6 +645,7 @@ int main(int argc, char* argv[])
         auto revers = lambda_tuple_reverse(extrac);
         auto range = lambda_tuple_range<2, 5>(tuples1);
         auto rotat = lambda_tuple_rotate<1, 3, 5>(tuples1);
+        auto gathe = lambda_tuple_gather<std::string, nullptr_t, double>(tuples1);
 
         std::cout << "lambda_tuple_get " << lambda_tuple_get<2>(tuple_) << std::endl;
         std::cout << "lambda_tuple_get " << lambda_tuple_get<double>(tuple_) << std::endl;
@@ -652,6 +653,7 @@ int main(int argc, char* argv[])
         std::cout << "lambda_tuple_get " << lambda_tuple_get<2>(range) << std::endl;
         std::cout << "lambda_tuple_get " << lambda_tuple_get<6>(tuples2) << std::endl;
         std::cout << "lambda_tuple_get " << lambda_tuple_get<2>(rotat) << std::endl;
+        std::cout << "lambda_tuple_get " << lambda_tuple_get<0>(gathe) << std::endl;
         std::cout << "lambda_tuple_size " << lambda_tuple_size(select) << std::endl;
         std::cout << "lambda_tuple_size " << lambda_tuple_size(extrac) << std::endl;
         std::cout << "lambda_tuple_size " << lambda_tuple_size(tuples1) << std::endl;
@@ -1489,6 +1491,7 @@ int main(int argc, char* argv[])
     std::cout << "tuple_splat " << std::get<2>(tuple_splat<2, 5>(tuple)) << std::endl;
     auto dupt = std::make_tuple(1, 's', 7.0, 1, 's');
     std::cout << "tuple_unique " << std::get<0>(tuple_unique(dupt)) << std::endl;
+    std::cout << "tuple_gather " << std::get<0>(tuple_gather<double, int, char>(dupt)) << std::endl;
     using indices_ = std::index_sequence<0, 3, 4>;
     std::cout << "tuple_slice " << std::get<2>(tuple_slice<indices_>(tuple)) << std::endl;
     std::cout << "tuple_repeat " << std::get<2>(tuple_repeat<4>(9)) << std::endl;
