@@ -1926,6 +1926,9 @@ int main(int argc, char* argv[])
     using sme = set_matrix_element_c<3, 1, 7, list_n>;
     execute<get_matrix_element_v<3, 1, sme>, 7>();
 
+    execute<is_matrix_v<std::tuple<std::tuple<int, char>>>>();
+    execute<is_matrix_v<std::tuple<std::index_sequence<0, 1>, std::index_sequence<2, 3>>>>();
+
     execute<matrix_t<3, 3, int>,
             std::tuple<std::tuple<int, int, int>,
                        std::tuple<int, int, int>,

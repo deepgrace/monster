@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 277
+#define MONSTER_VERSION 278
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -8156,7 +8156,21 @@ namespace monster
     inline constexpr auto matrix_dim_v = typev<matrix_dim_t<T>>;
 
     template <typename T>
-    struct is_square_matrix : bool_<matrix_row_size_v<T> && matrix_col_size_v<T>>
+    struct is_matrix : std::false_type
+    {
+    };
+
+    template <template <typename ...> typename T, typename U, typename... Args>
+    struct is_matrix<T<U, Args...>> : bool_<((sizeof_t_v<U> == sizeof_t_v<Args>) && ...)>
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto is_matrix_v = typev<is_matrix<T>>;
+
+    template <typename T>
+    requires is_matrix_v<T>
+    struct is_square_matrix : bool_<matrix_row_size_v<T> == matrix_col_size_v<T>>
     {
     };
 
