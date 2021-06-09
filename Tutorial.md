@@ -2825,6 +2825,19 @@ int main(int argc, char* argv[])
     execute<lrp_t<std::integer_sequence<int, 2, 3, 3, 3, 0, 5, 6, 5, 6, 7>>,
             pair_v<5, 8>>();
 
+    using mat1 = std::tuple<std::tuple<int[10], int[11], int[12], int[13], int[14]>,
+                            std::tuple<int[20], int[21], int[22], int[23], int[24]>,
+                            std::tuple<int[30], int[31], int[32], int[33], int[34]>,
+                            std::tuple<int[40], int[41], int[42], int[43], int[44]>>;
+
+    using mat2 = std::tuple<std::index_sequence<10, 11, 12, 13, 14>,
+                            std::index_sequence<20, 21, 22, 23, 24>,
+                            std::index_sequence<30, 31, 32, 33, 34>,
+                            std::index_sequence<40, 41, 42, 43, 44>>;
+
+    execute<is_in_matrix_v<mat1, std::tuple<int[31], int[21], int[22], int[23], int[13]>>>();
+    execute<is_in_matrix_v<mat2, std::index_sequence<31, 21, 22, 23, 13>>>();
+
     execute<manacker_t<std::tuple<int, char, double, char, int, char>>,
             std::tuple<std::tuple<int>, std::tuple<char>, std::tuple<int, char, double, char, int>,
             std::tuple<char>, std::tuple<char, int, char>, std::tuple<char>>>();

@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 278
+#define MONSTER_VERSION 279
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -12955,6 +12955,102 @@ namespace monster
 
     template <typename T>
     using lrp_t = typeof_t<lrp<T>>;
+
+    template <template <typename ...> typename F, typename ...>
+    struct disjunction_invoke : std::false_type
+    {
+    };
+
+    template <template <typename ...> typename F, typename T>
+    struct disjunction_invoke<F, T> : F<T>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T, typename... Args>
+    struct disjunction_invoke<F, T, Args...>
+    {
+        using call = F<T>;
+        using type = type_if<call::value, call, disjunction_invoke<F, Args...>>;
+    };
+
+    template <template <typename ...> typename F, typename... Args>
+    using disjunction_invoke_t = typeof_t<disjunction_invoke<F, Args...>>;
+
+    template <template <typename ...> typename F, typename... Args>
+    inline constexpr auto disjunction_invoke_v = typev<disjunction_invoke_t<F, Args...>>;
+
+    template <typename T, typename U>
+    requires (is_matrix_v<T> && is_variadic_v<U>)
+    struct is_in_matrix
+    {
+        static constexpr int len = sizeof_t_v<U>;
+
+        static constexpr int row = matrix_row_size_v<T>;
+        static constexpr int col = matrix_col_size_v<T>;
+
+        using head = front_t<U>;
+        using mark = sentinel_t<U>;
+
+        template <int i, int j, int k, typename V>
+        struct find
+        {
+            struct next
+            {
+                using curr = set_matrix_element_t<i, j, mark, V>;
+
+                template <int m, int n, int p = 2 * n - 1>
+                using call = find<i + m * p, j + !m * p, k + 1, curr>;
+
+                using type = disjunction_invoke_t<typeof_t, call<0, 0>, call<0, 1>, call<1, 0>, call<1, 1>>;
+            };
+
+            template <typename W, bool>
+            struct impl : std::conditional_t<!std::is_same_v<get_matrix_element_t<i, j, V>, element_t<k, U>>, std::false_type, next>
+            {
+            };
+
+            template <typename W>
+            struct impl<W, false> : std::false_type
+            {
+            };
+
+            using type = type_if<len <= k, std::true_type, impl<V, 0 <= i && i < row && 0 <= j && j < col>>;
+        };
+
+        template <int i, int j, int k, int l>
+        struct impl
+        {
+            template <typename V, bool = std::is_same_v<V, head>>
+            struct next : std::conditional_t<typeof_v<find<i, j, 0, T>>, std::true_type, impl<i, j + 1, k, l>>
+            {
+            };
+
+            template <typename V>
+            struct next<V, false> : impl<i, j + 1, k, l>
+            {
+            };
+
+            using type = typeof_t<next<get_matrix_element_t<i, j, T>>>;
+        };
+
+        template <int i, int k, int l>
+        struct impl<i, l, k, l> : impl<i + 1, 0, k, l>
+        {
+        };
+
+        template <int j, int k, int l>
+        struct impl<k, j, k, l> : std::false_type
+        {
+        };
+
+        using type = typeof_t<impl<0, 0, row, col>>;
+    };
+
+    template <typename T, typename U>
+    using is_in_matrix_t = typeof_t<is_in_matrix<T, U>>;
+
+    template <typename T, typename U>
+    inline constexpr auto is_in_matrix_v = typev<is_in_matrix_t<T, U>>;
 }
 
 #endif
