@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 279
+#define MONSTER_VERSION 280
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -12955,6 +12955,29 @@ namespace monster
 
     template <typename T>
     using lrp_t = typeof_t<lrp<T>>;
+
+    template <template <typename ...> typename F, typename ...>
+    struct conjunction_invoke : std::true_type
+    {
+    };
+
+    template <template <typename ...> typename F, typename T>
+    struct conjunction_invoke<F, T> : F<T>
+    {
+    };
+
+    template <template <typename ...> typename F, typename T, typename... Args>
+    struct conjunction_invoke<F, T, Args...>
+    {
+        using call = F<T>;
+        using type = type_if<call::value, conjunction_invoke<F, Args...>, call>;
+    };
+
+    template <template <typename ...> typename F, typename... Args>
+    using conjunction_invoke_t = typeof_t<conjunction_invoke<F, Args...>>;
+
+    template <template <typename ...> typename F, typename... Args>
+    inline constexpr auto conjunction_invoke_v = typev<conjunction_invoke_t<F, Args...>>;
 
     template <template <typename ...> typename F, typename ...>
     struct disjunction_invoke : std::false_type
