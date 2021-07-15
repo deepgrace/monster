@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 280
+#define MONSTER_VERSION 281
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6165,6 +6165,14 @@ namespace monster
 
     template <auto N, typename T>
     using slide_t = typeof_t<slide<N, T>>;
+
+    template <typename T>
+    struct rotations : slide<sizeof_t_v<T>, concat_t<T, drop_last_t<1, T>>>
+    {
+    };
+
+    template <typename T>
+    using rotations_t = typeof_t<rotations<T>>;
 
     template <auto N, typename T, bool B>
     struct divvy

@@ -1628,6 +1628,11 @@ int main(int argc, char* argv[])
             std::tuple<std::index_sequence<1, 9, 0, 4>, std::index_sequence<9, 0, 4, 2>,
             std::index_sequence<0, 4, 2, 5>, std::index_sequence<4, 2, 5, 7>, std::index_sequence<2, 5, 7, 4>>>();
 
+    execute<rotations_t<std::tuple<int, char, bool>>, std::tuple<std::tuple<int, char, bool>,
+                        std::tuple<char, bool, int>, std::tuple<bool, int, char>>>();
+    execute<rotations_t<std::index_sequence<1, 2, 3>>, std::tuple<std::index_sequence<1, 2, 3>,
+                        std::index_sequence<2, 3, 1>, std::index_sequence<3, 1, 2>>>();
+
     execute<stride_t<2, std::tuple<int, char, double, int, char>>, std::tuple<int, double, char>>();
     execute<stride_t<3, std::index_sequence<1, 9, 0, 4, 2, 5, 7, 4>>, std::index_sequence<1, 4, 7>>();
 
