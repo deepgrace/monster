@@ -633,6 +633,7 @@ int main(int argc, char* argv[])
 
     execute<repeat_range_t<3>, std::index_sequence<1, 2, 2, 3, 3, 3>>();
 
+    auto pf = [](auto&&... v){ (std::cout << ... << v) << std::endl; };
     {
         int i = 3;
         auto tuple_ = make_lambda_tuple(1, 2.8, i);
@@ -657,6 +658,9 @@ int main(int argc, char* argv[])
         std::cout << "lambda_tuple_size " << lambda_tuple_size(select) << std::endl;
         std::cout << "lambda_tuple_size " << lambda_tuple_size(extrac) << std::endl;
         std::cout << "lambda_tuple_size " << lambda_tuple_size(tuples1) << std::endl;
+        std::cout << "lambda_tuple_gather_invoke" << std::endl;
+        lambda_tuple_gather_invoke<4, 1, 5>(tuples1, pf);
+        lambda_tuple_gather_invoke<std::string, double, float>(tuples1, pf);
     }
 
     reverse_invoke([](auto&&... args){ (std::cout << ... << args) << std::endl; }, 1, 2, 3, 4);
@@ -1500,7 +1504,6 @@ int main(int argc, char* argv[])
     std::cout << "tuple_slide " << std::get<1>(std::get<1>(tuple_slide<3>(tuple))) << std::endl;
     std::cout << "tuple_stride " << std::get<1>(tuple_stride<2>(tuple)) << std::endl;
     std::cout << "tuple_subranges " << std::get<1>(std::get<1>(tuple_subranges<3>(tuple))) << std::endl;
-    auto pf = [](auto&&... v){ (std::cout << ... << v) << std::endl; };
     std::cout << "tuple_gather_invoke" << std::endl;
     tuple_gather_invoke<2, 0, 1>(dupt, pf);
     tuple_gather_invoke<double, int, char>(dupt, pf);
