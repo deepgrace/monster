@@ -1509,6 +1509,10 @@ int main(int argc, char* argv[])
     std::cout << "tuple_slide " << std::get<1>(std::get<1>(tuple_slide<3>(tuple))) << std::endl;
     std::cout << "tuple_stride " << std::get<1>(tuple_stride<2>(tuple)) << std::endl;
     std::cout << "tuple_subranges " << std::get<1>(std::get<1>(tuple_subranges<3>(tuple))) << std::endl;
+    auto pf = [](auto&&... v){ (std::cout << ... << v) << std::endl; };
+    std::cout << "tuple_gather_invoke" << std::endl;
+    tuple_gather_invoke<2, 0, 1>(dupt, pf);
+    tuple_gather_invoke<double, int, char>(dupt, pf);
 
     execute<nth_level_pointer_t<4, int>, int****>();
     execute<call_ntimes_t<4, int, std::add_pointer>, int****>();
