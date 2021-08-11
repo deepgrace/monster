@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 283
+#define MONSTER_VERSION 284
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -66,7 +66,13 @@ namespace monster
     using index_t = c_<N, size_t>;
 
     template <size_t N>
-    constexpr index_t<N> index{};
+    constexpr index_t<N> index = {};
+
+    template <auto v>
+    using constant_t = c_<v, std::decay_t<decltype(v)>>;
+
+    template <auto v>
+    constexpr constant_t<v> constant = {};
 
     template <typename... Args>
     using tuple_t = std::tuple<Args...>;

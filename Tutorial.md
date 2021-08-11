@@ -1493,7 +1493,7 @@ int main(int argc, char* argv[])
     tuple_fill<3>(tuple, 3, 5);
     std::cout << "tuple_fill " << std::get<4>(tuple) << std::endl;
     std::cout << "tuple_splat " << std::get<2>(tuple_splat<2, 5>(tuple)) << std::endl;
-    auto dupt = std::make_tuple(1, 's', 7.0, 1, 's');
+    auto dupt = std::make_tuple(1, 's', 7.0, 2.0f, std::string("TMP"));
     std::cout << "tuple_unique " << std::get<0>(tuple_unique(dupt)) << std::endl;
     std::cout << "tuple_gather " << std::get<0>(tuple_gather<double, int, char>(dupt)) << std::endl;
     using indices_ = std::index_sequence<0, 3, 4>;
