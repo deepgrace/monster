@@ -670,6 +670,11 @@ int main(int argc, char* argv[])
         std::cout << v << std::endl;
     }, 1, 2.3, "string", 'x');
 
+    reverse_fmap([](auto& v)
+    {
+        std::cout << v << std::endl;
+    }, 1, 2.3, "string", 'x');
+
     execute<concat_t<std::tuple<int, char>, std::tuple<double>>, std::tuple<int, char, double>>();
     execute<concat_t<std::integer_sequence<int, 1, 2, 3>, std::integer_sequence<int, 4, 5, 6>>,
             std::integer_sequence<int, 1, 2, 3, 4, 5, 6>>();

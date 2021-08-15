@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 284
+#define MONSTER_VERSION 285
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -2082,16 +2082,28 @@ namespace monster
         {
         }
     };
-    
-    template <typename T, typename... Outer>
-    void fmap(T&& t, Outer&&... outer)
+
+    template <typename T, typename Indices, typename... Outer>
+    void apply_invoker(T&& t, Indices&& indices, Outer&&... outer)
     {
         []<typename F, template <typename U, auto ...> typename V, size_t... N, typename... Args>
         (F&& f, const V<size_t, N...>&, Args&&... args)
         {
             invoker<index_type<N, nth_type_t<N, Args...>>...>(std::forward<F>(f), (nth_value_v<N>(std::forward<Args>(args)...))...);
         }
-        (std::forward<T>(t), index_range<0, sizeof_v<Outer...>>(), std::forward<Outer>(outer)...);
+        (std::forward<T>(t), std::forward<Indices>(indices), std::forward<Outer>(outer)...);
+    }
+
+    template <typename T, typename... Outer>
+    void fmap(T&& t, Outer&&... outer)
+    {
+        apply_invoker(std::forward<T>(t), index_range<0, sizeof_v<Outer...>>(), std::forward<Outer>(outer)...);
+    }
+
+    template <typename T, typename... Outer>
+    void reverse_fmap(T&& t, Outer&&... outer)
+    {
+        apply_invoker(std::forward<T>(t), reverse_index_sequence<sizeof_v<Outer...>>(), std::forward<Outer>(outer)...);
     }
 
     template <typename F>
