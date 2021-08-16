@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 285
+#define MONSTER_VERSION 286
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6869,6 +6869,15 @@ namespace monster
                 return std::invoke(std::forward<F>(f), std::get<n>(std::get<m>(std::move(t)))...);
             }
             (first_t<pair>(), second_t<pair>(), std::forward_as_tuple(std::forward<Args>(args)...));
+    }
+
+    template <typename F, typename... Args>
+    constexpr decltype(auto) reverse_multi_apply(F&& f, Args&&... args)
+    {
+        return reverse_invoke([&]<typename... Inner>(Inner&&... inner)
+        {
+            return multi_apply(std::forward<F>(f), std::forward<Inner>(inner)...);
+        }, std::forward<Args>(args)...);
     }
 
     template <typename limit, typename T, template <typename ...> typename F, bool ASC = true>

@@ -1065,6 +1065,22 @@ int main(int argc, char* argv[])
     std::cout << advanced_apply(f2, argy) << std::endl;
     // or std::cout << advanced_apply(argy, f2) << std::endl;
 
+    std::cout << "reverse_multi_apply" << std::endl;
+    auto f3 = [](const std::pair<int, double>& p, double f, int a, float b, const std::string& s, int c)
+              {
+                  std::cout << p.second << std::endl;
+                  std::cout << p.first << std::endl;
+                  std::cout << f << std::endl;
+                  std::cout << a << std::endl;
+                  std::cout << b << std::endl;
+                  std::cout << s << std::endl;
+
+                  return c;
+              };
+
+    std::cout << reverse_multi_apply(f3, std::make_tuple(1, 2.5f, std::string("monster"), -3),
+                 std::make_tuple(std::make_pair(20, 80.9), 4.7)) << std::endl;
+
     auto ints = select_values_of_type<int>(5.f, 3, std::string("Template"), 1,  4.5, 9);
     std::cout << ints[2] << std::endl;
 
