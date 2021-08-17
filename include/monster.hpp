@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 287
+#define MONSTER_VERSION 288
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1930,7 +1930,16 @@ namespace monster
         {
             return nth_value_v<N>(std::forward<Args>(args)...);
         });
-    };
+    }
+
+    template <typename F, typename T>
+    constexpr decltype(auto) lambda_tuple_apply(F&& f, T&& t)
+    {
+        return std::invoke(std::forward<T>(t), [&]<typename... Args>(Args&&... args) -> decltype(auto)
+        {
+            return std::invoke(std::forward<F>(f), std::forward<Args>(args)...);
+        });
+    }
 
     template <typename F>
     constexpr decltype(auto) lambda_tuple_size(F&& f)
@@ -1939,7 +1948,7 @@ namespace monster
         {
             return sizeof...(Args);
         });
-    };
+    }
 
     template <typename F>
     constexpr decltype(auto) lambda_capture_cat(F&& f)
