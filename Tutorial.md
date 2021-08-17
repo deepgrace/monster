@@ -1537,6 +1537,10 @@ int main(int argc, char* argv[])
     execute<foldl_apply(std::minus<>(), nums), 2>();
     execute<foldr_apply(std::minus<>(), nums), 6>();
 
+    auto nums2 = make_lambda_tuple(8, 4, 2);
+    lambda_tuple_foldl(std::minus<>(), nums2);
+    lambda_tuple_foldr(std::minus<>(), nums2);
+
     execute<nth_level_pointer_t<4, int>, int****>();
     execute<call_ntimes_t<4, int, std::add_pointer>, int****>();
 

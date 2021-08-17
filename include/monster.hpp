@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 288
+#define MONSTER_VERSION 289
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6405,13 +6405,25 @@ namespace monster
     template <typename F, typename T>
     constexpr decltype(auto) foldl_apply(F&& f, T&& t)
     {
-        return std::apply(foldl_over(f), std::forward<T>(t));
+        return std::apply(foldl_over(std::forward<F>(f)), std::forward<T>(t));
     }
 
     template <typename F, typename T>
     constexpr decltype(auto) foldr_apply(F&& f, T&& t)
     {
-        return std::apply(foldr_over(f), std::forward<T>(t));
+        return std::apply(foldr_over(std::forward<F>(f)), std::forward<T>(t));
+    }
+
+    template <typename F, typename T>
+    constexpr decltype(auto) lambda_tuple_foldl(F&& f, T&& t)
+    {
+        return lambda_tuple_apply(foldl_over(std::forward<F>(f)), std::forward<T>(t));
+    }
+
+    template <typename F, typename T>
+    constexpr decltype(auto) lambda_tuple_foldr(F&& f, T&& t)
+    {
+        return lambda_tuple_apply(foldr_over(std::forward<F>(f)), std::forward<T>(t));
     }
 
     template <typename F, typename... Args>
