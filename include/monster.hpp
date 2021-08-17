@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 286
+#define MONSTER_VERSION 287
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6346,6 +6346,63 @@ namespace monster
     constexpr decltype(auto) tuple_foldr(F&& f, T&& t)
     {
         return tuple_fold<std::tuple_size_v<std::decay_t<T>> - 1, 0>(std::forward<F>(f), std::forward<T>(t));
+    }
+
+    template <typename F, typename T>
+    struct foldable
+    {
+        F f;
+        T t;
+
+        template <typename U>
+        constexpr decltype(auto) operator*(foldable<F, U>&& v)
+        {
+            return foldable(f, f(t, v.t));
+        }
+    };
+
+    template <typename F, typename... Args>
+    requires (sizeof_v<Args...> > 0)
+    constexpr decltype(auto) foldl_over(F&& f, Args&&... args)
+    {
+        return (... * foldable(std::forward<F>(f), std::forward<Args>(args))).t;
+    }
+
+    template <typename F, typename... Args>
+    requires (sizeof_v<Args...> > 0)
+    constexpr decltype(auto) foldr_over(F&& f, Args&&... args)
+    {
+        return (foldable(std::forward<F>(f), std::forward<Args>(args)) * ...).t;
+    }
+
+    template <typename F>
+    constexpr decltype(auto) foldl_over(F&& f)
+    {
+        return [&]<typename... Args>(Args&&...args) mutable
+        {
+            return foldl_over(std::forward<F>(f), std::forward<Args>(args)...);
+        };
+    }
+
+    template <typename F>
+    constexpr decltype(auto) foldr_over(F&& f)
+    {
+        return [&]<typename... Args>(Args&&...args) mutable
+        {
+            return foldr_over(std::forward<F>(f), std::forward<Args>(args)...);
+        };
+    }
+
+    template <typename F, typename T>
+    constexpr decltype(auto) foldl_apply(F&& f, T&& t)
+    {
+        return std::apply(foldl_over(f), std::forward<T>(t));
+    }
+
+    template <typename F, typename T>
+    constexpr decltype(auto) foldr_apply(F&& f, T&& t)
+    {
+        return std::apply(foldr_over(f), std::forward<T>(t));
     }
 
     template <typename F, typename... Args>

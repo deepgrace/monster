@@ -1529,6 +1529,13 @@ int main(int argc, char* argv[])
     tuple_gather_invoke<2, 0, 1>(dupt, pf);
     tuple_gather_invoke<double, int, char>(dupt, pf);
 
+    constexpr auto nums = std::make_tuple(8, 4, 2);
+    execute<tuple_foldl(std::minus<>(), nums), 2>();
+    execute<tuple_foldr(std::minus<>(), nums), 6>();
+
+    execute<foldl_apply(std::minus<>(), nums), 2>();
+    execute<foldr_apply(std::minus<>(), nums), 6>();
+
     execute<nth_level_pointer_t<4, int>, int****>();
     execute<call_ntimes_t<4, int, std::add_pointer>, int****>();
 
