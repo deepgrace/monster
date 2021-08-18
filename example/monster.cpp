@@ -671,6 +671,7 @@ int main(int argc, char* argv[])
         lambda_tuple_gather_invoke<4, 1, 5>(tuples1, pf);
         lambda_tuple_gather_invoke<std::string, double, float>(tuples1, pf);
         lambda_tuple_apply(pf, tuples1);
+        lambda_tuple_for_each(pf, tuples1);
     }
 
     reverse_invoke([](auto&&... args){ (std::cout << ... << args) << std::endl; }, 1, 2, 3, 4);
