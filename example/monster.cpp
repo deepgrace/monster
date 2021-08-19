@@ -1425,6 +1425,18 @@ int main(int argc, char* argv[])
     }
     (10.0);
 
+    std::tuple<float, double, std::string> tup{9.9f, 4.66, "CPP-TMP"};
+
+    auto show = overload_set
+    {
+        [](float i){ std::cout << "float " << i << std::endl; },
+        [](double d){ std::cout << "double " << d << std::endl; },
+        [](const auto& s){ std::cout << "string " << s << std::endl; }
+    };
+
+    for (auto&& v : to_range(tup))
+         std::visit(show, v);
+
     for_value<1, -2, 3>([]<auto N>()
     {
         std::cout<< N << std::endl;

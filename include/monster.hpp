@@ -20,12 +20,13 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 290
+#define MONSTER_VERSION 291
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
 #include <tuple>
 #include <utility>
+#include <variant>
 #include <functional>
 
 namespace monster
@@ -5384,11 +5385,18 @@ namespace monster
     template <typename... F>
     struct overload_set : F...
     {
-        using F::operator()...;
-    };
+        overload_set(F&&... f) : F{f}...
+        {
+        }
 
-    template <typename... F>
-    overload_set(F&&...) -> overload_set<std::remove_cvref_t<F>...>;
+        using F::operator()...;
+
+        template <typename T>
+        decltype(auto) operator()(std::reference_wrapper<T> r)
+        {
+            return (*this)(r.get());
+        }
+    };
 
     template <typename... Args>
     struct overload_sequence;
@@ -5504,6 +5512,91 @@ namespace monster
         }
         (index_sequence_of_t<std::remove_cvref_t<T>>());
     }
+
+    template <typename R, typename T, typename F, size_t... N>
+    struct to_table
+    {
+        template <size_t n>
+        static R lookup_tuple(T& t, F& f)
+        {
+            return f(std::get<n>(t));
+        }
+
+        using table = std::array<R(*)(T&, F&), sizeof...(N)>;
+        static constexpr table apply = {&lookup_tuple<N>...};
+    };
+
+    template <typename... Args>
+    auto tuple_get(size_t i, std::tuple<Args...>& t)
+    {
+        return [&]<typename F, size_t... N>(F&& f, std::index_sequence<N...>) -> decltype(auto)
+        {
+            using type = std::variant<std::reference_wrapper<Args>...>;
+            return to_table<type, std::tuple<Args...>, F, N...>::apply[i](t, f);
+        }
+        ([](auto& v){ return std::ref(v); }, std::index_sequence_for<Args...>());
+    }
+
+    template <typename T>
+    class tuple_iterator
+    {
+        public:
+            tuple_iterator(size_t i, T& t) : i(i), t(t)
+            {
+            }
+
+            tuple_iterator& operator++()
+            {
+                ++i;
+                return *this;
+            }
+
+            bool operator==(const tuple_iterator& rhs) const
+            {
+                return i == rhs.i && std::addressof(t) == std::addressof(rhs.t);
+            }
+
+            bool operator!=(const tuple_iterator& rhs) const
+            {
+                return !(*this == rhs);
+            }
+
+            decltype(auto) operator*() const
+            {
+                return tuple_get(i, t);
+            }
+
+        private:
+            size_t i;
+            T& t;
+    };
+
+    template <typename T>
+    class to_range
+    {
+        public:
+            to_range(T& t) : t(t)
+            {
+            }
+
+            auto begin()
+            {
+                return tuple_iterator(0, t);
+            }
+
+            auto end()
+            {
+                return tuple_iterator(std::tuple_size_v<T>, t);
+            }
+
+            decltype(auto) operator[](size_t i)
+            {
+                return tuple_get(i, t);
+            }
+
+        private:
+            T& t;
+    };
 
     struct universal
     {
