@@ -1428,6 +1428,12 @@ int main(int argc, char* argv[])
     for (auto&& v : to_range(tup))
          std::visit(show, v);
 
+    capture_invoke(pf)(1, 2, 3);
+    capture_invoke(pf, 3)(1, 2);
+    capture_invoke(pf, 2, 3)(1);
+    capture_invoke(pf, 1, 2, 3);
+    capture_invoke([]<typename ...>(){})();
+
     for_value<1, -2, 3>([]<auto N>()
     {
         std::cout<< N << std::endl;
