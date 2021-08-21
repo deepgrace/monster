@@ -809,6 +809,8 @@ int main(int argc, char* argv[])
     execute<to_tuple_t<std::integer_sequence<int, 4, 8>>, std::tuple<c_4, c_8>>();
     execute<to_tuple_t<std::tuple<int, double>>, std::tuple<int, double>>();
 
+    std::apply(pf, tuple_adjacent_transform(std::plus<>(), std::make_tuple(1, 2, 3, 4)));
+
     execute<swap_t<1, 3, std::tuple<int, double, char, float>>, std::tuple<int, float, char, double>>();
     execute<swap_t<0, 2, std::integer_sequence<int, 1, -2, 7, 4>>,
             std::integer_sequence<int, 7, -2, 1, 4>>();

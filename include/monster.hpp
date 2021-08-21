@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 292
+#define MONSTER_VERSION 293
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -6625,6 +6625,16 @@ namespace monster
             return std::make_tuple(std::get<N>(t)...);
         }
         (integer_sequence_t<size_t, j - i, i, 1>());
+    }
+
+    template <typename F, typename... Args>
+    constexpr decltype(auto) tuple_adjacent_transform(F&& f, const std::tuple<Args...>& t)
+    {
+        return [&]<size_t... N>(const std::index_sequence<N...>&)
+        {
+            return std::make_tuple(std::invoke(std::forward<F>(f), std::get<N>(t), std::get<N + 1>(t))...);
+        }
+        (index_sequence_of_c<sizeof_v<Args...> - 1>());
     }
 
     template <auto pos, auto len, typename... Args>
