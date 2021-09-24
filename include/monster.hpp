@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 295
+#define MONSTER_VERSION 296
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -750,6 +750,12 @@ namespace monster
 
     template <typename... Args>
     inline constexpr auto is_variadic_pack_v = typev<is_variadic_pack_t<Args...>>;
+
+    template <typename... Args>
+    concept is_function_pack = requires(Args... args)
+    {
+        []<typename... R, typename... T>(R (*... f)(T...)){}(args...);
+    };
 
     template <typename T>
     struct is_group : std::false_type

@@ -407,6 +407,13 @@ int main(int argc, char* argv[])
     execute<is_variadic_v<std::index_sequence<>>>();
     execute<!is_variadic_v<nullptr_t>>();
 
+    using fptr1 = char (int);
+    using fptr2 = short (int);
+    using fptr3 = double (int);
+
+    execute<is_function_pack<fptr1, fptr2, fptr3>>();
+    execute<!is_function_pack<char, fptr2, double>>();
+
     execute<find_if_v<is_tuple, std::tuple<int, char, std::tuple<double>, float>>, 2>();
     execute<find_if_v<is_even, std::index_sequence<7, 3, 5, 4, 9, 0, 2, 5>>, 3>();
 
