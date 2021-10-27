@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 296
+#define MONSTER_VERSION 297
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -4593,10 +4593,22 @@ namespace monster
     template <auto N, typename T>
     using nest_pivot_t = typeof_t<nest_pivot<N, T>>;
 
+    template <template <typename ...> typename F, typename T, typename U = T, typename... Args>
+    constexpr size_t index_of_apply()
+    {
+        return F<T, U>() ? 1 : index_of_apply<F, T, Args...>() + 1;
+    }
+
+    template <typename T, typename U = T, typename... Args>
+    constexpr size_t index_of_base()
+    {
+        return index_of_apply<std::is_base_of, T, U, Args...>();
+    }
+
     template <typename T, typename U = T, typename... Args>
     constexpr size_t typeindex()
     {
-        return std::is_same<T, U>() ? 1 : typeindex<T, Args...>() + 1;
+        return index_of_apply<std::is_same, T, U, Args...>();
     }
 
     template <auto T, auto U = T, auto... Args>
