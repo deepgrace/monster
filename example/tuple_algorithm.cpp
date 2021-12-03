@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
     static_assert(count_if(is_float, std::make_tuple('1', 2.0, 'c', nullptr)) == 1);
 
     static_assert(mismatch(std::make_tuple(4, 3, 2, 1), std::make_tuple(4, 3, 1, 2)).value() == 2);
-    static_assert(mismatch([](auto x, auto y){ return x != y}, std::make_tuple(1, 3), std::make_tuple(1, 4)).value() == 1);
+    static_assert(mismatch([](auto x, auto y){ return x != y; }, std::make_tuple(1, 3), std::make_tuple(1, 4)).value() == 0);
 
     static_assert(find(std::make_tuple(4, 6, 7, 8), 6).value() == 1);
     static_assert(find_if([](auto x) { return x == 6; }, std::make_tuple(7, 8, 6, 9)).value() == 2);
