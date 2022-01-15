@@ -56,6 +56,12 @@ namespace monster
     template <typename T>
     inline constexpr auto is_lambda_v = is_lambda<T>();
 
+    template <auto F>
+    constexpr bool is_lambda()
+    {
+        return is_lambda_v<decltype(F)>;
+    }
+
     template <typename T>
     concept invocable = is_lambda_v<T> || std::is_invocable_v<T>;
 }

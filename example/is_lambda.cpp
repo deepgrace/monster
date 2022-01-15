@@ -23,5 +23,8 @@ int main(int argc, char* argv[])
     static_assert(is_lambda_v<decltype(lambda_t<int, bool>)>);
     static_assert(is_lambda_v<decltype([]<typename ...>(auto ...){})>);
 
+    static_assert(is_lambda<[]<typename ...>(auto ...){}>());
+    static_assert(is_lambda<decltype([]<typename ...>(auto ...){})>());
+
     return 0;
 }
