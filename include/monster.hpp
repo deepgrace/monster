@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 297
+#define MONSTER_VERSION 298
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -1055,7 +1055,7 @@ namespace monster
     };
 
     template <size_t N>
-    struct next_index_sequence : duple<typeof_t<next_index_sequence<N / 2>>, N % 2 != 0>
+    struct next_index_sequence : duple<typeof_t<next_index_sequence<N / 2>>, N % 2>
     {
     };
 
@@ -2400,6 +2400,23 @@ namespace monster
 
     template <template <typename ...> typename F, typename T, typename... Args>
     using append_when_t = typeof_t<append_when<F, T, Args...>>;
+
+    template <size_t N>
+    consteval auto make_sequence()
+    {
+        if constexpr(N == 0)
+            return index_sequence<>();
+        else if constexpr(N == 1)
+            return index_sequence<0>();
+        else
+            return []<bool B, size_t... indices>(index_sequence<indices...>)
+            {
+                return append_if_t<B, index_sequence<indices..., (sizeof...(indices) + indices)...>, c_<sizeof...(indices) * 2>>();
+            }.template operator()<N % 2>(make_sequence<N / 2>());
+    }
+
+    template <size_t N>
+    using make_sequence_t = decltype(make_sequence<N>());
 
     template <template <typename, typename> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     struct adjacent_difference

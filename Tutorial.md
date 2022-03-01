@@ -624,6 +624,8 @@ int main(int argc, char* argv[])
     execute<make_index_sequence<4>, index_sequence<0, 1, 2, 3>>();
     execute<index_sequence_for<int, char, double>, index_sequence<0, 1, 2>>();
 
+    execute<make_sequence_t<4>, index_sequence<0, 1, 2, 3>>();
+
     execute<integral_range_t<size_t, 1, 4>, index_list<size_t, 1, 2, 3>>();
     execute<integral_range_t<size_t, 4, 1>, index_list<size_t, 4, 3, 2>>();
 
