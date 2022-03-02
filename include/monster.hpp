@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 299
+#define MONSTER_VERSION 300
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -12700,6 +12700,21 @@ namespace monster
     constexpr decltype(auto) advanced_apply(F&& f, T&& t)
     {
         return advanced_apply(std::forward<T>(t), std::forward<F>(f));
+    }
+
+    template <auto N = 0, typename F, typename... Args>
+    requires (N < sizeof_v<Args...>)
+    constexpr decltype(auto) apply_to_index(F&& f, Args&&... args)
+    {
+        [&]<auto... indices>(std::index_sequence<indices...>)
+        {
+            ([&]()
+             {
+                 if constexpr(N == indices)
+                     std::invoke(std::forward<F>(f), std::forward<Args>(args));
+             }(), ...);
+        }
+        (std::index_sequence_for<Args...>());
     }
 
     template <auto N, typename T>

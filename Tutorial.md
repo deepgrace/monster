@@ -1082,6 +1082,8 @@ int main(int argc, char* argv[])
     std::cout << advanced_apply(f2, argy) << std::endl;
     // or std::cout << advanced_apply(argy, f2) << std::endl;
 
+    apply_to_index<2>([](auto&& p){ std::cout << p.first << " " <<  p.second << std::endl;  }, 3, 4.5, argy, nullptr);
+
     std::cout << "reverse_multi_apply" << std::endl;
     auto f3 = [](const std::pair<int, double>& p, double f, int a, float b, const std::string& s, int c)
               {
