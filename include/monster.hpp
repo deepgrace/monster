@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 298
+#define MONSTER_VERSION 299
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -2353,13 +2353,19 @@ namespace monster
     template <bool B, template <typename ...> typename T, typename... Args, typename... args>
     struct push<B, T<Args...>, args...>
     {
-         using type = std::conditional_t<B, T<args..., Args...>, T<Args..., args...>>;
+        using type = std::conditional_t<B, T<args..., Args...>, T<Args..., args...>>;
     };
 
     template <bool B, template <typename, auto ...> typename T, typename U, auto... Args, typename... args>
     struct push<B, T<U, Args...>, args...>
     {
-         using type = std::conditional_t<B, T<U, typev<args>..., Args...>, T<U, Args..., typev<args>...>>;
+        using type = std::conditional_t<B, T<U, typev<args>..., Args...>, T<U, Args..., typev<args>...>>;
+    };
+
+    template <bool B, template <auto ...> typename T, auto... Args, typename... args>
+    struct push<B, T<Args...>, args...>
+    {
+        using type = std::conditional_t<B, T<typev<args>..., Args...>, T<Args..., typev<args>...>>;
     };
 
     template <bool B, typename T, typename... Args>
@@ -2401,7 +2407,7 @@ namespace monster
     template <template <typename ...> typename F, typename T, typename... Args>
     using append_when_t = typeof_t<append_when<F, T, Args...>>;
 
-    template <size_t N>
+    template <size_t N, bool R = false>
     consteval auto make_sequence()
     {
         if constexpr(N == 0)
@@ -2411,12 +2417,24 @@ namespace monster
         else
             return []<bool B, size_t... indices>(index_sequence<indices...>)
             {
-                return append_if_t<B, index_sequence<indices..., (sizeof...(indices) + indices)...>, c_<sizeof...(indices) * 2>>();
-            }.template operator()<N % 2>(make_sequence<N / 2>());
+                if constexpr(R)
+                     return prepend_if_t<B, index_sequence<(sizeof...(indices) + indices)..., indices...>, c_<sizeof...(indices) * 2>>();
+                else
+                     return append_if_t<B, index_sequence<indices..., (sizeof...(indices) + indices)...>, c_<sizeof...(indices) * 2>>();
+            }.template operator()<N % 2>(make_sequence<N / 2, R>());
     }
 
     template <size_t N>
     using make_sequence_t = decltype(make_sequence<N>());
+
+    template <size_t N>
+    consteval auto make_reverse_sequence()
+    {
+        return make_sequence<N, 1>();
+    }
+
+    template <size_t N>
+    using make_reverse_sequence_t = decltype(make_reverse_sequence<N>());
 
     template <template <typename, typename> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     struct adjacent_difference
