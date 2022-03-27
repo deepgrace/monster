@@ -5705,6 +5705,37 @@ namespace monster
     inline constexpr auto is_template_v = typev<is_template<T>>;
     */
 
+    template <typename T, typename U>
+    struct is_isomorphism : std::false_type
+    {
+    };
+
+    template <typename T>
+    struct is_isomorphism<T, T> : std::true_type
+    {
+    };
+
+    template <template <auto ...> typename T, auto... X, auto... Y>
+    struct is_isomorphism<T<X...>, T<Y...>> : std::true_type
+    {
+    };
+
+    template <template <typename ...> typename T, typename... X, typename... Y>
+    struct is_isomorphism<T<X...>, T<Y...>> : std::true_type
+    {
+    };
+
+    template <template <typename, auto ...> typename T, typename U, typename V, auto... X, auto... Y>
+    struct is_isomorphism<T<U, X...>, T<V, Y...>> : std::true_type
+    {
+    };
+
+    template <typename T, typename U>
+    inline constexpr auto is_isomorphism_v = typev<is_isomorphism<T, U>>;
+
+    template <typename T, typename U>
+    concept isomorphism_as = is_isomorphism_v<T, U>;
+
     template <auto N, typename F, typename... Args>
     void loop(F&& f, Args&&... args)
     {

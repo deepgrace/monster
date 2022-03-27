@@ -1434,6 +1434,12 @@ int main(int argc, char* argv[])
     execute<best_match_t<char*, std::string, void>, std::string>();
     execute<best_match_t<int, std::string, double, char*>, double>();
 
+    execute<isomorphism_as<int, int>>();
+    execute<!isomorphism_as<int, double>>();
+    execute<isomorphism_as<std::tuple<>, std::tuple<int>>>();
+    execute<isomorphism_as<std::index_sequence<>, std::index_sequence<0>>>();
+    execute<isomorphism_as<std::integral_constant<int, 0>, std::integral_constant<short, 2>>>();
+
     overload_set
     {
         [](auto x) { return x; },
