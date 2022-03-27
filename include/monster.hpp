@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 301
+#define MONSTER_VERSION 302
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -204,6 +204,48 @@ namespace monster
 
     template <template <typename ...> typename B, typename T>
     inline constexpr auto is_base_template_of_v = typev<is_base_template_of<B, T>>;
+
+    template <typename T>
+    constexpr bool is_template()
+    {
+        return false;
+    }
+
+    template <template <auto ...> typename T>
+    constexpr bool is_template()
+    {
+        return true;
+    }
+
+    template <template <typename ...> typename T>
+    constexpr bool is_template()
+    {
+        return true;
+    }
+
+    template <template <typename, auto ...> typename T>
+    constexpr bool is_template()
+    {
+        return true;
+    }
+
+    template <template <template <auto ...> typename ...> typename T>
+    constexpr bool is_template()
+    {
+        return true;
+    }
+
+    template <template <template <typename ...> typename ...> typename T>
+    constexpr bool is_template()
+    {
+        return true;
+    }
+
+    template <template <template <typename, auto ...> typename ...> typename T>
+    constexpr bool is_template()
+    {
+        return true;
+    }
 
     template <typename T, typename U>
     struct pair_t

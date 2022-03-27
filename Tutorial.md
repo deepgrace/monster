@@ -13,6 +13,10 @@ template <typename ...> struct T2 {};
 template <typename ...> struct T3 {};
 template <typename ...> struct T4 {};
 
+template <template <auto ...> typename ...> struct TT0{};
+template <template <typename ...> typename ...> struct TT1{};
+template <template <typename, auto ...> typename ...> struct TT2{};
+
 template <typename T, typename U>
 struct comp
 {
@@ -1430,6 +1434,17 @@ int main(int argc, char* argv[])
     execute<isomorphism_as<std::tuple<>, std::tuple<int>>>();
     execute<isomorphism_as<std::index_sequence<>, std::index_sequence<0>>>();
     execute<isomorphism_as<std::integral_constant<int, 0>, std::integral_constant<short, 2>>>();
+
+    execute<!is_template<int>()>();
+    execute<is_template<homogeneous>()>();
+
+    execute<is_template<std::tuple>()>();
+    execute<is_template<std::index_sequence>()>();
+    execute<is_template<std::integral_constant>()>();
+
+    execute<is_template<TT0>()>();
+    execute<is_template<TT1>()>();
+    execute<is_template<TT2>()>();
 
     overload_set
     {
