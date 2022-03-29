@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 302
+#define MONSTER_VERSION 303
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -7393,6 +7393,21 @@ namespace monster
             }.template operator()<N>(indices)...);
         }
         (std::forward_as_tuple(std::forward<Args>(args)...), std::make_index_sequence<size>());
+    }
+
+    template <typename... Args>
+    constexpr decltype(auto) make_indices()
+    {
+        constexpr auto N = (tuple_size_v<Args> + ...);
+
+        std::array<std::pair<size_t, size_t>, N> indices;
+        std::array<size_t, sizeof_v<Args...>> len {tuple_size_v<Args>...};
+
+        for (size_t k = 0, i = 0; i != len.size(); ++i)
+             for (size_t j = 0; j != len[i]; ++j)
+                  indices[k++] = std::make_pair(i, j);
+
+        return indices;
     }
 
     template <int N>
