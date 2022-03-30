@@ -1975,6 +1975,14 @@ int main(int argc, char* argv[])
                               std::tuple<double, char, int>,
                               std::tuple<double, int, char>>;
 
+    execute<swap_matrix_element_t<1, 2, 4, 0, list_t>,
+            std::tuple<std::tuple<char, int, double>,
+                       std::tuple<char, double, double>,
+                       std::tuple<int, char, double>,
+                       std::tuple<int, double, char>,
+                       std::tuple<int, char, int>,
+                       std::tuple<double, int, char>>>();
+
     execute<get_matrix_element_t<3, 1, list_t>, double>();
 
     execute<matrix_transpose_t<list_t>,
@@ -3072,6 +3080,16 @@ int main(int argc, char* argv[])
             radix_sort, stooge_sort, bubble_sort, oddeven_sort, gnome_sort,
             shaker_sort, selection_sort, quick_sort, quick_sort_iterative,
             insert_sort, insertion_sort, merge_sort, strand_sort, heap_sort>>();
+
+    using int1 = std::integer_sequence<int, 2, 1, 0>;
+    using int2 = std::integer_sequence<int, -3, 4, 1, -7>;
+    using int3 = std::integer_sequence<int, 5, -2>;
+
+    using out1 = std::integer_sequence<int, -7, -3, -2>;
+    using out2 = std::integer_sequence<int, 0, 1, 1, 2>;
+    using out3 = std::integer_sequence<int, 4, 5>;
+
+    execute<sort_matrix_t<std::tuple<int1, int2, int3>>, std::tuple<out1, out2, out3>>();
 
     return 0;
 }

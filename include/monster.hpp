@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 303
+#define MONSTER_VERSION 304
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -9348,6 +9348,18 @@ namespace monster
     template <auto N, auto M, auto P, typename T>
     using scale_mul_matrix_col_t = typeof_t<scale_mul_matrix_col<N, M, P, T>>;
 
+    template <auto m, auto n, auto p, auto q, typename T>
+    struct swap_matrix_element
+    {
+        using prev = get_matrix_element_t<m, n, T>;
+        using next = get_matrix_element_t<p, q, T>;
+
+        using type = set_matrix_element_t<p, q, prev, set_matrix_element_t<m, n, next, T>>;
+    };
+
+    template <auto m, auto n, auto p, auto q, typename T>
+    using swap_matrix_element_t = typeof_t<swap_matrix_element<m, n, p, q, T>>;
+
     template <auto M, auto N, typename T>
     struct swap_matrix_row : matrix_row_transform<M, N, T, swap>
     {
@@ -11055,6 +11067,48 @@ namespace monster
     template <int p, int r, typename T, template <typename, typename> typename comparator = less_equal_t>
     using randomized_stable_partition_t = typeof_t<randomized_stable_partition<p, r, T>>;
 
+    template <auto i, typename T>
+    inline constexpr auto pos = element_v<i, T>;
+
+    template <int p, int r, typename T, typename outer, typename inner, template <typename, typename> typename comparator = less_equal_t>
+    struct partition_matrix
+    {
+        template <auto i, typename V>
+        using call = get_matrix_element_t<pos<i, outer>, pos<i, inner>, V>;
+
+        using x = call<r - 1, T>;
+
+        template <int i, int j, typename V, bool = false>
+        struct next : std::type_identity<V>
+        {
+        };
+
+        template <int i, int j, typename V>
+        struct next<i, j, V, true> : swap_matrix_element<pos<i, outer>, pos<i, inner>, pos<j, outer>, pos<j, inner>, V>
+        {
+        };
+
+        template <int i, int j, int k, typename V>
+        struct impl
+        {
+            static constexpr auto value = typev<comparator<call<j, V>, x>>;
+
+            using cond = typeof_t<next<i + 1, j, V, value>>;
+            using type = typeof_t<impl<i + value, j + 1, k, cond>>;
+        };
+
+        template <int i, int k, typename V>
+        struct impl<i, k, k, V>
+        {
+            using type = index_type<i + 1, typeof_t<next<i + 1, r - 1, V, 1>>>;
+        };
+
+        using type = typeof_t<impl<p - 1, p, r - 1, T>>;
+    };
+
+    template <int p, int r, typename T, typename outer, typename inner, template <typename, typename> typename comparator = less_equal_t>
+    using partition_matrix_t = typeof_t<partition_matrix<p, r, T, outer, inner, comparator>>;
+
     template <int b, int e, int p, typename T, template <typename ...> typename F>
     struct gather
     {
@@ -11767,6 +11821,34 @@ namespace monster
 
     template <typename T, template <typename, typename> typename comparator = less_equal_t>
     using quick_sort_iterative_t = sort_t<quick_sort_iterative, T, comparator>;
+
+    template <typename T, template <typename, typename> typename comparator = less_equal_t>
+    struct sort_matrix
+    {
+        using indices = matrix_index_sequences_t<T>;
+
+        using outer = first_t<indices>;
+        using inner = second_t<indices>;
+
+        template <int p, int r, typename U, bool = (p < r)>
+        struct sort
+        {
+            using pivot = partition_matrix_t<p, r, U, outer, inner, comparator>;
+            using left = typeof_t<sort<p, typev<pivot>, typeof_t<pivot>>>;
+
+            using type = typeof_t<sort<typev<pivot> + 1, r, left>>;
+        };
+
+        template <int p, int r, typename U>
+        struct sort<p, r, U, false> : std::type_identity<U>
+        {
+        };
+
+        using type = typeof_t<sort<0, sizeof_t_v<flat_t<T>>, T>>;
+    };
+
+    template <typename T, template <typename, typename> typename comparator = less_equal_t>
+    using sort_matrix_t = sort_t<sort_matrix, T, comparator>;
 
     template <typename T, template <typename, typename> typename comparator = less_equal_t>
     struct stable_sort
