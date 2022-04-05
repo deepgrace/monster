@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION 304
+#define MONSTER_VERSION 305
 
 #define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
 
@@ -293,10 +293,10 @@ namespace monster
     using identity_t = typeof_t<identity<N, T>>;
 
     template <auto N, typename T>
-    decltype(auto) ignore(T&& t)
+    constexpr decltype(auto) ignore(T&& t)
     {
         return std::forward<T>(t);
-    };
+    }
 
     template <auto N, typename T>
     struct wrapper : wrapper<N - 1, std::type_identity<T>>
@@ -5708,12 +5708,14 @@ namespace monster
     {
         if constexpr (! requires { T{ Args... }; })
             return sizeof...(Args) - 1;
+        else if constexpr (requires { T{ Args..., Args... }; })
+            return aggregate_arity<T>(Args..., Args..., universal{});
         else
             return aggregate_arity<T>(Args..., universal{});
     }
 
     template <typename T>
-    constexpr auto aggregate_arity_v = aggregate_arity<T>();
+    constexpr auto aggregate_arity_v = aggregate_arity<T>(universal{});
 
     /*
     template <typename T>
