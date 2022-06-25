@@ -13,6 +13,7 @@
 #include <tuple>
 #include <variant>
 #include <algorithm>
+#include <functional>
 
 namespace monster
 {
