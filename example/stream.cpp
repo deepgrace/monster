@@ -7,7 +7,7 @@
 // Official repository: https://github.com/deepgrace/monster
 //
 
-// g++ -I include -m64 -std=c++20 -s -Wall -Os -o /tmp/stream example/stream.cpp
+// g++ -I include -m64 -std=c++23 -s -Wall -O3 -o /tmp/stream example/stream.cpp
 
 #include <sstream>
 #include <iostream>

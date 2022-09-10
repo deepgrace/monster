@@ -7,7 +7,7 @@
 // Official repository: https://github.com/deepgrace/monster
 //
 
-// g++ -I include -m64 -std=c++20 -s -Wall -Os -o /tmp/unique_tuple example/unique_tuple.cpp
+// g++ -I include -m64 -std=c++23 -s -Wall -O3 -o /tmp/unique_tuple example/unique_tuple.cpp
 
 #include <iostream>
 #include <unique_tuple.hpp>

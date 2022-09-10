@@ -24,14 +24,19 @@ namespace monster
             tensor<T, N-1>& operator[](size_t k);
             const tensor<T, N-1>& operator[](size_t k) const;
 
+            template <typename... Args>
+            requires (sizeof...(Args) < N) && (sizeof...(Args) >= 1)
+            decltype(auto) operator[](size_t i, Args&&... args)
+            {
+                return operator[](i).operator[](args...);
+            }
+
             void resize(size_t size);
 
             size_t size() const 
             { 
                 return elements.size();
             }
-
-            virtual ~tensor() = default;
 
         private:
             std::vector<tensor<T, N-1>> elements;
@@ -52,8 +57,6 @@ namespace monster
             { 
                 return elements.size();
             }
-
-            virtual ~tensor() = default;
 
         private:
             std::vector<T> elements;

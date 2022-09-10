@@ -7,7 +7,7 @@
 // Official repository: https://github.com/deepgrace/monster
 //
 
-// g++ -I include -m64 -std=c++20 -s -Wall -Os -o /tmp/curry example/curry.cpp
+// g++ -I include -m64 -std=c++23 -s -Wall -O3 -o /tmp/curry example/curry.cpp
 
 #include <cassert>
 #include <curry.hpp>

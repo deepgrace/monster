@@ -7,7 +7,7 @@
 // Official repository: https://github.com/deepgrace/monster
 //
 
-// g++ -I include -m64 -std=c++20 -s -Wall -Os -fconcepts -o /tmp/overview example/overview.cpp
+// g++ -I include -m64 -std=c++23 -s -Wall -O3 -fconcepts -o /tmp/overview example/overview.cpp
 
 #include <monster.hpp>
 

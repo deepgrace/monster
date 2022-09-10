@@ -2,7 +2,7 @@
 
 dst=/tmp
 path=example
-flags=(-I include -m64 -std=c++2a -s -Wall -Os)
+flags=(-I include -m64 -std=c++23 -s -Wall -O3)
 executables=(curry tensor object_pool is_lambda stream ycombinator sort_tuple unique_tuple memoized_invoke tuple_algorithm)
 
 for bin in ${executables[@]}; do

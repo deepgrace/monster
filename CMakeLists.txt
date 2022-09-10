@@ -7,7 +7,7 @@
 # Official repository: https://github.com/deepgrace/monster
 #
 
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.22)
 project(Monster)
  
 add_subdirectory(example)

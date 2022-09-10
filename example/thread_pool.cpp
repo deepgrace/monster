@@ -7,7 +7,7 @@
 // Official repository: https://github.com/deepgrace/monster
 //
 
-// g++ -I include -m64 -std=c++20 -s -Wall -Os -l pthread -o /tmp/thread_pool example/thread_pool.cpp
+// g++ -I include -m64 -std=c++23 -s -Wall -O3 -l pthread -o /tmp/thread_pool example/thread_pool.cpp
 
 #include <vector>
 #include <iostream>

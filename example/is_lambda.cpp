@@ -7,7 +7,7 @@
 // Official repository: https://github.com/deepgrace/monster
 //
 
-// g++ -I include -m64 -std=c++20 -s -Wall -Os -o /tmp/is_lambda example/is_lambda.cpp
+// g++ -I include -m64 -std=c++23 -s -Wall -O3 -o /tmp/is_lambda example/is_lambda.cpp
 
 #include <is_lambda.hpp>
 

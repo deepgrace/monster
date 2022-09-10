@@ -7,7 +7,7 @@
 // Official repository: https://github.com/deepgrace/monster
 //
 
-// g++ -I include -m64 -std=c++20 -s -Wall -Os -o /tmp/object_pool example/object_pool.cpp
+// g++ -I include -m64 -std=c++23 -s -Wall -O3 -o /tmp/object_pool example/object_pool.cpp
 
 #include <vector>
 #include <object_pool.hpp>
