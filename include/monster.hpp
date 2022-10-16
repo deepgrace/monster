@@ -10,20 +10,6 @@
 #ifndef MONSTER_HPP
 #define MONSTER_HPP
 
-#define STRINGIZE(X) #X
-
-/*
- *   MONSTER_VERSION
- *
- *   Identifies the API version of Monster.
- *   This is a simple integer that is incremented by one every
- *   time a set of code changes is merged to the master branch.
- */
-
-#define MONSTER_VERSION 305
-
-#define MONSTER_VERSION_STRING "Monster/" STRINGIZE(MONSTER_VERSION)
-
 #include <tuple>
 #include <utility>
 #include <variant>
@@ -920,7 +906,7 @@ namespace monster
         using type = decltype(value);
         using value_type = type;
 
-        auto static constexpr size()
+        static constexpr decltype(auto) size()
         {
             return sizeof...(values) + 1;
         }
@@ -1081,7 +1067,7 @@ namespace monster
     {
         using type = T;
 
-        static constexpr size_t size() noexcept
+        static constexpr decltype(auto) size() noexcept
         {
             return sizeof...(indices);
         }
@@ -1556,7 +1542,7 @@ namespace monster
     using folded_t = typeof_t<folded<F, Args...>>;
 
     template <template <template <typename ...> typename, typename ...> typename F>
-    struct ycombinator
+    struct doll
     {
         template <typename... Args>
         struct apply
@@ -1566,7 +1552,7 @@ namespace monster
     };
 
     template <template <template <typename ...> typename, typename ...> typename F, typename... Args>
-    using ycombinator_t = typename ycombinator<F>::template apply<Args...>::type;
+    using doll_t = typename doll<F>::template apply<Args...>::type;
 
     template <template <typename ...> typename F, template <typename ...> typename T, typename... Args>
     struct recurse : std::type_identity<T<Args...>>
@@ -1579,20 +1565,20 @@ namespace monster
     using recurse_t = typeof_t<recurse<F, T, Args...>>;
 
     template <typename F, typename ...>
-    struct curry : F
+    struct reduce : F
     {
     };
 
     template <typename F, typename T, typename... Args>
-    struct curry<F, T, Args...> : curry<call<F, T>, Args...>
+    struct reduce<F, T, Args...> : reduce<call<F, T>, Args...>
     {
     };
 
     template <typename F, typename... Args>
-    using curry_t = typeof_t<curry<F, Args...>>;
+    using reduce_t = typeof_t<reduce<F, Args...>>;
 
     template <template <typename ...> typename F, template <typename ...> typename T, typename... Args>
-    using curried = curry<recurse<F, T>, Args...>;
+    using curried = reduce<recurse<F, T>, Args...>;
 
     template <template <typename ...> typename F, template <typename ...> typename T, typename... Args>
     using curried_t =  typeof_t<curried<F, T, Args...>>;
@@ -1655,15 +1641,15 @@ namespace monster
     template <typename T>
     inline constexpr auto tuple_and_v = typev<tuple_and<T>>;
 
-    template <typename F, template <typename ...> typename f>
+    template <typename F, template <typename ...> typename G>
     struct on
     {
         template <typename... Args>
-        using apply = f<call_t<F, Args>...>;
+        using apply = G<call_t<F, Args>...>;
     };
 
-    template <template <typename ...> typename F, template <typename ...> typename f, typename... Args>
-    using on_t = call_t<on<bind_front<F>, f>, Args...>;
+    template <template <typename ...> typename F, template <typename ...> typename G, typename... Args>
+    using on_t = call_t<on<bind_front<F>, G>, Args...>;
 
     template <typename F, typename... Args>
     struct partial
@@ -1682,24 +1668,24 @@ namespace monster
     template <template <template <typename ...> typename, typename, int, int> typename F>
     struct metaf
     {
-        template <template <typename ...> typename f, typename T, int B, int E>
-        using apply = F<f, T, B, E>;
+        template <template <typename ...> typename G, typename T, int B, int E>
+        using apply = F<G, T, B, E>;
     };
 
-    template <typename F, template <typename ...> typename f, typename T, int B, int E>
-    using apply = typename F::template apply<f, T, B, E>;
+    template <typename F, template <typename ...> typename G, typename T, int B, int E>
+    using apply = typename F::template apply<G, T, B, E>;
 
-    template <typename F, template <typename ...> typename f, typename T, int B, int E>
-    using apply_t = typeof_t<apply<F, f, T, B, E>>;
+    template <typename F, template <typename ...> typename G, typename T, int B, int E>
+    using apply_t = typeof_t<apply<F, G, T, B, E>>;
 
     template <template <template <typename ...> typename, typename, int, int> typename F,
-    template <typename ...> typename f, typename T, int B, int E, bool neg = false,
-    template <typename ...> typename U = negaf<f, neg>::template apply>
+    template <typename ...> typename G, typename T, int B, int E, bool neg = false,
+    template <typename ...> typename U = negaf<G, neg>::template apply>
     using applyf = apply<metaf<F>, U, T, B, E>;
 
     template <template <template <typename ...> typename, typename, int, int> typename F,
-    template <typename ...> typename f, typename T, int B, int E, bool neg = false>
-    using applyf_t = typeof_t<applyf<F, f, T, B, E, neg>>;
+    template <typename ...> typename G, typename T, int B, int E, bool neg = false>
+    using applyf_t = typeof_t<applyf<F, G, T, B, E, neg>>;
 
     template <auto N>
     struct equal
@@ -2109,7 +2095,7 @@ namespace monster
     {
         using value_type = T;
 
-        auto static constexpr size()
+        static constexpr decltype(auto) size()
         {
             return sizeof...(values);
         }
@@ -2330,6 +2316,15 @@ namespace monster
     template <typename T>
     using unique_t = typeof_t<unique<T>>;
 
+    template <typename... Args>
+    struct unicat
+    {
+        using type = unique_t<concat_t<Args...>>;
+    };
+
+    template <typename... Args>
+    using unicat_t = typeof_t<unicat<Args...>>;
+
     template <typename T>
     struct unique_index;
 
@@ -2468,7 +2463,7 @@ namespace monster
     using append_when_t = typeof_t<append_when<F, T, Args...>>;
 
     template <size_t N, bool R = false>
-    consteval auto make_sequence()
+    consteval decltype(auto) make_sequence()
     {
         if constexpr(N == 0)
             return index_sequence<>();
@@ -2488,7 +2483,7 @@ namespace monster
     using make_sequence_t = decltype(make_sequence<N>());
 
     template <size_t N>
-    consteval auto make_reverse_sequence()
+    consteval decltype(auto) make_reverse_sequence()
     {
         return make_sequence<N, 1>();
     }
@@ -2625,17 +2620,17 @@ namespace monster
     using fold_left_t = fold_t<F, Args...>;
 
     template <typename F, typename T, typename ...>
-    struct fold_right_impl : std::type_identity<T>
+    struct fold_right_ : std::type_identity<T>
     {
     };
 
     template <typename F, typename T, typename U>
-    struct fold_right_impl<F, T, U> : fold_right_impl<F, call_t<F, T, U>>
+    struct fold_right_<F, T, U> : fold_right_<F, call_t<F, T, U>>
     {
     };
 
     template <typename F, typename T, typename U, typename... Args>
-    struct fold_right_impl<F, T, U, Args...> : fold_right_impl<F, call_t<F, U, T>, Args...>
+    struct fold_right_<F, T, U, Args...> : fold_right_<F, call_t<F, U, T>, Args...>
     {
     };
 
@@ -2646,7 +2641,7 @@ namespace monster
         struct impl;
 
         template <typename... args>
-        struct impl<invert_type<args...>> : fold_right_impl<F, args...>
+        struct impl<invert_type<args...>> : fold_right_<F, args...>
         {
         };
 
@@ -2852,7 +2847,7 @@ namespace monster
     inline constexpr auto swap_v = i == N ? j : j == N ? i : N;
 
     template <auto i, auto j, auto N>
-    auto constexpr swap_index()
+    constexpr decltype(auto) swap_index()
     {
         return swap_v<i, j, N>;
     };
@@ -4700,10 +4695,10 @@ namespace monster
         return index_of_apply<std::is_base_of, T, U, Args...>();
     }
 
-    template <typename T, typename U = T, typename... Args>
+    template <typename... Args>
     constexpr size_t typeindex()
     {
-        return index_of_apply<std::is_same, T, U, Args...>();
+        return index_of_apply<std::is_same, Args...>();
     }
 
     template <auto T, auto U = T, auto... Args>
@@ -4790,7 +4785,7 @@ namespace monster
 
     template <typename T, typename U, bool B = false, bool neg = false>
     requires is_variadic_value_v<U>
-    consteval auto index_of()
+    consteval decltype(auto) index_of()
     {
         using type = reverse_if_t<B, U>;
         constexpr auto index = value_index_if_v<neg, typev<T>, type>;
@@ -4801,7 +4796,7 @@ namespace monster
 
     template <typename T, typename U, bool B = false, bool neg = false>
     requires is_variadic_type_v<U>
-    consteval auto index_of()
+    consteval decltype(auto) index_of()
     {
         using type = reverse_if_t<B, U>;
         constexpr auto index = type_index_if_v<neg, T, type>;
@@ -4811,7 +4806,7 @@ namespace monster
     }
 
     template <typename T, typename U, int B, int E, bool B1, bool B2>
-    consteval auto find_of()
+    consteval decltype(auto) find_of()
     {
         return B + index_of<T, range_t<B, E, U>, B1, B2>();
     }
@@ -5157,11 +5152,11 @@ namespace monster
         template <size_t i, size_t j>
         struct search
         {
-             static constexpr auto half = i + (j - i - 1) / 2;
-             static constexpr auto value = element_size_v<half, U>;
+            static constexpr auto half = i + (j - i - 1) / 2;
+            static constexpr auto value = element_size_v<half, U>;
 
-             using next = std::conditional_t<value < key, search<half + 1, j>, search<i, half>>;
-             using type = type_if<value == key, std::true_type, next>;
+            using next = std::conditional_t<value < key, search<half + 1, j>, search<i, half>>;
+            using type = type_if<value == key, std::true_type, next>;
         };
 
         template <size_t j>
@@ -5186,25 +5181,25 @@ namespace monster
         template <size_t l, size_t m, size_t r, auto lower, template <size_t, size_t> typename search>
         struct impl
         {
-             static constexpr auto mid = r - (r - l) / 3;
-             static constexpr auto upper = element_size_v<mid, U>;
+            static constexpr auto mid = r - (r - l) / 3;
+            static constexpr auto upper = element_size_v<mid, U>;
 
-             using left = search<l, m - 1>;
-             using middle = search<m + 1, mid - 1>;
+            using left = search<l, m - 1>;
+            using middle = search<m + 1, mid - 1>;
 
-             using right = search<mid + 1, r>;
-             using next = ternary_conditional_t<key < upper, key < lower, left, middle, right>;
+            using right = search<mid + 1, r>;
+            using next = ternary_conditional_t<key < upper, key < lower, left, middle, right>;
 
-             using type = type_if<upper == key, std::true_type, next>;
+            using type = type_if<upper == key, std::true_type, next>;
         };
 
         template <size_t l, size_t r, bool = l <= r>
         struct search
         {
-             static constexpr auto mid = l + (r - l) / 3;
-             static constexpr auto lower = element_size_v<mid, U>;
+            static constexpr auto mid = l + (r - l) / 3;
+            static constexpr auto lower = element_size_v<mid, U>;
 
-             using type = type_if<lower == key, std::true_type, impl<l, mid, r, lower, search>>;
+            using type = type_if<lower == key, std::true_type, impl<l, mid, r, lower, search>>;
         };
 
         template <size_t l, size_t r>
@@ -5498,7 +5493,7 @@ namespace monster
     template <typename... F>
     struct overload_set : F...
     {
-        overload_set(F&&... f) : F{f}...
+        overload_set(F&&... f) : F{std::forward<F>(f)}...
         {
         }
 
@@ -5569,7 +5564,7 @@ namespace monster
     template <auto... N, typename F>
     constexpr void for_value(F&& f)
     {
-        (call_operator<N>(f), ...);
+        (call_operator<N>(std::forward<F>(f)), ...);
     }
 
     template <typename... Args, typename F>
@@ -5577,7 +5572,7 @@ namespace monster
     {
         [&]<auto... N>(const std::index_sequence<N...>&)
         {
-            (f.template operator()<N, Args>(), ...);
+            (std::forward<F>(f).template operator()<N, Args>(), ...);
         }
         (std::index_sequence_for<Args...>());
     }
@@ -5586,9 +5581,10 @@ namespace monster
     constexpr void for_range(F&& f)
     {
         using type = std::common_type_t<decltype(B), decltype(E)>;
+
         [&]<auto... N>(const std::integer_sequence<type, N...>&)
         {
-            for_value<(B + N)...>(f);
+            for_value<(B + N)...>(std::forward<F>(f));
         }
         (std::make_integer_sequence<type, E - B>());
     }
@@ -5602,12 +5598,12 @@ namespace monster
             if constexpr ((is_variadic_type_v<Args> && ...))
                 (call_operator<N>([&]<auto n, template <typename ...> typename T, typename... args>(const T<args...>&)
                 {
-                    for_type<args...>(f);
+                    for_type<args...>(std::forward<F>(f));
                 }, Args()), ...);
             else
                 (call_operator<N>([&]<auto n, template <typename, auto ...> typename T, typename U, auto... args>(const T<U, args...>&)
                 {
-                    for_value<args...>(f);
+                    for_value<args...>(std::forward<F>(f));
                 }, Args()), ...);
         }
         (std::index_sequence_for<Args...>());
@@ -5640,11 +5636,12 @@ namespace monster
     };
 
     template <typename... Args>
-    auto tuple_get(size_t i, std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_get(size_t i, std::tuple<Args...>& t)
     {
         return [&]<typename F, size_t... N>(F&& f, std::index_sequence<N...>) -> decltype(auto)
         {
             using type = std::variant<std::reference_wrapper<Args>...>;
+
             return to_table<type, std::tuple<Args...>, F, N...>::apply[i](t, f);
         }
         ([](auto& v){ return std::ref(v); }, std::index_sequence_for<Args...>());
@@ -5661,20 +5658,21 @@ namespace monster
             tuple_iterator& operator++()
             {
                 ++i;
+
                 return *this;
             }
 
-            bool operator==(const tuple_iterator& rhs) const
+            bool operator==(const tuple_iterator& rhs)
             {
                 return i == rhs.i && std::addressof(t) == std::addressof(rhs.t);
             }
 
-            bool operator!=(const tuple_iterator& rhs) const
+            bool operator!=(const tuple_iterator& rhs)
             {
                 return !(*this == rhs);
             }
 
-            decltype(auto) operator*() const
+            decltype(auto) operator*()
             {
                 return tuple_get(i, t);
             }
@@ -5692,12 +5690,12 @@ namespace monster
             {
             }
 
-            auto begin()
+            decltype(auto) begin()
             {
                 return tuple_iterator(0, t);
             }
 
-            auto end()
+            decltype(auto) end()
             {
                 return tuple_iterator(std::tuple_size_v<T>, t);
             }
@@ -5722,14 +5720,14 @@ namespace monster
 
     template <typename T>
     requires std::is_aggregate_v<T>
-    consteval auto aggregate_arity(auto... Args)
+    consteval decltype(auto) aggregate_arity(auto... Args)
     {
-        if constexpr (! requires { T{ Args... }; })
+        if constexpr(! requires { T{ Args... }; })
             return sizeof...(Args) - 1;
-        else if constexpr (requires { T{ Args..., Args... }; })
-            return aggregate_arity<T>(Args..., Args..., universal{});
+        else if constexpr(requires { T{ Args..., Args... }; })
+            return aggregate_arity<T>(Args..., Args..., universal());
         else
-            return aggregate_arity<T>(Args..., universal{});
+            return aggregate_arity<T>(Args..., universal());
     }
 
     template <typename T>
@@ -5740,7 +5738,7 @@ namespace monster
     requires std::is_aggregate_v<T>
     constexpr decltype(auto) aggregate_fields_count()
     {
-        auto [...Args] = T();
+        decltype(auto) [...Args] = T();
 
         return sizeof...(Args);
     }
@@ -5748,7 +5746,7 @@ namespace monster
     template <typename T>
     constexpr decltype(auto) aggregate_to_tuple(T&& t)
     {
-        auto&& [...Args] = t;
+        decltype(auto) [...Args] = t;
 
         return std::forward_as_tuple(std::forward<decltype(Args)>(Args)...);
     }
@@ -5803,6 +5801,7 @@ namespace monster
     {
         if constexpr(N > 1)
             loop<N - 1>(std::forward<F>(f), std::forward<Args>(args)...);
+
         std::forward<F>(f)(N - 1, std::forward<Args>(args)...);
     }
 
@@ -5814,7 +5813,8 @@ namespace monster
         {
             if constexpr(N > 1)
                 unroller<N - 1>()(std::forward<F>(f), std::forward<Args>(args)...);
-            return std::forward<F>(f)(std::forward<Args>(args)...);
+
+            std::forward<F>(f)(std::forward<Args>(args)...);
         }
     };
 
@@ -6105,7 +6105,7 @@ namespace monster
     template <auto N, typename F>
     void iterate(F&& f)
     {
-        iterate(f, std::make_integer_sequence<decltype(N), N>());
+        iterate(std::forward<F>(f), std::make_integer_sequence<decltype(N), N>());
     }
 
     template <typename ...>
@@ -6517,7 +6517,7 @@ namespace monster
     inline constexpr auto is_even_v = typev<is_even<T>>;
 
     template <typename T>
-    consteval auto index_value(T&& t)
+    consteval decltype(auto) index_value(T&& t)
     {
         return std::remove_cvref_t<decltype(t)>::value;
     }
@@ -6545,7 +6545,7 @@ namespace monster
     using axial_symmetry_t = typeof_t<axial_symmetry<T>>;
 
     template <typename indices, typename T>
-    decltype(auto) tuple_select(T&& t)
+    constexpr decltype(auto) tuple_select(T&& t)
     {
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
@@ -6555,31 +6555,31 @@ namespace monster
     }
 
     template <auto... N, typename... Args>
-    decltype(auto) tuple_extract(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_extract(const std::tuple<Args...>& t)
     {
         return tuple_select<std::index_sequence<N...>>(t);
     }
 
     template <typename... Args, typename T>
-    decltype(auto) tuple_gather(T&& t)
+    constexpr decltype(auto) tuple_gather(T&& t)
     {
         return std::make_tuple(std::get<Args>(std::forward<T>(t))...);
     }
 
     template <auto... N, typename T, typename F>
-    decltype(auto) tuple_gather_invoke(T&& t, F&& f)
+    constexpr decltype(auto) tuple_gather_invoke(T&& t, F&& f)
     {
         return std::invoke(std::forward<F>(f), std::get<N>(std::forward<T>(t))...);
     }
 
     template <typename... Args, typename T, typename F>
-    decltype(auto) tuple_gather_invoke(T&& t, F&& f)
+    constexpr decltype(auto) tuple_gather_invoke(T&& t, F&& f)
     {
         return std::invoke(std::forward<F>(f), std::get<Args>(std::forward<T>(t))...);
     }
 
     template <typename... Args>
-    decltype(auto) tuple_axial_symmetry(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_axial_symmetry(const std::tuple<Args...>& t)
     {
         return tuple_select<axial_symmetry_t<std::index_sequence_for<Args...>>>(t);
     }
@@ -6610,14 +6610,14 @@ namespace monster
     template <typename F, typename T>
     struct foldable
     {
+        template <typename U>
+        constexpr decltype(auto) operator*(foldable<F, U>&& r)
+        {
+            return foldable(f, f(t, r.t));
+        }
+
         F f;
         T t;
-
-        template <typename U>
-        constexpr decltype(auto) operator*(foldable<F, U>&& v)
-        {
-            return foldable(f, f(t, v.t));
-        }
     };
 
     template <typename F, typename... Args>
@@ -6812,15 +6812,13 @@ namespace monster
     template <auto i, typename... Args, typename... T>
     constexpr decltype(auto) tuple_insert(const std::tuple<Args...>& tuple, T&&... t)
     {
-        return std::tuple_cat(tuple_range<0, i>(tuple),
-               std::make_tuple(std::forward<T>(t)...), tuple_range<i, sizeof_v<Args...>>(tuple));
+        return std::tuple_cat(tuple_range<0, i>(tuple), std::make_tuple(std::forward<T>(t)...), tuple_range<i, sizeof_v<Args...>>(tuple));
     }
 
     template <auto i, typename... Args, typename... T>
     constexpr decltype(auto) tuple_replace(const std::tuple<Args...>& tuple, T&&... t)
     {
-        return std::tuple_cat(tuple_range<0, i>(tuple),
-               std::make_tuple(std::forward<T>(t)...), tuple_range<i + 1, sizeof_v<Args...>>(tuple));
+        return std::tuple_cat(tuple_range<0, i>(tuple), std::make_tuple(std::forward<T>(t)...), tuple_range<i + 1, sizeof_v<Args...>>(tuple));
     }
 
     template <typename... Args, typename T, typename U>
@@ -6970,7 +6968,7 @@ namespace monster
     {
         return []<auto... N>(const std::index_sequence<N...>&)
         {
-            return [](auto&& f)
+            return []<typename F>(F&& f)
             {
                 return call_operator<N...>(decltype(f)(f));
             };
@@ -7103,34 +7101,34 @@ namespace monster
     struct visit_element
     {
         template <typename T, typename F>
-        static void visit(size_t index, T& t, F f)
+        static void visit(size_t i, T& t, F&& f)
         {
             static constexpr auto middle = lower + (upper - lower) / 2;
 
-            if (index < middle)
-                visit_element<lower, middle>::visit(index, t, f);
-            else if (index > middle)
-                visit_element<middle, upper>::visit(index, t, f);
+            if (i < middle)
+                visit_element<lower, middle>::visit(i, t, std::forward<F>(f));
+            else if (i > middle)
+                visit_element<middle, upper>::visit(i, t, std::forward<F>(f));
             else
                 f(std::get<middle>(t));
         }
     };
 
     template <typename... Args, typename F>
-    void visit_at(size_t index, std::tuple<Args...>& t, F f)
+    void visit_at(size_t i, std::tuple<Args...>& t, F&& f)
     {
-        visit_element<0, sizeof_v<Args...>>::visit(index, t, f);
+        visit_element<0, sizeof_v<Args...>>::visit(i, t, std::forward<F>(f));
     }
 
     template <typename... Args, typename F>
-    void visit_at(size_t index, const std::tuple<Args...>& t, F f)
+    void visit_at(size_t i, const std::tuple<Args...>& t, F&& f)
     {
-        visit_element<0, sizeof_v<Args...>>::visit(index, t, f);
+        visit_element<0, sizeof_v<Args...>>::visit(i, t, std::forward<F>(f));
     }
 
     template <typename F, typename T>
     requires is_tuple_v<T>
-    struct invocable
+    struct nary
     {
         template <auto N, typename U>
         struct impl;
@@ -7138,17 +7136,17 @@ namespace monster
         template <auto N, template <typename ...> typename U, typename... Args>
         struct impl<N, U<Args...>>
         {
-            using type = type_if<std::is_invocable_v<F, Args...>, c_<N>, invocable<F, head_t<T>>>;
+            using type = type_if<std::is_invocable_v<F, Args...>, c_<N>, nary<F, head_t<T>>>;
         };
 
         using type = typeof_t<impl<sizeof_t_v<T>, T>>;
     };
 
     template <typename F, typename T>
-    using invocable_t = typeof_t<invocable<F, T>>;
+    using nary_t = typeof_t<nary<F, T>>;
 
     template <typename F, typename T>
-    inline constexpr auto invocable_v = typev<invocable_t<F, T>>;
+    inline constexpr auto nary_v = typev<nary_t<F, T>>;
 
     template <typename T, typename U = size_t>
     struct alter;
@@ -7182,6 +7180,99 @@ namespace monster
 
     template <template <auto, typename> typename F, typename T, typename indices = index_sequence_of_t<T>>
     using concat_map_t = typeof_t<concat_map<F, T, indices>>;
+
+    template <template <auto ...> typename T, auto... U, template <auto ...> typename V, auto... W>
+    constexpr decltype(auto) operator+(T<U...>, V<W...>)
+    {
+        return T<U..., W...>();
+    }
+
+    template <template <typename ...> typename T, typename... U, template <typename ...> typename V, typename... W>
+    constexpr decltype(auto) operator+(T<U...>, V<W...>)
+    {
+        return T<U..., W...>();
+    }
+
+    template <template <typename, auto ...> typename T, typename U, auto... V, template <typename, auto ...> typename W, typename X, auto... Y>
+    constexpr decltype(auto) operator+(T<U, V...>, W<X, Y...>)
+    {
+        return T<U, V..., Y...>();
+    }
+
+    template <auto... Args>
+    struct auto_pack
+    {
+        using type = auto_pack<Args...>;
+
+        static constexpr auto value = sizeof...(Args);
+
+        static constexpr size_t size() noexcept
+        {
+            return sizeof...(Args);
+        }
+    };
+
+    template <typename... Args>
+    struct type_pack
+    {
+        using type = type_pack<Args...>;
+
+        static constexpr auto value = sizeof...(Args);
+
+        static constexpr size_t size() noexcept
+        {
+            return sizeof...(Args);
+        }
+    };
+
+    template <typename T, auto... Args>
+    struct args_pack
+    {
+        using type = args_pack<T, Args...>;
+
+        static constexpr auto value = sizeof...(Args);
+
+        static constexpr size_t size() noexcept
+        {
+            return sizeof...(Args);
+        }
+    };
+
+    template <typename T>
+    using rank = std::make_index_sequence<std::tuple_size_v<std::decay_t<T>>>;
+
+    template <auto m, template <typename, auto ...> typename T, typename U, auto... n>
+    constexpr decltype(auto) over(T<U, n...>)
+    {
+        return type_pack<auto_pack<m, n>...>();
+    }
+
+    template <typename... Args>
+    constexpr decltype(auto) rank_pack(Args&&... args)
+    {
+        return []<auto... N>(std::index_sequence<N...>)
+        {
+            return (... + over<N>(rank<Args>()));
+        }
+        (std::index_sequence_for<Args...>());
+    }
+
+    template <typename... Args>
+    constexpr decltype(auto) tuple_cat(Args&&... args)
+    {
+        auto t = std::forward_as_tuple(std::forward<Args>(args)...);
+
+        if constexpr(!sizeof...(Args))
+            return t;
+        else
+        {
+            return [&]<template <typename ...> typename T, template <auto ...> typename U, auto... m, auto... n>(T<U<m, n>...>)
+            {
+                return std::forward_as_tuple(std::get<n>(std::get<m>(t))...);
+            }
+            (rank_pack(std::forward<Args>(args)...));
+        }
+    }
 
     template <typename T>
     struct matrix_index_sequences
@@ -7310,25 +7401,29 @@ namespace monster
         void operator()(F&& f)
         {
             indices_t asc;
+            indices_t curr(limit);
+
             std::fill(asc.begin(), asc.end(), -1);
 
-            indices_t curr(limit);
             if (ASC)
                 curr.swap(asc);
 
-            constexpr auto N = invocable_v<F, fill_t<depth, T>>;
-
             int i = 0;
+            constexpr auto N = nary_v<F, fill_t<depth, T>>;
+
             while (i >= 0)
             {
                 auto upper = limit[i];
+
                 if ((ASC && curr[i] + 1 >= upper) || (!ASC && curr[i] <= 0))
                 {
-                    curr[i] = ASC ? -1 : upper;
-                    --i;
+                    curr[i--] = ASC ? -1 : upper;
+
                     continue;
                 }
+
                 curr[i] += 1 - 2 * !ASC;
+
                 if (i + 1 >= depth)
                     std::apply(std::forward<F>(f), array_take<N>(curr));
                 else
@@ -7340,13 +7435,13 @@ namespace monster
     };
 
     template <bool ASC, typename... Args>
-    auto loop_for(Args... indices)
+    constexpr decltype(auto) loop_for(Args... indices)
     {
         return loop_indices_generator<std::common_type_t<Args...>, sizeof_v<Args...>, ASC>{indices...};
     }
 
     template <typename T, typename... Args>
-    decltype(auto) call_apply(Args&&... args)
+    constexpr decltype(auto) call_apply(Args&&... args)
     {
         return T::template apply(std::forward<Args>(args)...);
     }
@@ -7358,7 +7453,7 @@ namespace monster
     struct next_cartesian_product<i, j, std::index_sequence<N...>>
     {
         template <typename T, typename U>
-        static auto apply(T&& t, U&& u)
+        static constexpr decltype(auto) apply(T&& t, U&& u)
         {
             using next = next_cartesian_product<i + 1, j, std::index_sequence<N...>>;
 
@@ -7371,14 +7466,14 @@ namespace monster
     struct next_cartesian_product<j, j, std::index_sequence<N...>>
     {
         template <typename T, typename U>
-        static auto apply(T&& t, U&& u)
+        static constexpr decltype(auto) apply(T&& t, U&& u)
         {
             return std::tuple<>();
         }
     };
 
     template <typename T, typename U>
-    auto tuple_cartesian_product(T&& t, U&& u)
+    constexpr decltype(auto) tuple_cartesian_product(T&& t, U&& u)
     {
         using indices = index_sequence_of_t<std::remove_cvref_t<U>>;
         using next = next_cartesian_product<0, sizeof_t_v<std::remove_cvref_t<T>>, indices>;
@@ -7393,7 +7488,7 @@ namespace monster
     inline constexpr auto tuple_size_of = sizeof_t_v<std::tuple_element_t<N, T>>;
 
     template <auto m, auto n, typename T, auto... N>
-    constexpr auto indexof(const std::index_sequence<N...>&)
+    constexpr decltype(auto) indexof(const std::index_sequence<N...>&)
     {
         return m / (1 * ... * (n < N ? tuple_size_of<N, T> : 1)) % tuple_size_of<n, T>;
     }
@@ -7416,7 +7511,7 @@ namespace monster
     }
 
     template <typename... Args>
-    constexpr decltype(auto) make_indices()
+    constexpr decltype(auto) make_matrix_indices()
     {
         constexpr auto N = (tuple_size_v<Args> + ...);
 
@@ -7428,6 +7523,15 @@ namespace monster
                   indices[k++] = std::make_pair(i, j);
 
         return indices;
+    }
+
+    template <typename T>
+    constexpr decltype(auto) make_matrix_indices(T&& t)
+    {
+        return std::apply([]<typename... Args>(Args&&... args)
+        {
+            return make_matrix_indices<std::decay_t<Args>...>();
+        }, std::forward<T>(t)); 
     }
 
     template <int N>
@@ -7499,9 +7603,9 @@ namespace monster
     inline constexpr auto min_element_v = typev<min_element_t<T>>;
 
     template <typename... Args>
-    decltype(auto) tuple_zip(Args&&... args)
+    constexpr decltype(auto) tuple_zip(Args&&... args)
     {
-        auto row = [&]<size_t n>(){ return std::make_tuple(std::get<n>(args)...); };
+        auto row = [&]<size_t n>(){ return std::make_tuple(std::get<n>(std::forward<Args>(args))...); };
         using indices = std::index_sequence<std::tuple_size_v<std::remove_cvref_t<Args>>...>;
 
         return [&]<size_t... N>(const std::index_sequence<N...>&)
@@ -7512,27 +7616,27 @@ namespace monster
     }
 
     template <typename... Args>
-    decltype(auto) tuple_transpose(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_transpose(const std::tuple<Args...>& t)
     {
-        return tuple_apply(t, [](auto&&... args) { return tuple_zip(args...); });
+        return tuple_apply(t, []<typename... U>(U&&... u) { return tuple_zip(std::forward<U>(u)...); });
     }
 
     template <typename F, typename... Args>
     constexpr decltype(auto) zipped_tuple_map(F&& f, Args&&... args)
     {
-        return [&]<typename T>(T&& tuple)
+        return [&]<typename T>(T&& t)
         {
             constexpr auto size = sizeof_t_v<std::decay_t<T>>;
 
             if constexpr (size == 0)
-                return std::forward<T>(tuple);
+                return std::forward<T>(t);
             else
                 return [&]<auto... N>(const std::index_sequence<N...>&)
                 {
-                    auto g = [&]<auto n>(){ return std::apply(std::forward<F>(f), std::get<n>(std::forward<T>(tuple))); };
+                    auto g = [&]<auto n>(){ return std::apply(std::forward<F>(f), std::get<n>(std::forward<T>(t))); };
 
                     if constexpr(std::is_same_v<decltype(call_operator<0>(g)), std::void_t<>>)
-                        (call_operator<N>(g), ...);
+                        (..., call_operator<N>(g));
                     else
                         return std::forward_as_tuple(call_operator<N>(g)...);
                 }
@@ -8079,7 +8183,7 @@ namespace monster
         constexpr auto m = sizeof_t_v<T>;
         constexpr auto n = sizeof_t_v<U>;
 
-        return m == n && []<auto... N>(auto f, std::index_sequence<N...>)
+        return m == n && []<typename F, auto... N>(F&& f, std::index_sequence<N...>)
         {
             return (f.template operator()<element_t<N, T>>() && ...);
         }
@@ -11318,16 +11422,17 @@ namespace monster
     struct rank_sort<std::integer_sequence<T, values...>>
     {
         template <bool B, T value>
-        static constexpr auto rank()
+        static constexpr decltype(auto) rank()
         {
             return ((B ? value > values : value == values) + ...);
         }
 
         template <size_t k>
-        static constexpr auto nth()
+        static constexpr decltype(auto) nth()
         {
             T t{};
             size_t n = 0;
+
             ((n = rank<1, values>(), k >= n && k < n + rank<0, values>() ? t = values : T()), ...);
 
             return t;
@@ -11373,21 +11478,23 @@ namespace monster
         struct impl<std::index_sequence<indices...>, args...>
         {
             template <typename T>
-            static constexpr auto value()
+            static constexpr decltype(auto) value()
             {
                 return sizeof(T::value);
             }
 
             template <size_t k, typename T>
-            static constexpr auto rankof()
+            static constexpr decltype(auto) rankof()
             {
                 auto n = value<T>();
+
                 return ((n > value<args>()) + ...) + ((n == value<args>() && indices < k) + ...);
             }
 
-            static constexpr auto sort()
+            static constexpr decltype(auto) sort()
             {
                 using ranking = mapping<identity<rankof<indices, args>(), args>...>;
+
                 return std::tuple<typeof_t<std::decay_t<decltype(get<indices>(std::declval<ranking>()))>>...>{};
             }
         };
@@ -12510,7 +12617,7 @@ namespace monster
     using remove_subtypes_t = typeof_t<remove_subtypes<T, U>>;
 
     template <auto... N, typename... Args>
-    decltype(auto) tuple_exclude(const std::tuple<Args...>& t)
+    constexpr decltype(auto) tuple_exclude(const std::tuple<Args...>& t)
     {
         return tuple_select<remove_elements_t<std::index_sequence<N...>, std::index_sequence_for<Args...>>>(t);
     }
@@ -12938,11 +13045,11 @@ namespace monster
     template <typename T, typename... Args>
     constexpr decltype(auto) select_values_of_type(Args&&... args)
     {
-        auto tup = std::make_tuple(std::forward<Args>(args)...);
+        auto t = std::make_tuple(std::forward<Args>(args)...);
 
         return [&]<size_t... N>(const std::index_sequence<N...>&)
         {
-            return std::array<T, sizeof...(N)>{std::get<N>(tup)...};
+            return std::array<T, sizeof...(N)>{std::get<N>(t)...};
         }
         (find_all_t<T, std::tuple<std::decay_t<Args>...>>());
     }
@@ -12950,9 +13057,9 @@ namespace monster
     template <typename T, typename... Args>
     constexpr decltype(auto) exclude_values_of_type(Args&&... args)
     {
-        auto tup = std::make_tuple(std::forward<Args>(args)...);
+        auto t = std::make_tuple(std::forward<Args>(args)...);
 
-        return tuple_slice<find_all_not_t<T, std::tuple<std::decay_t<Args>...>>>(tup);
+        return tuple_slice<find_all_not_t<T, std::tuple<std::decay_t<Args>...>>>(t);
     }
 
     template <typename... Args>

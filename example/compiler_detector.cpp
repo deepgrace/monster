@@ -7,23 +7,16 @@
 // Official repository: https://github.com/deepgrace/monster
 //
 
-// g++ -I include -m64 -std=c++23 -s -Wall -O3 -o /tmp/ycombinator example/ycombinator.cpp
+// g++ -I include -m64 -std=c++23 -s -Wall -O3 -o /tmp/compiler_detector example/compiler_detector.cpp
 
 #include <iostream>
-#include <ycombinator.hpp>
+#include <compiler_detector.hpp>
 
 using namespace monster;
 
 int main(int argc, char* argv[])
 {
-    auto f = []<typename F>(F&& gcd, int a, int b) -> int
-    {
-        return b == 0 ? a : gcd(b, a % b);
-    };
-
-    ycombinator y(f);
-
-    std::cout << y(16, 24) << std::endl;
+    std::cout << compiler_name() << std::endl;
 
     return 0;
 }

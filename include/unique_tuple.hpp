@@ -20,7 +20,7 @@ namespace monster
     using index_t = std::integral_constant<size_t, N>;
 
     template <typename T, auto N>
-    constexpr decltype(auto) to_tuple(const std::array<T, N>& a, auto l)
+    constexpr decltype(auto) carry(const std::array<T, N>& a, auto l)
     {
         return [&]<auto... n>(std::index_sequence<n...>)
         {
@@ -30,10 +30,10 @@ namespace monster
     }
 
     template <typename T, auto M, auto... N>
-    constexpr std::variant<decltype(to_tuple(std::array<T, M>(), index_t<N>()))...>
+    constexpr std::variant<decltype(carry(std::array<T, M>(), index_t<N>()))...>
     to_variant(const std::array<T, M>& a, auto l, std::index_sequence<N...>)
     {
-        return to_tuple(a, l);
+        return carry(a, l);
     }
 
     template <typename T>
@@ -58,6 +58,7 @@ namespace monster
         (indices());
 
         auto k = std::unique(a.begin(), a.end()) - a.begin();
+
         return std::visit([&](auto l) { return to_variant(a, l, indices()); }, index[k - 1]);
     }
 }

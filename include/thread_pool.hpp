@@ -28,14 +28,16 @@ namespace monster
             thread_pool(size_t size);
 
             template <typename F, typename... Args>
-            auto post(F&& f, Args&&... args);
+            constexpr decltype(auto) post(F&& f, Args&&... args);
 
             ~thread_pool();
 
         private:
             bool stop = false;
+
             std::mutex mutex;
             std::condition_variable cond;
+
             std::vector<std::thread> workers;
             std::queue<std::function<void()>> tasks;
     };
@@ -48,30 +50,38 @@ namespace monster
                  while (true)
                  {
                      std::function<void()> task;
+
                      {
                          std::unique_lock<std::mutex> lock(mutex);
                          cond.wait(lock, [this]{ return stop || !tasks.empty(); });
+
                          if (stop && tasks.empty())
                              return;
+
                          task = std::move(tasks.front());
                          tasks.pop();
                      }
+
                      task();
                  }
              });
     }
 
     template <typename F, typename... Args>
-    auto thread_pool::post(F&& f, Args&&... args)
+    constexpr decltype(auto) thread_pool::post(F&& f, Args&&... args)
     {
-        using task_type = std::packaged_task<std::invoke_result_t<F, Args...>()>;
-        auto task = std::make_shared<task_type>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
+        using type = std::packaged_task<std::invoke_result_t<F, Args...>()>;
+        auto task = std::make_shared<type>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
+
         auto fut = task->get_future();
+
         {
             std::unique_lock<std::mutex> lock(mutex);
             tasks.emplace([task]{ (*task)(); });
         }
+
         cond.notify_one();
+
         return fut;
     }
 
@@ -81,7 +91,9 @@ namespace monster
             std::unique_lock<std::mutex> lock(mutex);
             stop = true;
         }
+
         cond.notify_all();
+
         for (auto& worker: workers)
              worker.join();
     }

@@ -27,7 +27,7 @@ struct X
 
 int main(int argc, char* argv[])
 {
-    constexpr std::tuple t(X(7), X(7), X(4), X(3), X(3), X(4), X(6));
+    constexpr std::tuple t(X{7}, X{7}, X{4}, X{3}, X{3}, X{4}, X{6});
 
     constexpr auto v = unique_tuple(t);
     constexpr auto p = std::get<v.index()>(v);
@@ -35,6 +35,7 @@ int main(int argc, char* argv[])
     std::apply([]<typename... Args>(Args&&... args)
     {
         ((std::cout << args.value << " "), ...);
+
         std::cout << std::endl;
     }, p);
 

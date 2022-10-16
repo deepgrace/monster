@@ -9,12 +9,13 @@
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_BUILD_TYPE Release)
-SET(CMAKE_CXX_FLAGS "-m64 -std=c++23 -s -Wall -O3 -fconcepts")
+SET(CMAKE_CXX_FLAGS "-m64 -std=c++23 -s -Wall -O3")
 
 include(GNUInstallDirs)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
+set(ARITY arity)
 set(CURRY curry)
 set(TENSOR tensor)
 set(MONSTER monster)
@@ -26,10 +27,11 @@ set(STREAM stream)
 set(IS_LAMBDA is_lambda)
 set(SORT_TUPLE sort_tuple)
 set(YCOMBINATOR ycombinator)
-set(UNIQUE_TUPLE unique_tuple)
 set(MEMOIZED_INVOKE memoized_invoke)
 set(TUPLE_ALGORITHM tuple_algorithm)
+set(COMPILER_DETECTOR compiler_detector)
 
+add_executable(${ARITY} arity.cpp)
 add_executable(${CURRY} curry.cpp)
 add_executable(${TENSOR} tensor.cpp)
 add_executable(${MONSTER} monster.cpp)
@@ -41,11 +43,11 @@ add_executable(${STREAM} stream.cpp)
 add_executable(${IS_LAMBDA} is_lambda.cpp)
 add_executable(${SORT_TUPLE} sort_tuple.cpp)
 add_executable(${YCOMBINATOR} ycombinator.cpp)
-add_executable(${UNIQUE_TUPLE} unique_tuple.cpp)
 add_executable(${MEMOIZED_INVOKE} memoized_invoke.cpp)
 add_executable(${TUPLE_ALGORITHM} tuple_algorithm.cpp)
+add_executable(${COMPILER_DETECTOR} compiler_detector.cpp)
 
 target_link_libraries(${THREAD_POOL} pthread)
 
-install(TARGETS ${CURRY} ${TENSOR} ${MONSTER} ${OVERVIEW} ${OBJECT_POOL} ${THREAD_POOL} ${YCOMBINATOR} DESTINATION ${PROJECT_SOURCE_DIR}/bin)
-install(TARGETS ${STREAM} ${IS_LAMBDA} ${SORT_TUPLE} ${UNIQUE_TUPLE} ${MEMOIZED_INVOKE} ${TUPLE_ALGORITHM} DESTINATION ${PROJECT_SOURCE_DIR}/bin)
+install(TARGETS ${ARITY} ${CURRY} ${TENSOR} ${MONSTER} ${OVERVIEW} ${OBJECT_POOL} ${THREAD_POOL} ${YCOMBINATOR} DESTINATION ${PROJECT_SOURCE_DIR}/bin)
+install(TARGETS ${STREAM} ${IS_LAMBDA} ${SORT_TUPLE} ${MEMOIZED_INVOKE} ${TUPLE_ALGORITHM} ${COMPILER_DETECTOR} DESTINATION ${PROJECT_SOURCE_DIR}/bin)

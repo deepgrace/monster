@@ -52,14 +52,15 @@ int main(int argc, char* argv[])
 
     {
         std::vector<object_pool_t<expensive_object>> objects;
+
         for (size_t i = 0; i != 8; ++i)
-            objects.push_back(get_expensive_object(pools));
+             objects.push_back(get_expensive_object(pools));
     }
 
     for (size_t i = 0; i < 100; ++i)
     {
-        auto req = get_expensive_object(pools);
-        process_expensive_object(req);
+         auto req = get_expensive_object(pools);
+         process_expensive_object(req);
     }
 
     return 0;

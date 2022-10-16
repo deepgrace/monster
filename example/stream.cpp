@@ -19,11 +19,14 @@ int main(int argc, char* argv[])
 {    
     std::string lambda = "[]<template auto ...>(){}()";
     auto is = (std::ostringstream() << "ostreaming " << lambda).str();
+
     std::cout << is << std::endl;
 
     double f;
+
     std::string s;
     std::istringstream("7.06 <T>") >> f >> s;
+
     std::cout << f << std::endl;
     std::cout << s << std::endl;
 

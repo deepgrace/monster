@@ -15,7 +15,7 @@
 namespace monster
 {
     template <typename... Args>
-    constexpr auto args_name()
+    constexpr decltype(auto) args_name()
     {
         constexpr std::size_t len = 50;
         constexpr std::string_view name {__PRETTY_FUNCTION__ + len, sizeof(__PRETTY_FUNCTION__) - len - 3};
@@ -27,7 +27,7 @@ namespace monster
     inline constexpr auto args_name_v = args_name<Args...>();
 
     template <typename T>
-    constexpr auto type_name()
+    constexpr decltype(auto) type_name()
     {
         return args_name_v<std::remove_cvref_t<T>>;
     }
@@ -40,10 +40,12 @@ namespace monster
     {
         constexpr auto name = type_name_v<T>;
         constexpr auto size = name.size();
+
         if constexpr (size < 10 || name[size - 1] != '>' || name[size - 2] != ')')
             return false;
 
         auto n = size - 3;
+
         for (auto k{1}; k; --n)
         {
              n = name.find_last_of("()", n);

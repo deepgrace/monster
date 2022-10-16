@@ -19,6 +19,7 @@ namespace monster
     R mapf(F&& f, R&& r)
     {
         std::transform(std::begin(r), std::end(r), std::begin(r), std::forward<F>(f));
+
         return r;
     }
 

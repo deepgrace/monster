@@ -7,7 +7,7 @@
 // Official repository: https://github.com/deepgrace/monster
 //
 
-// g++ -I include -m64 -std=c++23 -s -Wall -O3 -fconcepts -o /tmp/monster example/monster.cpp
+// g++ -I include -m64 -std=c++23 -s -Wall -O3 -o /tmp/monster example/monster.cpp
 
 #include <vector>
 #include <iostream>
@@ -18,11 +18,13 @@ using namespace monster;
 
 template <typename ...> struct T0 {};
 template <typename ...> struct T1 {};
+
 template <typename ...> struct T2 {};
 template <typename ...> struct T3 {};
-template <typename ...> struct T4 {};
 
+template <typename ...> struct T4 {};
 template <template <auto ...> typename ...> struct TT0{};
+
 template <template <typename ...> typename ...> struct TT1{};
 template <template <typename, auto ...> typename ...> struct TT2{};
 
@@ -37,12 +39,12 @@ struct comb : std::type_identity<pair_v<first_v<T>, second_v<T> + second_v<U>>>
 {
 };
 
-template <template <typename ...> typename f, typename T, typename... Args>
+template <template <typename ...> typename F, typename T, typename... Args>
 struct nest
 {
     static constexpr auto value = sizeof...(Args) == 0;
 
-    using curr = std::conditional_t<value, std::type_identity<T>, f<Args...>>;
+    using curr = std::conditional_t<value, std::type_identity<T>, F<Args...>>;
     using type = std::conditional_t<value, std::tuple<T>, std::tuple<T, typename curr::type>>;
 };
 
@@ -68,6 +70,7 @@ int main(int argc, char* argv[])
 {
     execute<hanoi_t<1>, std::integer_sequence<int, 0, 1>>();
     execute<hanoi_t<2>, std::integer_sequence<int, 0, 2, 0, 1, 2, 1>>();
+
     execute<hanoi_t<3>, std::integer_sequence<int, 0, 1, 0, 2, 1, 2, 0, 1, 2, 0, 2, 1, 0, 1>>();
 
     execute<bmh_t<std::tuple<char>, std::tuple<int, float, double, int, int>>, std::index_sequence<>>();
@@ -184,16 +187,20 @@ int main(int argc, char* argv[])
 
     using not_adjacent_type = std::tuple<char, double, char, double, int, float, char>;
     using adjacent_type = std::tuple<char, char, char, double, double, int, float>;
+
     execute<adjacent_t<not_adjacent_type>, adjacent_type>();
     execute<remove_unique_t<not_adjacent_type>, std::tuple<char, char, char, double, double>>();
+
     execute<remove_duplicate_t<not_adjacent_type>, std::tuple<int, float>>();
     execute<group_t<not_adjacent_type>, std::tuple<std::tuple<char, char, char>,
             std::tuple<double, double>, std::tuple<int>, std::tuple<float>>>();
 
     using not_adjacent_value = std::index_sequence<2, 1, 3, 5, 3, 5, 8, 7, 2, 5, 9, 8>;
     using adjacent_value = std::index_sequence<2, 2, 1, 3, 3, 5, 5, 5, 8, 8, 7, 9>;
+
     execute<adjacent_t<not_adjacent_value>, adjacent_value>();
     execute<remove_unique_t<not_adjacent_value>, std::index_sequence<2, 2, 3, 3, 5, 5, 5, 8, 8>>();
+
     execute<remove_duplicate_t<not_adjacent_value>, std::index_sequence<1, 7, 9>>();
     execute<group_t<not_adjacent_value>, std::tuple<std::index_sequence<2, 2>, std::index_sequence<1>,
             std::index_sequence<3, 3>, std::index_sequence<5, 5, 5>, std::index_sequence<8, 8>,
@@ -206,8 +213,8 @@ int main(int argc, char* argv[])
     execute<typev<c_2>, 2>();
 
     execute<value_t<std::true_type>, bool>();
-
     execute<!has_value_type_v<int>>();
+
     execute<negav<has_value_type<double>>>();
     execute<has_value_type_v<std::true_type>>();
 
@@ -269,13 +276,16 @@ int main(int argc, char* argv[])
 
     execute<sizeof_t_v<std::tuple<int, char, double>>, 3>();
     execute<sizeof_t_v<std::index_sequence<1, 2, 0, 4>>, 4>();
+
     execute<sizeof_t_v<std::index_sequence<1>>, 1>();
     execute<sizeof_t_v<std::tuple<std::index_sequence<1>>>, 1>();
+
     execute<sizeof_t_v<std::tuple<std::index_sequence<1, 2>>>, 1>();
     execute<sizeof_t_v<std::tuple<std::integral_constant<int, 3>>>, 1>();
 
     execute<function_traits_v<decltype([](int, char){})>, 2>();
     execute<function_traits_v<decltype(+[](int, int){})>, 2>();
+
     execute<function_traits_v<void(*)(int, char, short)>, 3>();
 
     execute<less_v<char, int>>();
@@ -288,6 +298,7 @@ int main(int argc, char* argv[])
 
     execute<clear_t<int>, int>();
     execute<clear_t<std::tuple<int, char>>, std::tuple<>>();
+
     execute<clear_t<std::integer_sequence<int, 1, 2, 4>>, std::integer_sequence<int>>();
 
     execute<homogeneous<0, 1, 2, 4>::size(), 4>();
@@ -306,6 +317,7 @@ int main(int argc, char* argv[])
 
     execute<element_t<1, std::tuple<char, double, int>>, double>();
     execute<element_t<2, std::integer_sequence<int, 1, -2, 7, 4>>, c_7>();
+
     execute<element_v<3, std::integer_sequence<int, 1, -2, 7, 4>>, 4>();
 
     execute<cat_element_t<3, std::tuple<int, char, bool>, std::tuple<short, double>>, short>();
@@ -316,14 +328,17 @@ int main(int argc, char* argv[])
 
     execute<midpoint_t<std::tuple<char, double, int>>, double>();
     execute<midpoint_t<std::integer_sequence<int, 1, -2, 7, 4>>, c_<-2>>();
+
     execute<midpoint_v<std::integer_sequence<int, 1, -2, 7, 4>>, -2>();
 
     execute<front_t<std::tuple<char, double, int>>, char>();
     execute<front_t<std::integer_sequence<int, 1, -2, 7, 4>>, c_1>();
+
     execute<front_v<std::integer_sequence<int, 1, -2, 7, 4>>, 1>();
 
     execute<back_t<std::tuple<char, double, int>>, int>();
     execute<back_t<std::integer_sequence<int, 1, -2, 7, 4>>, c_4>();
+
     execute<back_v<std::integer_sequence<int, 1, -2, 7, 4>>, 4>();
 
     execute<plus_t<c_3, c_4>, c_7>();
@@ -352,30 +367,38 @@ int main(int argc, char* argv[])
 
     execute<prev_t<2, std::tuple<int, double, char, float, char>>, double>();
     execute<prev_t<1, std::integer_sequence<int, 7, 3, -1, 2, 4>>, c_7>();
+
     execute<prev_v<1, std::integer_sequence<int, 7, 3, -1, 2, 4>>, 7>();
 
     execute<next_t<2, std::tuple<int, double, char, float, char>>, float>();
     execute<next_t<1, std::integer_sequence<int, 7, 3, -1, 2, 4>>, c_<-1>>();
+
     execute<next_v<1, std::integer_sequence<int, 7, 3, -1, 2, 4>>, -1>();
 
     execute<gcd_v<4, 4>, 4>();
     execute<gcd_v<4, 18>, 2>();
+
     execute<gcd_v<7, 13>, 1>();
 
     execute<lcm_v<4, 4>, 4>();
     execute<lcm_v<4, 18>, 36>();
+
     execute<lcm_v<7, 13>, 91>();
 
     execute<unpack_t<maximum_t, std::tuple<int, double, char>>, maximum_t<int, double, char>>();
 
     using bf = bind_front<maximum_t, int, double>;
+
     execute<bf::template apply<char, float>, maximum_t<int, double, char, float>>();
     execute<call_t<bf, char, float>, maximum_t<int, double, char, float>>();
+
     execute<call_t<partial<bf, char>, float>, maximum_t<int, double, char, float>>();
 
     using bb = bind_back<std::tuple, int, double>;
+
     execute<bb::template apply<char, float>, std::tuple<char, float, int, double>>();
     execute<call_t<bb, char, float>, std::tuple<char, float, int, double>>();
+
     execute<call_t<partial<bb, char>, float>, std::tuple<char, float, int, double>>();
 
     execute<call_t<bind_front<std::add_pointer>, int*>, int**>();
@@ -385,10 +408,11 @@ int main(int argc, char* argv[])
 
     execute<curried_t<std::add_pointer, std::tuple, int*, double>, std::tuple<int**, double*>>();
     execute<currying_t<std::add_pointer, int*, double, char>, std::tuple<int**, double*, char*>>();
-    execute<curry_t<recurse<std::add_pointer, std::tuple>, int*, double, short>,
+
+    execute<reduce_t<recurse<std::add_pointer, std::tuple>, int*, double, short>,
             std::tuple<int**, double*, short*>>();
 
-    execute<ycombinator_t<nest, int, char, double>, std::tuple<int, std::tuple<char, std::tuple<double>>>>();
+    execute<doll_t<nest, int, char, double>, std::tuple<int, std::tuple<char, std::tuple<double>>>>();
 
     execute<negav<transform_apply_t<folded_t, std::conjunction, std::tuple<std::false_type, std::true_type>,
             std::true_type>>>();
@@ -404,15 +428,18 @@ int main(int argc, char* argv[])
 
     execute<is_variadic_type_v<std::tuple<>>>();
     execute<is_variadic_value_v<std::index_sequence<>>>();
+
     execute<!is_variadic_type_v<nullptr_t>>();
     execute<!is_variadic_value_v<nullptr_t>>();
 
     execute<is_variadic_v<std::tuple<>>>();
     execute<is_variadic_v<std::index_sequence<>>>();
+
     execute<!is_variadic_v<nullptr_t>>();
 
     using fptr1 = char (int);
     using fptr2 = short (int);
+
     using fptr3 = double (int);
 
     execute<is_function_pack<fptr1, fptr2, fptr3>>();
@@ -437,6 +464,7 @@ int main(int argc, char* argv[])
 
     using lists = std::integer_sequence<int, 1, 1, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6>;
     using equal_range = equal_range_t<c_4, lists>;
+
     execute<range_t<equal_range::first, equal_range::second, lists>, std::integer_sequence<int, 4, 4, 4>>();
 
     execute<all_of_v<is_odd, std::integer_sequence<int, 1, 3, 7, 5, 11, 9, 5>>>();
@@ -469,11 +497,13 @@ int main(int argc, char* argv[])
 
     execute<invert_type_t<>, invert_type<>>();
     execute<invert_type_t<char>, char>();
+
     execute<invert_type_t<char, double>, invert_type<double, char>>();
     execute<invert_type_t<int, char, double, float>, invert_type<float, double, char, int>>();
 
     execute<invert_value_t<>, invert_value<>>();
     execute<invert_value_t<1>, invert_value<1>>();
+
     execute<invert_value_t<1, 2>, invert_value<2, 1>>();
     execute<invert_value_t<2, 1, 4, 3>, invert_value<3, 4, 1, 2>>();
 
@@ -563,16 +593,19 @@ int main(int argc, char* argv[])
 
     execute<flat_t<int>, int>();
     execute<flat_t<std::tuple<>>, std::tuple<>>();
+
     execute<flat_t<nested>, std::tuple<char, short, double, char, char, int, double, short>>();
 
     execute<combine_t<nullptr_t, int, char, std::tuple<>, double, short, std::tuple<char>>,
             std::tuple<nullptr_t, int, char, double, short, char>>();
 
     using reversed = reverse_recursive_t<nested>;
+
     execute<reversed, reverse_t<std::tuple<reverse_t<std::tuple<char, short>>, double,
             reverse_t<std::tuple<char, reverse_t<std::tuple<char, int, double>>>>, short>>>();
 
     using integer_t = std::integer_sequence<int, 2, 7, 4>;
+
     execute<increase_t<integer_t, 3>, std::integer_sequence<int, 5, 10, 7>>();
     execute<increase_t<integer_t, -3>, std::integer_sequence<int, -1, 4, 1>>();
 
@@ -581,17 +614,24 @@ int main(int argc, char* argv[])
 
     using ty1 = std::tuple<bool, float>;
     using ty2 = std::tuple<int, double, short>;
+
     using ty3 = std::tuple<char>;
 
     using typelist_ = std::tuple<ty1, ty2, ty3>;
     using pairindex = pair_t<std::index_sequence<0, 0, 1, 1, 1, 2>, std::index_sequence<0, 1, 0, 1, 2, 0>>;
+
     execute<matrix_index_sequences_t<typelist_>, pairindex>();
 
-    std::cout << "make_indices" << std::endl;
-    for (const auto& p : make_indices<ty1, ty2, ty3>())
+    std::cout << "make_matrix_indices" << std::endl;
+
+    for (const auto& p : make_matrix_indices(typelist_()))
+         std::cout << p.first << " " << p.second << std::endl;
+
+    for (const auto& p : make_matrix_indices<ty1, ty2, ty3>())
          std::cout << p.first << " " << p.second << std::endl;
 
     using add_one_t = transform_apply_t<currying_t, succ, to_tuple_t<integer_t>>;
+
     execute<add_one_t, std::tuple<c_<3, int>, c_<8, int>, c_<5, int>>>();
 
     execute<next_slide_indices_t<2, 7, std::integer_sequence<int, 2, 3, 4>>,
@@ -616,18 +656,23 @@ int main(int argc, char* argv[])
 
     constexpr std::tuple<int, short, char> first(1, 2, 3);
     constexpr std::tuple<short, float> second(4, 5);
+
     constexpr std::tuple<int, double, short> third(6, 7, 8);
     constexpr auto t_ = tuple_cat_unique(first, second, third);
 
     static_assert(std::get<0>(t_) == 1);
     static_assert(std::get<1>(t_) == 2);
+
     static_assert(std::get<2>(t_) == 3);
     static_assert(std::get<3>(t_) == 5);
+
     static_assert(std::get<4>(t_) == 7);
 
     auto a_ = std::make_tuple(1, 2, 3);
     auto b_ = std::make_tuple("one", "two", "three");
+
     auto f_ = [](auto i, auto s) { std::cout << ++i << " " << s << std::endl; };
+
     zipped_tuple_map(f_, a_, b_);
 
     execute<triangular_number_v<4>, 10>();
@@ -635,8 +680,8 @@ int main(int argc, char* argv[])
 
     execute<nth_type_t<2, int, double, char*, float>, char*>();
     execute<first_type<int, double, char*, float>, int>();
-    execute<last_type<int, double, char*, float>, float>();
 
+    execute<last_type<int, double, char*, float>, float>();
     execute<arg_t<arg<1>, int, float, double>, float>();
 
     execute<make_index_tuple<4>, index_tuple<0, 1, 2, 3>>();
@@ -671,30 +716,43 @@ int main(int argc, char* argv[])
     {
         int i = 3;
         auto tuple_ = make_lambda_tuple(1, 2.8, i);
+
         lambda_tuple_get<2>(tuple_) = i + 1;
+
         auto tuples0 = make_lambda_tuple(nullptr, std::string("CPP-TMP"), 9.8f);
         auto tuples1 = lambda_tuple_cat(tuple_, tuples0);
+
         auto tuples2 = lambda_tuple_reverse_cat(tuple_, tuples0, make_lambda_tuple(7, 4));
         auto select = lambda_tuple_select<std::index_sequence<2, 0, 4, 5>>(tuples1);
+
         auto extrac = lambda_tuple_extract<1, 3, 2, 4, 0>(tuples1);
         auto revers = lambda_tuple_reverse(extrac);
+
         auto range = lambda_tuple_range<2, 5>(tuples1);
         auto rotat = lambda_tuple_rotate<1, 3, 5>(tuples1);
+
         auto gathe = lambda_tuple_gather<std::string, nullptr_t, double>(tuples1);
 
         std::cout << "lambda_tuple_get " << lambda_tuple_get<2>(tuple_) << std::endl;
         std::cout << "lambda_tuple_get " << lambda_tuple_get<double>(tuple_) << std::endl;
+
         std::cout << "lambda_tuple_get " << lambda_tuple_get<1>(revers) << std::endl;
+
         std::cout << "lambda_tuple_get " << lambda_tuple_get<2>(range) << std::endl;
         std::cout << "lambda_tuple_get " << lambda_tuple_get<6>(tuples2) << std::endl;
+
         std::cout << "lambda_tuple_get " << lambda_tuple_get<2>(rotat) << std::endl;
         std::cout << "lambda_tuple_get " << lambda_tuple_get<0>(gathe) << std::endl;
+
         std::cout << "lambda_tuple_size " << lambda_tuple_size(select) << std::endl;
         std::cout << "lambda_tuple_size " << lambda_tuple_size(extrac) << std::endl;
+
         std::cout << "lambda_tuple_size " << lambda_tuple_size(tuples1) << std::endl;
         std::cout << "lambda_tuple_gather_invoke" << std::endl;
+
         lambda_tuple_gather_invoke<4, 1, 5>(tuples1, pf);
         lambda_tuple_gather_invoke<std::string, double, float>(tuples1, pf);
+
         lambda_tuple_apply(pf, tuples1);
         lambda_tuple_for_each(pf, tuples1);
     }
@@ -711,12 +769,16 @@ int main(int argc, char* argv[])
         std::cout << v << std::endl;
     }, 1, 2.3, "string", 'x');
 
-    execute<concat_t<std::tuple<int, char>, std::tuple<double>>, std::tuple<int, char, double>>();
-    execute<concat_t<std::integer_sequence<int, 1, 2, 3>, std::integer_sequence<int, 4, 5, 6>>,
-            std::integer_sequence<int, 1, 2, 3, 4, 5, 6>>();
+    execute<concat_t<std::tuple<int, char>, std::tuple<double, int>>, std::tuple<int, char, double, int>>();
+    execute<concat_t<std::integer_sequence<int, 1, 2, 3, 6>, std::integer_sequence<int, 4, 5, 3, 6, 1>>,
+            std::integer_sequence<int, 1, 2, 3, 6, 4, 5, 3, 6, 1>>();
 
     execute<unique_t<std::tuple<int, char, int, double>>, std::tuple<int, char, double>>();
     execute<unique_t<std::integer_sequence<int, 2, 2, 3, 4, 3>>, std::integer_sequence<int, 2, 3, 4>>();
+
+    execute<unicat_t<std::tuple<int, char>, std::tuple<double, int>>, std::tuple<int, char, double>>();
+    execute<unicat_t<std::integer_sequence<int, 1, 2, 3, 6>, std::integer_sequence<int, 4, 5, 3, 6, 1>>,
+            std::integer_sequence<int, 1, 2, 3, 6, 4, 5>>();
 
     execute<unique_elements_t<std::tuple<short, int, char, int, double, char>>, std::tuple<short, double>>();
     execute<unique_elements_t<std::index_sequence<5, 7, 0, 5, 3, 2, 7>>, std::index_sequence<0, 3, 2>>();
@@ -737,10 +799,12 @@ int main(int argc, char* argv[])
 
     execute<is_even_v<c_4>>();
     execute<!call<negaf<is_even>, c_4>::value>();
+
     execute<!negaf<is_even>::template apply<c_4>::value>();
 
     execute<remove_if_t<is_odd, value, 1, 6>, std::integer_sequence<int, 4, 0, 6, 4, 9, 21>>();
     execute<remove_if_t<is_even, value, 1, 6>, std::integer_sequence<int, 4, 5, 1, 9, 21>>();
+
     execute<remove_if_t<is_tuple, type, 1, 5>, std::tuple<int, char, double, float, char>>();
     execute<remove_if_not_t<is_tuple, type, 1, 5>, std::tuple<int, std::tuple<char>,
             std::tuple<double>, float, char>>();
@@ -768,6 +832,7 @@ int main(int argc, char* argv[])
             std::tuple<int, double, float>>();
     execute<remove_copy_t<c_3, std::integer_sequence<int, 0, 3, 2, 4, 7, 3>>,
             std::integer_sequence<int, 0, 2, 4, 7>>();
+
     execute<remove_copy_c<4, std::integer_sequence<int, 4, 3, 2, 4, 7, 3>>,
             std::integer_sequence<int, 3, 2, 7, 3>>();
 
@@ -788,8 +853,10 @@ int main(int argc, char* argv[])
 
     execute<max_element_t<std::tuple<short, int, char>>, int>();
     execute<min_element_t<std::tuple<short, int, char>>, char>();
+
     execute<max_element_t<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>, c_4>();
     execute<min_element_t<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>, c_<-2>>();
+
     execute<max_element_v<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>, 4>();
     execute<min_element_v<std::integer_sequence<int, 1, -2, 3, 0, 2, 4>>, -2>();
 
@@ -884,6 +951,7 @@ int main(int argc, char* argv[])
             std::tuple<int, char, float, double, float, float, char>>();
     execute<gsub_t<1, 5, c_<-2>, c_<-6>, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>,
             std::integer_sequence<int, 1, 3, -6, 1, 7, 1, 4, 6>>();
+
     execute<gsub_c<1, 5, -2, -6, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>,
             std::integer_sequence<int, 1, 3, -6, 1, 7, 1, 4, 6>>();
 
@@ -891,6 +959,7 @@ int main(int argc, char* argv[])
             std::tuple<float, char, float, double, float, float, char>>();
     execute<replace_with_t<c_1, c_<-6>, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>,
             std::integer_sequence<int, -6, 3, -2, -6, 7, -6, 4, 6>>();
+
     execute<replace_with_c<1, -6, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>,
             std::integer_sequence<int, -6, 3, -2, -6, 7, -6, 4, 6>>();
 
@@ -898,6 +967,7 @@ int main(int argc, char* argv[])
             std::tuple<>, float, char>>, std::tuple<int, char, int, double, int, float, char>>();
     execute<replace_if_c<1, 5, is_even, -6, std::integer_sequence<int, 1, 3, -2, 4, 7, 0, 4, 6>>,
             std::integer_sequence<int, 1, 3, -6, -6, 7, 0, 4, 6>>();
+
     execute<replace_if_not_c<1, 5, is_odd, -6, std::integer_sequence<int, 1, 3, -2, 4, 7, 0, 4, 6>>,
             std::integer_sequence<int, 1, 3, -6, -6, 7, 0, 4, 6>>();
 
@@ -911,6 +981,7 @@ int main(int argc, char* argv[])
             std::tuple<int, std::tuple<int>*, double, std::tuple<float>*, char>>();
     execute<adjust_if_t<1, 5, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>, succ, is_odd>,
             std::integer_sequence<int, 1, 4, -2, 2, 8, 1, 4, 6>>();
+
     execute<adjust_if_not_t<1, 5, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>, succ, is_even>,
             std::integer_sequence<int, 1, 4, -2, 2, 8, 1, 4, 6>>();
 
@@ -918,6 +989,7 @@ int main(int argc, char* argv[])
             std::tuple<int, char, int, int, int, float, char>>();
     execute<substitute_t<2, 5, c_<-2>, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>,
             std::integer_sequence<int, 1, 3, -2, -2, -2, 1, 4, 6>>();
+
     execute<substitute_c<3, 6, 9, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>,
             std::integer_sequence<int, 1, 3, -2, 9, 9, 9, 4, 6>>();
 
@@ -925,6 +997,7 @@ int main(int argc, char* argv[])
             std::tuple<int, int, int, double, int, float, char>>();
     execute<change_t<1, c_<-2>, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>,
             std::integer_sequence<int, 1, -2, -2, 1, 7, 1, 4, 6>>();
+
     execute<change_c<4, 9, std::integer_sequence<int, 1, 3, -2, 1, 7, 1, 4, 6>>,
             std::integer_sequence<int, 1, 3, -2, 1, 9, 1, 4, 6>>();
 
@@ -940,11 +1013,13 @@ int main(int argc, char* argv[])
 
     execute<sub_t<3, 8, integral_range_t<int, -2, 3>>, index_list<int, -2, -1, 0, 8, 2>>();
     execute<sub_t<2, 3, index_list<size_t, 3, 4, 0, 5, 2>>, index_list<size_t, 3, 4, 3, 5, 2>>();
+
     execute<sub_t<4, -3, std::integer_sequence<int, -1, 8, 0, 2, 4, 7>>,
             std::integer_sequence<int, -1, 8, 0, 2, -3, 7>>();
 
     execute<range_t<1, 4, int>, int>();
     execute<range_t<1, 4, std::tuple<int, char, float, double, int>>, std::tuple<char, float, double>>();
+
     execute<range_t<1, 4, std::integer_sequence<int, 1, 2, -2, 4, 3, 5>>,
             std::integer_sequence<int, 2, -2, 4>>();
 
@@ -971,16 +1046,19 @@ int main(int argc, char* argv[])
 
     execute<reverse_t<double>, double>();
     execute<reverse_t<std::tuple<float, double, int>>, std::tuple<int, double, float>>();
+
     execute<reverse_t<std::integer_sequence<int, 1, 2, -2>>, std::integer_sequence<int, -2, 2, 1>>();
 
     execute<extent_t<1, 4, char>, char>();
     execute<extent_t<1, 4, std::tuple<int, char, float, double, int, char>>,
             std::tuple<double, float, char>>();
+
     execute<extent_t<1, 4, std::integer_sequence<int, 1, 2, -2, 4, 3, 5>>,
             std::integer_sequence<int, 4, -2, 2>>();
 
     execute<erase_t<2, 5, std::tuple<int, char, float, double, int, char>>,
             std::tuple<int, char, char>>();
+
     execute<erase_t<1, 4, std::integer_sequence<int, 1, 2, -2, 4, 3, 5>>,
             std::integer_sequence<int, 1, 3, 5>>();
 
@@ -1013,6 +1091,7 @@ int main(int argc, char* argv[])
     execute<reverse_range_t<1, 4, float>, float>();
     execute<reverse_range_t<1, 4, std::tuple<int, char, float, double, int, char>>,
             std::tuple<int, double, float, char, int, char>>();
+
     execute<reverse_range_t<1, 4, std::integer_sequence<int, 1, 2, -2, 4, 3, 5>>,
             std::integer_sequence<int, 1, 4, -2, 2, 3, 5>>();
 
@@ -1029,6 +1108,7 @@ int main(int argc, char* argv[])
 
     execute<type_index_v<int, std::tuple<char, float, double, int, char>>, 3>();
     execute<type_index_v<uint64_t, std::tuple<char, float, double, int, char>>, 5>();
+
     execute<value_index_v<6, std::integer_sequence<int, 1, -2, 0, 3, 6, 5>>, 4>();
     execute<value_index_v<7, std::integer_sequence<int, 1, -2, 0, 3, 6, 5>>, 6>();
 
@@ -1058,8 +1138,10 @@ int main(int argc, char* argv[])
             std::index_sequence<2, 4, 1, 6>>();
 
     using func = std::function<void(int, char)>;
+
     execute<function_traits_v<func>, 2>();
     execute<function_traits_r<func>, void>();
+
     execute<function_traits_t<func>, std::tuple<int, char>>();
 
     execute<fmatch_t<void(int, char, float), std::tuple<short, int, double, char, float>>,
@@ -1076,8 +1158,10 @@ int main(int argc, char* argv[])
               {
                   std::cout << a << std::endl;
                   std::cout << b << std::endl;
+
                   std::cout << c << std::endl;
                   std::cout << s << std::endl;
+
                   std::cout << p.second << std::endl;
                   std::cout << p.first << std::endl;
 
@@ -1110,8 +1194,10 @@ int main(int argc, char* argv[])
               {
                   std::cout << p.second << std::endl;
                   std::cout << p.first << std::endl;
+
                   std::cout << f << std::endl;
                   std::cout << a << std::endl;
+
                   std::cout << b << std::endl;
                   std::cout << s << std::endl;
 
@@ -1134,20 +1220,26 @@ int main(int argc, char* argv[])
             std::tuple<std::tuple<char, short>, std::tuple<int, char>>>();
 
     using fg1 = find_group_t<char, std::tuple<std::tuple<float, char>, std::tuple<double, int, char>>>;
+
     execute<first_v<fg1>, 0>();
     execute<second_v<fg1>, 1>();
+
     execute<typeof_t<fg1>, std::tuple<float, char>>();
 
     using fg2 = find_group_t<c_6, std::tuple<std::integer_sequence<int, 3, -2>,
             std::integer_sequence<int, 6, 3>, std::integer_sequence<int, 6, 5>>>;
+
     execute<first_v<fg2>, 1>();
     execute<second_v<fg2>, 0>();
+
     execute<typeof_t<fg2>, std::integer_sequence<int, 6, 3>>();
 
     using fg3 = find_group_if_t<is_tuple, std::tuple<>, std::tuple<std::tuple<float, char>,
                 std::tuple<std::tuple<double>, int, char>>>;
+
     execute<first_v<fg3>, 1>();
     execute<second_v<fg3>, 0>();
+
     execute<typeof_t<fg3>, std::tuple<std::tuple<double>, int, char>>();
 
     execute<find_backward_v<char, std::tuple<float, char, double, int, char>>, 4>();
@@ -1181,8 +1273,10 @@ int main(int argc, char* argv[])
 
     execute<!is_nest_v<int>>();
     execute<is_nest_v<T1<T2<>>>>();
+
     execute<is_nest_v<T1<T2<int>>>>();
     execute<is_nest_v<std::tuple<>>>();
+
     execute<!is_nest_v<T1<int, T2<>>>>();
     execute<!is_nest_v<T1<T2<int, char>>>>();
 
@@ -1428,10 +1522,12 @@ int main(int argc, char* argv[])
     overload_sequence element_count
     {
         [](auto&&) { return 1; },
+
         [](auto&& v) -> decltype(v.size())
         {
              return std::forward<decltype(v)>(v).size();
         },
+
         [](auto&& v) -> type_t<std::size_t, decltype(std::begin(v)), decltype(std::end(v))>
         {
             return std::distance(std::begin(std::forward<decltype(v)>(v)),
@@ -1441,6 +1537,7 @@ int main(int argc, char* argv[])
 
     element_count(42);
     element_count(std::vector({1 , 2, 3, 4}));
+
     element_count(std::forward_list({1 , 2, 3}));
 
     execute<best_match_t<char*, std::string, void>, std::string>();
@@ -1448,8 +1545,10 @@ int main(int argc, char* argv[])
 
     execute<isomorphism_as<int, int>>();
     execute<!isomorphism_as<int, double>>();
+
     execute<isomorphism_as<std::tuple<>, std::tuple<int>>>();
     execute<isomorphism_as<std::index_sequence<>, std::index_sequence<0>>>();
+
     execute<isomorphism_as<std::integral_constant<int, 0>, std::integral_constant<short, 2>>>();
 
     execute<!is_template<int>()>();
@@ -1457,10 +1556,12 @@ int main(int argc, char* argv[])
 
     execute<is_template<std::tuple>()>();
     execute<is_template<std::index_sequence>()>();
+
     execute<is_template<std::integral_constant>()>();
 
     execute<is_template<TT0>()>();
     execute<is_template<TT1>()>();
+
     execute<is_template<TT2>()>();
 
     overload_set
@@ -1485,8 +1586,10 @@ int main(int argc, char* argv[])
 
     capture_invoke(pf)(1, 2, 3);
     capture_invoke(pf, 3)(1, 2);
+
     capture_invoke(pf, 2, 3)(1);
     capture_invoke(pf, 1, 2, 3);
+
     capture_invoke([]<typename ...>(){})();
 
     for_value<1, -2, 3>([]<auto N>()
@@ -1546,6 +1649,7 @@ int main(int argc, char* argv[])
 
     auto fa = [](double x, double y) { return std::make_pair(x, y); };
     auto fb = [](std::pair<double, double> p) { return p.first + p.second; };
+
     auto fc = [](double x) { return 2 * x; };
 
     std::cout << compose(fc, fb, fa)(4.0, 8.0) << std::endl;
@@ -1559,53 +1663,79 @@ int main(int argc, char* argv[])
     indices_for(tuple)([&tuple](auto... N){ (std::cout << ... << std::get<N>(tuple)) << std::endl; });
 
     chunk_apply<2>(pf, tuple);
+
     std::cout << "tuple_apply " << tuple_apply(tuple, [](auto... args){ return (args + ...); }) << std::endl;
     std::cout << "tuple_reverse " << std::get<0>(tuple_reverse(tuple)) << std::endl;
+
     std::cout << "tuple_prepend " << std::get<0>(tuple_prepend(tuple, 0)) << std::endl;
     std::cout << "tuple_append " << std::get<5>(tuple_append(tuple, 8)) << std::endl;
+
     std::cout << "tuple_remove " << std::get<1>(tuple_remove<1>(tuple)) << std::endl;
     std::cout << "tuple_swap " << std::get<1>(tuple_swap<1, 4>(tuple)) << std::endl;
+
     std::cout << "tuple_range " << std::get<1>(tuple_range<1, 4>(tuple)) << std::endl;
     std::cout << "tuple_erase " << std::get<1>(tuple_erase<1, 4>(tuple)) << std::endl;
+
     std::cout << "tuple_reverse_range " << std::get<2>(tuple_reverse_range<2, 5>(tuple)) << std::endl;
     std::cout << "tuple_insert " << std::get<2>(tuple_insert<2>(tuple, 9)) << std::endl;
+
     std::cout << "tuple_replace " << std::get<3>(tuple_replace<3>(tuple, 7)) << std::endl;
     std::cout << "tuple_replace all " << std::get<1>(tuple_replace(tuple, 2, 6)) << std::endl;
+
     std::cout << "tuple_replace all " << std::get<3>(tuple_replace(tuple, 2, 6)) << std::endl;
     std::cout << "tuple_rotate " << std::get<2>(tuple_rotate<0, 2, 4>(tuple)) << std::endl;
+
     std::cout << "tuple_shift_left " << std::get<1>(tuple_shift_left<2>(tuple)) << std::endl;
     std::cout << "tuple_shift_right " << std::get<1>(tuple_shift_right<2>(tuple)) << std::endl;
+
     std::cout << "tuple_take " << std::get<1>(tuple_take<3>(tuple)) << std::endl;
     std::cout << "tuple_take_last " << std::get<2>(tuple_take_last<3>(tuple)) << std::endl;
+
     std::cout << "tuple_drop " << std::get<0>(tuple_drop<3>(tuple)) << std::endl;
     std::cout << "tuple_drop_last " << std::get<1>(tuple_drop_last<3>(tuple)) << std::endl;
+
     std::cout << "tuple_head " << std::get<3>(tuple_head(tuple)) << std::endl;
     std::cout << "tuple_tail " << std::get<3>(tuple_tail(tuple)) << std::endl;
+
     std::cout << "tuple_axial_symmetry " << std::get<1>(tuple_axial_symmetry(tuple)) << std::endl;
     std::cout << "tuple_axial_symmetry " << std::get<1>(tuple_axial_symmetry(tuple_head(tuple))) << std::endl;
+
     std::cout << "tuple_extract " << std::get<1>(tuple_extract<0, 2, 3>(tuple)) << std::endl;
     std::cout << "tuple_exclude " << std::get<1>(tuple_exclude<0, 2, 3>(tuple)) << std::endl;
+
     auto trans = tuple_transpose(std::make_tuple(tuple, std::make_tuple(7, 5)));
     std::cout << "tuple_transpose " << std::get<0>(std::get<1>(trans)) << std::endl;
+
     tuple_fill<3>(tuple, 3, 5);
+
     std::cout << "tuple_fill " << std::get<4>(tuple) << std::endl;
     std::cout << "tuple_splat " << std::get<2>(tuple_splat<2, 5>(tuple)) << std::endl;
+
     auto dupt = std::make_tuple(1, 's', 7.0, 2.0f, std::string("TMP"));
+
     std::cout << "tuple_unique " << std::get<0>(tuple_unique(dupt)) << std::endl;
     std::cout << "tuple_gather " << std::get<0>(tuple_gather<double, int, char>(dupt)) << std::endl;
+
     using indices_ = std::index_sequence<0, 3, 4>;
+
     std::cout << "tuple_slice " << std::get<2>(tuple_slice<indices_>(tuple)) << std::endl;
+
     std::cout << "tuple_repeat " << std::get<2>(tuple_repeat<4>(9)) << std::endl;
     std::cout << "tuple_filter " << std::get<2>(tuple_filter<std::is_arithmetic>(dupt)) << std::endl;
+
     std::cout << "tuple_chunk " << std::get<1>(std::get<1>(tuple_chunk<2>(tuple))) << std::endl;
     std::cout << "tuple_slide " << std::get<1>(std::get<1>(tuple_slide<3>(tuple))) << std::endl;
+
     std::cout << "tuple_stride " << std::get<1>(tuple_stride<2>(tuple)) << std::endl;
     std::cout << "tuple_subranges " << std::get<1>(std::get<1>(tuple_subranges<3>(tuple))) << std::endl;
+
     std::cout << "tuple_gather_invoke" << std::endl;
+
     tuple_gather_invoke<2, 0, 1>(dupt, pf);
     tuple_gather_invoke<double, int, char>(dupt, pf);
 
     constexpr auto nums = std::make_tuple(8, 4, 2);
+
     execute<tuple_foldl(std::minus<>(), nums), 2>();
     execute<tuple_foldr(std::minus<>(), nums), 6>();
 
@@ -1613,6 +1743,7 @@ int main(int argc, char* argv[])
     execute<foldr_apply(std::minus<>(), nums), 6>();
 
     auto nums2 = make_lambda_tuple(8, 4, 2);
+
     lambda_tuple_foldl(std::minus<>(), nums2);
     lambda_tuple_foldr(std::minus<>(), nums2);
 
@@ -1621,6 +1752,7 @@ int main(int argc, char* argv[])
 
     execute<head_t<std::tuple<float, double, int>>, std::tuple<float, double>>();
     execute<head_t<std::integer_sequence<int, 1, 2, 3>>, std::integer_sequence<int, 1, 2>>();
+
     execute<tail_t<std::tuple<float, double, int>>, std::tuple<double, int>>();
     execute<tail_t<std::integer_sequence<int, 1, 2, 3>>, std::integer_sequence<int, 2, 3>>();
 
@@ -1628,6 +1760,7 @@ int main(int argc, char* argv[])
             std::tuple<int, float, float, double, int>>();
     execute<prepend_t<std::integer_sequence<int, 1, 2, -2>, c_4, c_3>,
             std::integer_sequence<int, 4, 3, 1, 2, -2>>();
+
     execute<prepend_c<std::integer_sequence<int, 1, 2, -2>, 4, 3>,
             std::integer_sequence<int, 4, 3, 1, 2, -2>>();
 
@@ -1662,6 +1795,7 @@ int main(int argc, char* argv[])
             std::tuple<float, double, float, char, int>>();
     execute<insert_t<1, std::integer_sequence<int, 1, 2, -2>, c_0, c_4>,
             std::integer_sequence<int, 1, 0, 4, 2, -2>>();
+
     execute<insert_c<1, std::integer_sequence<int, 1, 2, -2>, 0, 4>,
             std::integer_sequence<int, 1, 0, 4, 2, -2>>();
 
@@ -1672,6 +1806,7 @@ int main(int argc, char* argv[])
 
     execute<fill_t<3, int>, std::tuple<int, int, int>>();
     execute<fill_t<5, c_2>, std::integer_sequence<int, 2, 2, 2, 2, 2>>();
+
     execute<fill_c<5, 2>, std::integer_sequence<int, 2, 2, 2, 2, 2>>();
     execute<fill_t<3, T1<>>, std::tuple<T1<>, T1<>, T1<>>>();
 
@@ -1680,6 +1815,7 @@ int main(int argc, char* argv[])
 
     execute<cycle_t<3, int, double>, std::tuple<int, double, int, double, int, double>>();
     execute<cycle_t<3, c_2, c_4>, std::integer_sequence<int, 2, 4, 2, 4, 2, 4>>();
+
     execute<cycle_c<3, 2, 4>, std::integer_sequence<int, 2, 4, 2, 4, 2, 4>>();
 
     execute<rotate_t<0, 2, 5, std::tuple<int, char, double, float, int64_t>>,
@@ -1713,6 +1849,7 @@ int main(int argc, char* argv[])
 
     execute<integer_sequence_t<int, 3, 2, 0>, std::integer_sequence<int, 2, 2, 2>>();
     execute<integer_sequence_t<int, 4, 3, 1>, std::integer_sequence<int, 3, 4, 5, 6>>();
+
     execute<integer_sequence_t<int, 6, 5, -1>, std::integer_sequence<int, 5, 4, 3, 2, 1, 0>>();
 
     execute<odd_t<std::tuple<int, char, double, int, char>>, std::tuple<char, int>>();
@@ -1764,6 +1901,7 @@ int main(int argc, char* argv[])
     execute<count_if_not_v<is_tuple, std::tuple<double, std::tuple<>, float, std::tuple<int>, double>>, 3>();
 
     execute<mode_v<std::integer_sequence<int, 1, 2, 3, 1>>, 1>();
+
     execute<monster::mode_t<std::integer_sequence<int, 1, 2, 3, 1>>, c_1>();
     execute<monster::mode_t<std::tuple<char, double, char, double, int, float, char>>, char>();
 
@@ -1804,6 +1942,7 @@ int main(int argc, char* argv[])
 
     using sr1 = std::tuple<std::tuple<int, float, double>, std::tuple<char, short>, std::tuple<bool, nullptr_t>>;
     using sr2 = std::tuple<std::index_sequence<0, 1, 2, 3>, std::index_sequence<4, 5, 6>, std::index_sequence<7, 8, 9>>;
+
     execute<subranges_t<3, std::tuple<int, float, double, char, short, bool, nullptr_t>>, sr1>();
     execute<subranges_t<3, std::index_sequence<0, 1, 2, 3, 4, 5, 6, 7, 8, 9>>, sr2>();
 
@@ -1814,11 +1953,13 @@ int main(int argc, char* argv[])
 
     execute<is_palindrome_v<std::tuple<int, double, int, int, double, int>>>();
     execute<is_palindrome_v<std::integer_sequence<int, 3, 0, 2, 1, 2, 0, 3>>>();
+
     execute<!is_palindrome_v<std::tuple<int, double, char, int, int, double, int>>>();
     execute<!is_palindrome_v<std::integer_sequence<int, 0, 2, 1, 2, 0, 3>>>();
 
     execute<is_subset_v<std::integer_sequence<int, 4>, std::integer_sequence<int, 4>>>();
     execute<!is_subset_v<std::integer_sequence<int, 4, 5, 6>, std::integer_sequence<int, 4>>>();
+
     execute<is_subset_v<std::integer_sequence<int, 4, 5, 6>,
             std::integer_sequence<int, 1, 2, 3, 4, 5, 6, 7>>>();
     execute<is_subset_v<std::tuple<float, char, double>,
@@ -1927,6 +2068,7 @@ int main(int argc, char* argv[])
 
     execute<tokenize_t<19073>, std::integer_sequence<int, 1, 9, 0, 7, 3>>();
     execute<tokenize_t<19073, 100>, std::integer_sequence<int, 1, 90, 73>>();
+
     execute<tokenize_t<19073, 1000>, std::integer_sequence<int, 19, 73>>();
 
     execute<large_number_multiplier_t<tokenize_t<975>, tokenize_t<6084>>,
@@ -1936,6 +2078,7 @@ int main(int argc, char* argv[])
             std::tuple<float, char, int, float, char, double>>();
     execute<prefix_t<std::integer_sequence<int, 1, 2>, c_3, c_4>,
             std::integer_sequence<int, 3, 4, 1, 3, 4, 2>>();
+
     execute<prefix_c<std::integer_sequence<int, 1, 2>, 3, 4>,
             std::integer_sequence<int, 3, 4, 1, 3, 4, 2>>();
 
@@ -1943,6 +2086,7 @@ int main(int argc, char* argv[])
             std::tuple<int, float, char, double, float, char>>();
     execute<suffix_t<std::integer_sequence<int, 1, 2>, c_3, c_4>,
             std::integer_sequence<int, 1, 3, 4, 2, 3, 4>>();
+
     execute<suffix_c<std::integer_sequence<int, 1, 2>, 3, 4>,
             std::integer_sequence<int, 1, 3, 4, 2, 3, 4>>();
 
@@ -1950,6 +2094,7 @@ int main(int argc, char* argv[])
             std::tuple<int, float, char, double, float, char, short>>();
     execute<intersperse_t<std::integer_sequence<int, 1, 2, 5>, c_3, c_4>,
             std::integer_sequence<int, 1, 3, 4, 2, 3, 4, 5>>();
+
     execute<intersperse_c<std::integer_sequence<int, 1, 2, 5>, 3, 4>,
             std::integer_sequence<int, 1, 3, 4, 2, 3, 4, 5>>();
 
@@ -1957,6 +2102,7 @@ int main(int argc, char* argv[])
             std::tuple<int, char, double, float>>();
     execute<zip_t<std::integer_sequence<int, 1>, std::integer_sequence<int, 3>>,
             std::integer_sequence<int, 1, 3>>();
+
     execute<zip_t<std::integer_sequence<int, 1, 2>, std::integer_sequence<int, 3, 4, 5>>,
             std::integer_sequence<int, 1, 3, 2, 4>>();
 
@@ -1972,8 +2118,10 @@ int main(int argc, char* argv[])
 
     execute<next_permutation_t<std::tuple<char, int, double>>, std::tuple<char, double, int>>();
     execute<next_permutation_t<std::tuple<char, double, int>>, std::tuple<int, char, double>>();
+
     execute<next_permutation_t<std::tuple<int, char, double>>, std::tuple<int, double, char>>();
     execute<next_permutation_t<std::tuple<int, double, char>>, std::tuple<double, char, int>>();
+
     execute<next_permutation_t<std::tuple<double, char, int>>, std::tuple<double, int, char>>();
     execute<next_permutation_t<std::tuple<double, int, char>>, std::tuple<double, int, char>>();
 
@@ -2008,6 +2156,7 @@ int main(int argc, char* argv[])
     execute<get_matrix_col_t<1, list_t>, std::tuple<int, double, char, double, char, int>>();
 
     using nullt = std::tuple<nullptr_t, nullptr_t>;
+
     execute<sub_matrix_replace_t<4, 1, std::tuple<nullt, nullt>, list_t>,
             std::tuple<std::tuple<char, int, double>,
                        std::tuple<char, double, int>,
@@ -2051,10 +2200,12 @@ int main(int argc, char* argv[])
                               std::integer_sequence<int, 3, 2, 1>>;
 
     execute<get_matrix_element_v<3, 1, list_n>, 3>();
-    using sme = set_matrix_element_c<3, 1, 7, list_n>;
-    execute<get_matrix_element_v<3, 1, sme>, 7>();
 
+    using sme = set_matrix_element_c<3, 1, 7, list_n>;
+
+    execute<get_matrix_element_v<3, 1, sme>, 7>();
     execute<is_matrix_v<std::tuple<std::tuple<int, char>>>>();
+
     execute<is_matrix_v<std::tuple<std::index_sequence<0, 1>, std::index_sequence<2, 3>>>>();
 
     execute<matrix_t<3, 3, int>,
@@ -2748,14 +2899,19 @@ int main(int argc, char* argv[])
 
     using comb0 = std::tuple<char, short, int, double>;
     execute<range_t<0, 2, comb0>, std::tuple<char, short>>();
+
     using comb1 = next_combination_t<2, comb0>;
     execute<range_t<0, 2, comb1>, std::tuple<char, int>>();
+
     using comb2 = next_combination_t<2, comb1>;
     execute<range_t<0, 2, comb2>, std::tuple<char, double>>();
+
     using comb3 = next_combination_t<2, comb2>;
     execute<range_t<0, 2, comb3>, std::tuple<short, int>>();
+
     using comb4 = next_combination_t<2, comb3>;
     execute<range_t<0, 2, comb4>, std::tuple<short, double>>();
+
     using comb5 = next_combination_t<2, comb4>;
     execute<range_t<0, 2, comb5>, std::tuple<int, double>>();
 
@@ -2889,6 +3045,7 @@ int main(int argc, char* argv[])
     execute<partition_point_v<std::tuple<std::tuple<int>, std::tuple<int>, char, int>, is_tuple>, 2>();
 
     using part = partition_copy_t<is_even, std::index_sequence<5, 8, 0, 3, 2, 4, 7, 1, 6, 9>>;
+
     execute<first_t<part>, std::index_sequence<8, 0, 2, 4, 6>>();
     execute<second_t<part>, std::index_sequence<5, 3, 7, 1, 9>>();
 
@@ -2928,6 +3085,7 @@ int main(int argc, char* argv[])
 
     execute<lps_t<std::tuple<int, short, int, int, short, int, double>>, pair_v<0, 6>>();
     execute<lps_t<std::index_sequence<1, 2, 3, 4, 5, 4, 3, 6, 6, 3>>, pair_v<2, 7>>();
+
     execute<lps_v<std::index_sequence<1, 2, 3, 4, 5, 4, 3, 6, 6, 3>>, 5>();
 
     execute<lcp_t<std::tuple<std::tuple<int, char>, std::tuple<int, char, short>, std::tuple<int, char, double, int>>>,
@@ -2972,6 +3130,7 @@ int main(int argc, char* argv[])
 
     using pack1 = std::tuple<pair_v<1, 10>, pair_v<2, 10>, pair_v<5, 10>, pair_v<7, 10>, pair_v<9, 10>>;
     using pack2 = std::tuple<pair_v<0, 5>, pair_v<2, 5>, pair_v<6, 5>, pair_v<7, 5>, pair_v<11, 5>>;
+
     using pack3 = std::tuple<pair_v<0, 5>, pair_v<1, 10>, pair_v<2, 15>, pair_v<5, 10>, pair_v<6, 5>,
                              pair_v<7, 15>, pair_v<9, 10>, pair_v<11, 5>>;
 
@@ -3035,26 +3194,37 @@ int main(int argc, char* argv[])
 
     using input1 = std::integer_sequence<int, 2, 1, 0, -3, 4, 1, -7, 5, -2>;
     using output1 = std::integer_sequence<int, -7, -3, -2, 0, 1, 1, 2, 4, 5>;
+
     using index1 = std::index_sequence<6, 3, 8, 2, 1, 5, 0, 4, 7>;
 
     execute<stable_sort_t<input1>, output1>();
     execute<select_sort_t<input1>, output1>();
+
     execute<rank_sort_t<input1>, output1>();
     execute<counting_sort_t<input1>, output1>();
+
     execute<radix_sort_t<input1>, output1>();
+
     execute<stooge_sort_t<input1>, output1>();
     execute<bubble_sort_t<input1>, output1>();
+
     execute<shaker_sort_t<input1>, output1>();
     execute<oddeven_sort_t<input1>, output1>();
+
     execute<gnome_sort_t<input1>, output1>();
     execute<selection_sort_t<input1>, output1>();
+
     execute<quick_sort_t<input1>, output1>();
     execute<quick_sort_iterative_t<input1>, output1>();
+
     execute<insert_sort_t<input1>, output1>();
+
     execute<insertion_sort_t<input1>, output1>();
     execute<merge_sort_t<input1>, output1>();
+
     execute<strand_sort_t<input1>, output1>();
     execute<heap_sort_t<input1>, output1>();
+
     execute<sort_index_t<input1>, index1>();
 
     execute<sort_v<input1, output1, stable_sort, select_sort, counting_sort,
@@ -3064,24 +3234,33 @@ int main(int argc, char* argv[])
 
     using input2 = std::tuple<double, short, double, int, char, char, double>;
     using output2 = std::tuple<char, char, short, int, double, double, double>;
+
     using index2 = std::index_sequence<4, 5, 1, 3, 6, 2, 0>;
 
     execute<stable_sort_t<input2>, output2>();
     execute<select_sort_t<input2>, output2>();
+
     execute<counting_sort_t<input2>, output2>();
     execute<radix_sort_t<input2>, output2>();
+
     execute<stooge_sort_t<input2>, output2>();
     execute<bubble_sort_t<input2>, output2>();
+
     execute<shaker_sort_t<input2>, output2>();
     execute<oddeven_sort_t<input2>, output2>();
+
     execute<gnome_sort_t<input2>, output2>();
     execute<selection_sort_t<input2>, output2>();
+
     execute<quick_sort_t<input2>, output2>();
     execute<quick_sort_iterative_t<input2>, output2>();
+
     execute<insert_sort_t<input2>, output2>();
     execute<insertion_sort_t<input2>, output2>();
+
     execute<merge_sort_t<input2>, output2>();
     execute<strand_sort_t<input2>, output2>();
+
     execute<heap_sort_t<input2>, output2>();
     execute<sort_index_t<input2>, index2>();
 
@@ -3092,9 +3271,10 @@ int main(int argc, char* argv[])
 
     using int1 = std::integer_sequence<int, 2, 1, 0>;
     using int2 = std::integer_sequence<int, -3, 4, 1, -7>;
-    using int3 = std::integer_sequence<int, 5, -2>;
 
+    using int3 = std::integer_sequence<int, 5, -2>;
     using out1 = std::integer_sequence<int, -7, -3, -2>;
+
     using out2 = std::integer_sequence<int, 0, 1, 1, 2>;
     using out3 = std::integer_sequence<int, 4, 5>;
 

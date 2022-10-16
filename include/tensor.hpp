@@ -26,7 +26,7 @@ namespace monster
 
             template <typename... Args>
             requires (sizeof...(Args) < N) && (sizeof...(Args) >= 1)
-            decltype(auto) operator[](size_t i, Args&&... args)
+            constexpr decltype(auto) operator[](size_t i, Args&&... args)
             {
                 return operator[](i).operator[](args...);
             }
@@ -72,6 +72,7 @@ namespace monster
     void tensor<T, N>::resize(size_t size)
     {
         elements.resize(size);
+
         for (auto& element : elements)
              element.resize(size);
     }

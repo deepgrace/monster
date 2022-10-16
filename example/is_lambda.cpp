@@ -20,6 +20,7 @@ int main(int argc, char* argv[])
 {
     static_assert(!is_lambda_v<std::nullptr_t>);
     static_assert(is_lambda_v<decltype([](){})>);
+
     static_assert(is_lambda_v<decltype(lambda_t<int, bool>)>);
     static_assert(is_lambda_v<decltype([]<typename ...>(auto ...){})>);
 

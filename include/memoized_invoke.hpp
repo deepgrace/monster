@@ -16,7 +16,7 @@
 namespace monster
 {
     template <typename F>
-    decltype(auto) memoized_invoke(F&& f)
+    constexpr decltype(auto) memoized_invoke(F&& f)
     {
         std::map<function_traits_t<F>, function_traits_r<F>> table;
 

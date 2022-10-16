@@ -26,18 +26,20 @@ namespace monster
 
     template <typename T, typename S>
     requires std::is_base_of_v<istream_type<T>, T>
-    T&& operator>>(T&& os, const S& s)
+    constexpr decltype(auto) operator>>(T&& t, const S& s)
     {
-        static_cast<istream_type<T>&>(os) >> s;
-        return std::move(os);
+        static_cast<istream_type<T>&>(t) >> s;
+
+        return std::forward<T>(t);
     }
 
     template <typename T, typename S>
     requires std::is_base_of_v<ostream_type<T>, T>
-    T&& operator<<(T&& os, const S& s)
+    constexpr decltype(auto) operator<<(T&& t, const S& s)
     {
-        static_cast<ostream_type<T>&>(os) << s;
-        return std::move(os);
+        static_cast<ostream_type<T>&>(t) << s;
+
+        return std::forward<T>(t);
     }
 }
 

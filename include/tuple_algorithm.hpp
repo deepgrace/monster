@@ -22,9 +22,9 @@ namespace tuple_algorithm
     template <typename F, typename T>
     constexpr decltype(auto) all_of(F&& f, T&& t)
     {
-        return std::apply([&](auto&&... args)
+        return std::apply([&]<typename... Args>(Args&&... args)
         {
-            return (std::invoke(std::forward<F>(f), std::forward<decltype(args)>(args)) && ...);
+            return (... && std::invoke(std::forward<F>(f), std::forward<Args>(args)));
         }, std::forward<T>(t));
     }
 
@@ -37,15 +37,15 @@ namespace tuple_algorithm
     template <typename F, typename T>
     constexpr decltype(auto) any_of(F&& f, T&& t)
     {
-        return ! none_of(std::forward<F>(f), std::forward<T>(t));
+        return !none_of(std::forward<F>(f), std::forward<T>(t));
     }
 
     template <typename F, typename T>
     constexpr decltype(auto) for_each(F&& f, T&& t)
     {
-        return std::apply([&](auto&&... args)
+        return std::apply([&]<typename... Args>(Args&&... args)
         {
-            (std::invoke(std::forward<F>(f), std::forward<decltype(args)>(args)), ...);
+            (..., std::invoke(std::forward<F>(f), std::forward<Args>(args)));
         }, std::forward<T>(t));
     }
 
@@ -54,7 +54,7 @@ namespace tuple_algorithm
     {
         return [&]<size_t... n>(const std::index_sequence<n...>&)
         {
-            (std::invoke(std::forward<F>(f), std::get<n>(std::forward<T>(t))), ...);
+            (..., std::invoke(std::forward<F>(f), std::get<n>(std::forward<T>(t))));
 
             return f;
         }
@@ -65,9 +65,10 @@ namespace tuple_algorithm
     constexpr decltype(auto) count_if(F&& f, T&& t)
     {
         std::size_t n = 0;
-        for_each([&](auto&& args)
+
+        for_each([&]<typename Args>(Args&& args)
         {
-             n += std::invoke(std::forward<F>(f), std::forward<decltype(args)>(args));
+            n += std::invoke(std::forward<F>(f), std::forward<Args>(args));
         }, std::forward<T>(t));
 
         return n;
@@ -76,7 +77,7 @@ namespace tuple_algorithm
     template <typename T, typename U>
     constexpr decltype(auto) count(T&& t, const U& value)
     {
-        return count_if([&](auto&& args)
+        return count_if([&]<typename Args>(Args&& args)
         {
             return args == value;
         }, std::forward<T>(t));
@@ -89,7 +90,7 @@ namespace tuple_algorithm
 
         if constexpr (N == 0)
             return std::nullopt;
-        else if (! std::invoke(std::forward<F>(f), std::get<i>(std::forward<T>(t)), std::get<i>(std::forward<T>(u))))
+        else if (!std::invoke(std::forward<F>(f), std::get<i>(std::forward<T>(t)), std::get<i>(std::forward<T>(u))))
             return std::make_optional(i);
         else
             return mismatch<N - 1>(std::forward<F>(f), std::forward<T>(t), std::forward<U>(u));
@@ -98,9 +99,9 @@ namespace tuple_algorithm
     template <typename T, typename U>
     constexpr decltype(auto) mismatch(T&& t, U&& u)
     {
-        return mismatch<tuple_size_v<T>>([](auto&& lhs, auto&& rhs)
+        return mismatch<tuple_size_v<T>>([](auto&& l, auto&& r)
         {
-            return lhs == rhs;
+            return l == r;
         }, std::forward<T>(t), std::forward<U>(u));
     }
 
@@ -139,7 +140,7 @@ namespace tuple_algorithm
         else if (std::invoke(std::forward<F>(f), std::get<i>(std::forward<T>(t))))
             return std::make_optional(i);
         else
-            return  find_if<N - 1>(std::forward<F>(f), std::forward<T>(t));
+            return find_if<N - 1>(std::forward<F>(f), std::forward<T>(t));
     }
 
     template <typename F, typename T>

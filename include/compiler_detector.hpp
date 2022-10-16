@@ -16,6 +16,7 @@ namespace monster
 {
     struct W {};
     struct X {};
+
     struct Y {};
     struct Z {};
 
@@ -26,14 +27,17 @@ namespace monster
 
         operator W Y::*();
         operator X Y::*();
+
         operator W Z::*();
         operator X Z::*();
     };
 
     struct gcc_compiler {};
     struct icc_compiler {};
+
     struct msvc_compiler {};
     struct clang_compiler {};
+
     struct unknown_compiler {};
 
     template <typename T>

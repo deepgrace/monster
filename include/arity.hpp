@@ -18,10 +18,12 @@ namespace monster
     template <typename T>
     constexpr decltype(auto) arity()
     {
-        if constexpr(invocable<T>)
-            return function_traits_v<T>;
-        else if constexpr(std::is_class_v<T>)
+        if constexpr(is_tuple_v<T>)
+            return std::tuple_size_v<T>;
+        else if constexpr(std::is_aggregate_v<T>)
             return aggregate_arity_v<T>;
+        else if constexpr(invocable<T>)
+            return function_traits_v<T>;
         else
             return 0;
     }

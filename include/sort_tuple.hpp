@@ -35,12 +35,12 @@ namespace monster
                 using variant_t = std::variant<index_t<N>...>;
                 std::array index {variant_t{std::in_place_index<N>}...};
 
-                std::sort(index.begin(), index.end(), [&](auto&& lhs, auto&& rhs)
+                std::sort(index.begin(), index.end(), [&](auto&& l, auto&& r)
                 {
                     return std::visit([&]<auto m, auto n>(index_t<m>, index_t<n>)
                     {
                         return std::less<>()(std::get<m>(t), std::get<n>(t));
-                    }, lhs, rhs);
+                    }, l, r);
                 });
 
                 return index;
