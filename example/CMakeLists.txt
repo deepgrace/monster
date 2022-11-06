@@ -22,6 +22,7 @@ set(MONSTER monster)
 set(OVERVIEW overview)
 set(OBJECT_POOL object_pool)
 set(THREAD_POOL thread_pool)
+set(LOOP_UNROLL loop_unroll)
 
 set(STREAM stream)
 set(IS_LAMBDA is_lambda)
@@ -38,6 +39,7 @@ add_executable(${MONSTER} monster.cpp)
 add_executable(${OVERVIEW} overview.cpp)
 add_executable(${OBJECT_POOL} object_pool.cpp)
 add_executable(${THREAD_POOL} thread_pool.cpp)
+add_executable(${LOOP_UNROLL} loop_unroll.cpp)
 
 add_executable(${STREAM} stream.cpp)
 add_executable(${IS_LAMBDA} is_lambda.cpp)
@@ -49,5 +51,5 @@ add_executable(${COMPILER_DETECTOR} compiler_detector.cpp)
 
 target_link_libraries(${THREAD_POOL} pthread)
 
-install(TARGETS ${ARITY} ${CURRY} ${TENSOR} ${MONSTER} ${OVERVIEW} ${OBJECT_POOL} ${THREAD_POOL} ${YCOMBINATOR} DESTINATION ${PROJECT_SOURCE_DIR}/bin)
+install(TARGETS ${ARITY} ${CURRY} ${TENSOR} ${MONSTER} ${OVERVIEW} ${OBJECT_POOL} ${THREAD_POOL} ${YCOMBINATOR} ${LOOP_UNROLL} DESTINATION ${PROJECT_SOURCE_DIR}/bin)
 install(TARGETS ${STREAM} ${IS_LAMBDA} ${SORT_TUPLE} ${MEMOIZED_INVOKE} ${TUPLE_ALGORITHM} ${COMPILER_DETECTOR} DESTINATION ${PROJECT_SOURCE_DIR}/bin)

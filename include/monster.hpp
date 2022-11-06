@@ -1464,7 +1464,7 @@ namespace monster
         };
 
         template <typename... args>
-        using apply = impl<B1, args...>::apply;
+        using apply = typename impl<B1, args...>::apply;
     };
 
     template <bool B, template <typename ...> typename F, typename... Args>
@@ -7204,11 +7204,11 @@ namespace monster
     {
         using type = auto_pack<Args...>;
 
-        static constexpr auto value = sizeof...(Args);
+        static constexpr size_t value = sizeof...(Args);
 
         static constexpr size_t size() noexcept
         {
-            return sizeof...(Args);
+            return value;
         }
     };
 
@@ -7217,11 +7217,11 @@ namespace monster
     {
         using type = type_pack<Args...>;
 
-        static constexpr auto value = sizeof...(Args);
+        static constexpr size_t value = sizeof...(Args);
 
         static constexpr size_t size() noexcept
         {
-            return sizeof...(Args);
+            return value;
         }
     };
 
@@ -7230,16 +7230,39 @@ namespace monster
     {
         using type = args_pack<T, Args...>;
 
-        static constexpr auto value = sizeof...(Args);
+        static constexpr size_t value = sizeof...(Args);
 
         static constexpr size_t size() noexcept
         {
-            return sizeof...(Args);
+            return value;
         }
     };
 
     template <typename T>
-    using rank = std::make_index_sequence<std::tuple_size_v<std::decay_t<T>>>;
+    struct pack_size : std::integral_constant<size_t, 0>
+    {
+    };
+
+    template <template <auto ...> typename T, auto... U>
+    struct pack_size<T<U...>> : std::integral_constant<size_t, sizeof...(U)>
+    {
+    };
+
+    template <template <typename ...> typename T, typename... U>
+    struct pack_size<T<U...>> : std::integral_constant<size_t, sizeof...(U)>
+    {
+    };
+
+    template <template <typename, auto ...> typename T, typename U, auto... V>
+    struct pack_size<T<U, V...>> : std::integral_constant<size_t, sizeof...(V)>
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto pack_size_v = pack_size<T>::value;
+
+    template <typename T>
+    using rank = std::make_index_sequence<pack_size_v<std::decay_t<T>>>;
 
     template <auto m, template <typename, auto ...> typename T, typename U, auto... n>
     constexpr decltype(auto) over(T<U, n...>)
@@ -7482,7 +7505,7 @@ namespace monster
     }
 
     template <typename T>
-    inline constexpr auto tuple_size_v = sizeof_t_v<std::decay_t<T>>;
+    inline constexpr auto length_v = sizeof_t_v<std::decay_t<T>>;
 
     template <auto N, typename T>
     inline constexpr auto tuple_size_of = sizeof_t_v<std::tuple_element_t<N, T>>;
@@ -7496,7 +7519,7 @@ namespace monster
     template <typename... Args>
     constexpr decltype(auto) tuple_cartesian_product(Args&&... args)
     {
-        constexpr auto size = (sizeof...(Args) != 0) * (1 * ... * tuple_size_v<Args>);
+        constexpr auto size = (sizeof...(Args) != 0) * (1 * ... * length_v<Args>);
 
         return [&]<typename T, auto... N>(T&& t, const std::index_sequence<N...>&)
         {
@@ -7513,10 +7536,10 @@ namespace monster
     template <typename... Args>
     constexpr decltype(auto) make_matrix_indices()
     {
-        constexpr auto N = (tuple_size_v<Args> + ...);
+        constexpr auto N = (length_v<Args> + ...);
 
         std::array<std::pair<size_t, size_t>, N> indices;
-        std::array<size_t, sizeof_v<Args...>> len {tuple_size_v<Args>...};
+        std::array<size_t, sizeof_v<Args...>> len {length_v<Args>...};
 
         for (size_t k = 0, i = 0; i != len.size(); ++i)
              for (size_t j = 0; j != len[i]; ++j)
@@ -13018,7 +13041,7 @@ namespace monster
     requires (!!N)
     constexpr decltype(auto) tuple_split(T&& t)
     {
-        constexpr auto M = tuple_size_v<T>;
+        constexpr auto M = length_v<T>;
 
         return [&]<auto... p>(std::index_sequence<p...>)
         {
