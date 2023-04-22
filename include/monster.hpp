@@ -841,32 +841,32 @@ namespace monster
     template <typename T>
     inline constexpr auto sizeof_t_v = typev<sizeof_t<T>>;
 
-    template <typename T, typename U, auto p = sizeof_t_v<T>, auto q = sizeof_t_v<U>>
-    using less_t = bool_<(p < q)>;
+    template <typename T, typename U>
+    using less_t = bool_<(sizeof_t_v<T> < sizeof_t_v<U>)>;
 
     template <typename T, typename U>
     inline constexpr auto less_v = typev<less_t<T, U>>;
 
-    template <typename T, typename U, auto p = sizeof_t_v<T>, auto q = sizeof_t_v<U>>
-    using less_equal_t = bool_<(p <= q)>;
+    template <typename T, typename U>
+    using less_equal_t = bool_<(sizeof_t_v<T> <= sizeof_t_v<U>)>;
 
     template <typename T, typename U>
     inline constexpr auto less_equal_v = typev<less_equal_t<T, U>>;
 
-    template <typename T, typename U, auto p = sizeof_t_v<T>, auto q = sizeof_t_v<U>>
-    using equal_t = bool_<p == q>;
+    template <typename T, typename U>
+    using equal_t = bool_<sizeof_t_v<T> == sizeof_t_v<U>>;
 
     template <typename T, typename U>
     inline constexpr auto equal_v = typev<equal_t<T, U>>;
 
-    template <typename T, typename U, auto p = sizeof_t_v<T>, auto q = sizeof_t_v<U>>
-    using greater_equal_t = bool_<(p >= q)>;
+    template <typename T, typename U>
+    using greater_equal_t = bool_<(sizeof_t_v<T> >= sizeof_t_v<U>)>;
 
     template <typename T, typename U>
     inline constexpr auto greater_equal_v = typev<greater_equal_t<T, U>>;
 
-    template <typename T, typename U, auto p = sizeof_t_v<T>, auto q = sizeof_t_v<U>>
-    using greater_t = bool_<(p > q)>;
+    template <typename T, typename U>
+    using greater_t = bool_<(sizeof_t_v<T> > sizeof_t_v<U>)>;
 
     template <typename T, typename U>
     inline constexpr auto greater_v = typev<greater_t<T, U>>;
@@ -1705,10 +1705,10 @@ namespace monster
     template <template <typename ...> typename F, auto N, typename T>
     inline constexpr auto visit_v = typev<visit<F, N, T>>;
 
-    template <template <typename, typename> typename F, auto M, auto N, typename T, typename U = T>
+    template <template <typename ...> typename F, auto M, auto N, typename T, typename U = T>
     using unary = F<element_t<M, T>, element_t<N, U>>;
 
-    template <template <typename, typename> typename F, auto M, auto N, typename T, typename U = T>
+    template <template <typename ...> typename F, auto M, auto N, typename T, typename U = T>
     using unary_t = typeof_t<unary<F, M, N, T, U>>;
 
     template <template <typename, typename> typename F, auto N, typename T, typename U>
