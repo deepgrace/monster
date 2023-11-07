@@ -1562,11 +1562,19 @@ int main(int argc, char* argv[])
     {
         [](float i){ std::cout << "float " << i << std::endl; },
         [](double d){ std::cout << "double " << d << std::endl; },
-        [](const auto& s){ std::cout << "string " << s << std::endl; }
+        [](const std::string& s){ std::cout << "string " << s << std::endl; }
     };
 
     for (auto&& v : to_range(tup))
          std::visit(show, v);
+
+    std::any a = 7;
+
+    a = float(1.98);
+    any_visit(show, a);
+
+    a = std::string("[]<template auto ...>(){}();");
+    any_visit(show, a);
 
     capture_invoke(pf)(1, 2, 3);
     capture_invoke(pf, 3)(1, 2);

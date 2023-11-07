@@ -10,6 +10,7 @@
 #ifndef MONSTER_HPP
 #define MONSTER_HPP
 
+#include <any>
 #include <tuple>
 #include <utility>
 #include <variant>
@@ -5506,6 +5507,25 @@ namespace monster
         }
     };
 
+    template <typename T, typename F, typename A>
+    bool any_visit(F&&f, A&& a)
+    {
+        if (auto* p = std::any_cast<T>(&std::forward<A>(a)))
+        {
+            std::invoke(std::forward<F>(f), *p);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    template <typename... Args, typename A>
+    bool any_visit(const overload_set<Args...>& f, A&& a)
+    {
+        return (... || any_visit<element_t<0, function_traits_t<Args>>>(f, std::forward<A>(a)));
+    }
+
     template <typename... Args>
     struct overload_sequence;
 
@@ -5559,7 +5579,7 @@ namespace monster
     constexpr decltype(auto) call_operator(F&& f, Args&&... args)
     {
         return std::forward<F>(f).template operator()<N...>(std::forward<Args>(args)...);
-    };
+    }
 
     template <auto... N, typename F>
     constexpr void for_value(F&& f)
