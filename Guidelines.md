@@ -920,6 +920,18 @@ using c4 = cartesian_product_t<std::integer_sequence<int, 1, 2>, std::integer_se
 // c3 == std::tuple<int, char, int, float, double ,char, double, float>
 // c4 == std::integer_sequence<int, 1, 3, 1, 4, 1, 5, 2, 3, 2, 4, 2, 5>
 
+// descartes product
+std::vector<int> v1 { 1, 2, 3, 4 };
+std::vector<float> v2 { 9.8f, 4.4f };
+std::vector<std::string> v3 { "r", "g", "b" };
+
+descartes_product([](int x, float y, const std::string& z)
+{
+    std::cout << x << " " << y << " " << z << std::endl;
+}, v1, v2, v3);
+
+// print elements from v1 x v2 x v3
+
 // matrix operatings
 using matrix = std::tuple<std::tuple<char,   int,    double>,
                           std::tuple<char,   double, int>,

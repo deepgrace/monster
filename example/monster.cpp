@@ -1957,6 +1957,15 @@ int main(int argc, char* argv[])
     is_identical<is_subset_v<std::tuple<float, char, double>,
             std::tuple<int, double, char, float, char, double, int>>>();
 
+    std::vector<int> v1 { 1, 2, 3, 4 };
+    std::vector<float> v2 { 9.8f, 4.4f };
+    std::vector<std::string> v3 { "r", "g", "b" };
+
+    descartes_product([](int x, float y, const std::string& z)
+    {
+        std::cout << x << " " << y << " " << z << std::endl;
+    }, v1, v2, v3);
+
     is_identical<cartesian_product_t<std::tuple<int, double>, std::tuple<char, float>>,
             std::tuple<int, char, int, float, double ,char, double, float>>();
     is_identical<cartesian_product_t<std::integer_sequence<int, 1, 2>, std::integer_sequence<int, 3, 4, 5>>,

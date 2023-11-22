@@ -1564,11 +1564,19 @@ int main(int argc, char* argv[])
     {
         [](float i){ std::cout << "float " << i << std::endl; },
         [](double d){ std::cout << "double " << d << std::endl; },
-        [](const auto& s){ std::cout << "string " << s << std::endl; }
+        [](const std::string& s){ std::cout << "string " << s << std::endl; }
     };
 
     for (auto&& v : to_range(tup))
          std::visit(show, v);
+
+    std::any a = 7;
+
+    a = float(1.98);
+    any_visit(show, a);
+
+    a = std::string("[]<template auto ...>(){}();");
+    any_visit(show, a);
 
     capture_invoke(pf)(1, 2, 3);
     capture_invoke(pf, 3)(1, 2);
@@ -1950,6 +1958,15 @@ int main(int argc, char* argv[])
             std::integer_sequence<int, 1, 2, 3, 4, 5, 6, 7>>>();
     is_identical<is_subset_v<std::tuple<float, char, double>,
             std::tuple<int, double, char, float, char, double, int>>>();
+
+    std::vector<int> v1 { 1, 2, 3, 4 };
+    std::vector<float> v2 { 9.8f, 4.4f };
+    std::vector<std::string> v3 { "r", "g", "b" };
+
+    descartes_product([](int x, float y, const std::string& z)
+    {
+        std::cout << x << " " << y << " " << z << std::endl;
+    }, v1, v2, v3);
 
     is_identical<cartesian_product_t<std::tuple<int, double>, std::tuple<char, float>>,
             std::tuple<int, char, int, float, double ,char, double, float>>();

@@ -5500,8 +5500,13 @@ namespace monster
 
         using F::operator()...;
 
+        consteval decltype(auto) operator()(auto) const
+        {
+            static_assert(false, "unsupported type");
+        }
+
         template <typename T>
-        decltype(auto) operator()(std::reference_wrapper<T> r)
+        constexpr decltype(auto) operator()(std::reference_wrapper<T> r)
         {
             return (*this)(r.get());
         }
@@ -5758,7 +5763,7 @@ namespace monster
     requires std::is_aggregate_v<T>
     constexpr decltype(auto) aggregate_fields_count()
     {
-        decltype(auto) [...Args] = T();
+        auto [...Args] = T();
 
         return sizeof...(Args);
     }
@@ -5766,7 +5771,7 @@ namespace monster
     template <typename T>
     constexpr decltype(auto) aggregate_to_tuple(T&& t)
     {
-        decltype(auto) [...Args] = t;
+        auto& [...Args] = t;
 
         return std::forward_as_tuple(std::forward<decltype(Args)>(Args)...);
     }
@@ -6791,6 +6796,16 @@ namespace monster
             return std::make_tuple(std::get<N>(t)...);
         }
         (integer_sequence_t<size_t, j - i, i, 1>());
+    }
+
+    template <typename F, typename... Args>
+    constexpr decltype(auto) transform_as_tuple(F&& f, const std::tuple<Args...>& t)
+    {
+        return [&]<size_t... N>(const std::index_sequence<N...>&)
+        {
+            return std::tuple<std::result_of_t<F(Args)>...>(std::forward<F>(f)(std::get<N>(t))...);
+        }
+        (std::index_sequence_for<Args...>());
     }
 
     template <typename F, typename... Args>
@@ -8550,6 +8565,47 @@ namespace monster
 
     template <typename T, typename U>
     using cartesian_product_t = typeof_t<cartesian_product<T, U>>;
+
+    template <size_t N, typename... Args>
+    constexpr decltype(auto) next_iterator(std::tuple<Args...>& t, std::tuple<Args...>& b, std::tuple<Args...>& e)
+    {
+        auto& i = ++std::get<N>(t);
+
+        if constexpr(N != 0)
+        {
+            if (i == std::get<N>(e))
+            {
+                i = std::get<N>(b);
+                next_iterator<N - 1>(t, b, e);
+            }
+        }
+    }
+
+    template <typename F, typename... Args>
+    requires (sizeof...(Args) > 0)
+    constexpr decltype(auto) descartes_product(F&& f, Args&&... args)
+    {
+        constexpr auto N = sizeof...(Args);
+        auto reference = []<typename I>(I&& i) -> decltype(auto) { return *i; };
+
+        bool empty = false;
+        auto tuple = std::forward_as_tuple(std::forward<Args>(args)...);
+
+        tuple_for_each(tuple, [&]<typename T>(T&& t)
+        {
+            if (!empty && t.begin() == t.end())
+                empty = true;
+        });
+
+        if (!empty)
+        {
+            auto b = std::make_tuple(std::forward<Args>(args).begin()...);
+            auto e = std::make_tuple(std::forward<Args>(args).end()...);
+
+            for (auto t = b; std::get<0>(t) != std::get<0>(e); next_iterator<N - 1>(t, b, e))
+                 std::apply(f, transform_as_tuple(reference, t));
+        }
+    }
 
     template <typename T, typename U>
     struct large_number_multiplier
