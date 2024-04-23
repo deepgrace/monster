@@ -4,6 +4,7 @@
 
 ## Overview
 ```cpp
+#include <cstdint>
 #include <monster.hpp>
 
 using namespace monster;

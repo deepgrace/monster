@@ -9,6 +9,7 @@
 
 // g++ -I include -m64 -std=c++23 -s -Wall -O3 -o /tmp/overview example/overview.cpp
 
+#include <cstdint>
 #include <monster.hpp>
 
 using namespace monster;

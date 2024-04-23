@@ -1730,7 +1730,7 @@ namespace monster
     template <template <typename, typename> typename F, auto N, typename T, typename U>
     inline constexpr auto rcall_v = typev<rcall<F, N, T, U>>;
 
-    template <template <typename, typename> typename F, auto M, auto N, typename T, typename U = T>
+    template <template <typename ...> typename F, auto M, auto N, typename T, typename U = T>
     inline constexpr auto unary_v = typev<unary<F, M, N, T, U>>;
 
     template <template <typename ...> typename F, int N, int B, int E, bool>
@@ -2522,15 +2522,15 @@ namespace monster
     template <template <typename, typename> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
     using adjacent_difference_t = typeof_t<adjacent_difference<F, T, B, E>>;
 
-    template <template <typename, typename> typename comparator, auto i, auto j, typename T, typename U = T>
+    template <template <typename ...> typename comparator, auto i, auto j, typename T, typename U = T>
     struct predicate : unary<comparator, i, j, T, U>
     {
     };
 
-    template <template <typename, typename> typename comparator, auto i, auto j, typename T, typename U = T>
+    template <template <typename ...> typename comparator, auto i, auto j, typename T, typename U = T>
     using predicate_t = typeof_t<predicate<comparator, i, j, T, U>>;
 
-    template <template <typename, typename> typename comparator, auto i, auto j, typename T, typename U = T>
+    template <template <typename ...> typename comparator, auto i, auto j, typename T, typename U = T>
     inline constexpr auto predicate_v = typev<predicate_t<comparator, i, j, T, U>>;
 
     template <template <typename, typename> typename F, typename T, auto B = 0, auto E = sizeof_t_v<T>>
@@ -4706,6 +4706,39 @@ namespace monster
     constexpr size_t valueindex()
     {
         return T == U ? 1 : valueindex<T, Args...>() + 1;
+    }
+
+    template <bool strip, typename... Args>
+    constexpr size_t typeindex()
+    {
+        return index_of_apply<std::is_same, std::conditional_t<strip, std::remove_cvref_t<Args>, Args>...>() - 1;
+    }
+
+    template <typename T, bool strip = 0, typename... Args>
+    constexpr decltype(auto) tuple_index(std::tuple<Args...>& t) noexcept
+    {
+        return typeindex<strip, T, Args...>();
+    }
+
+    template <typename T, bool strip = 0, typename... Args>
+    constexpr decltype(auto) tuple_index(std::tuple<Args...>&& t) noexcept
+    {
+        return typeindex<strip, T, Args...>();
+    }
+
+    template <typename T, bool strip = 0, typename... Args>
+    constexpr decltype(auto) tuple_index(const std::tuple<Args...>& t) noexcept
+    {
+        return typeindex<strip, T, Args...>();
+    }
+
+    template <typename S, typename T, typename... Args>
+    constexpr size_t search_index(S&& s, T&& t, Args&&... args)
+    {
+        if constexpr(sizeof...(Args) == 0)
+            return s != t;
+        else
+            return s == t ? 0 : search_index(std::forward<S>(s), std::forward<Args>(args)...) + 1;
     }
 
     template <typename T, typename U>

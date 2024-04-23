@@ -644,13 +644,28 @@ int main(int argc, char* argv[])
     constexpr std::tuple<int, double, short> third(6, 7, 8);
     constexpr auto t_ = tuple_cat_unique(first, second, third);
 
-    static_assert(std::get<0>(t_) == 1);
-    static_assert(std::get<1>(t_) == 2);
+    is_identical<std::get<0>(t_), 1>();
+    is_identical<std::get<1>(t_), 2>();
 
-    static_assert(std::get<2>(t_) == 3);
-    static_assert(std::get<3>(t_) == 5);
+    is_identical<std::get<2>(t_), 3>();
+    is_identical<std::get<3>(t_), 5>();
 
-    static_assert(std::get<4>(t_) == 7);
+    is_identical<std::get<4>(t_), 7>();
+
+    int i = 2022;
+    double j = 11.05;
+
+    std::tuple<short, char> t1;
+    std::tuple<int&, std::tuple<double&>, char> t2(i, std::tie(j), 'X');
+
+    is_identical<tuple_index<char>(t1), 1>();
+    is_identical<tuple_index<short>(t1), 0>();
+
+    is_identical<tuple_index<int>(t2), 3>();
+    is_identical<tuple_index<int&, 0>(t2), 0>();
+
+    is_identical<tuple_index<int, 1>(t2), 0>();
+    is_identical<tuple_index<int&, 1>(t2), 0>();
 
     auto a_ = std::make_tuple(1, 2, 3);
     auto b_ = std::make_tuple("one", "two", "three");
@@ -1095,6 +1110,11 @@ int main(int argc, char* argv[])
 
     is_identical<value_index_v<6, std::integer_sequence<int, 1, -2, 0, 3, 6, 5>>, 4>();
     is_identical<value_index_v<7, std::integer_sequence<int, 1, -2, 0, 3, 6, 5>>, 6>();
+
+    using namespace std::literals;
+
+    is_identical<search_index(1, 0, 1, 2, 3), 1>();
+    is_identical<search_index("key"sv, "seq"sv, "value"sv, "id"sv), 3>();
 
     is_identical<find_v<char, std::tuple<float, char, double, int, char>>, 1>();
     is_identical<find_v<c_6, std::integer_sequence<int, 3, -2, 6, 3, 6, 5>>, 2>();
