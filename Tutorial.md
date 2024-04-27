@@ -1598,6 +1598,12 @@ int main(int argc, char* argv[])
     a = std::string("[]<template auto ...>(){}();");
     any_visit(show, a);
 
+    is_identical<is_consteval([]{})>();
+    is_identical<!is_consteval(show)>();
+
+    is_identical<is_consteval_v<decltype([]{})>>();
+    is_identical<!is_consteval_v<std::tuple<int>>>();
+
     capture_invoke(pf)(1, 2, 3);
     capture_invoke(pf, 3)(1, 2);
 

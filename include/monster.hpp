@@ -5613,6 +5613,15 @@ namespace monster
     template <typename... Args>
     overload_sequence(Args&&...) -> overload_sequence<Args...>;
 
+    template <typename T>
+    consteval bool is_consteval(T&& t)
+    {
+        return requires { typename std::bool_constant<(t(), true)>; };
+    }
+
+    template <typename T>
+    inline constexpr auto is_consteval_v = is_consteval(T());
+
     template <auto... N, typename F, typename... Args>
     constexpr decltype(auto) call_operator(F&& f, Args&&... args)
     {
