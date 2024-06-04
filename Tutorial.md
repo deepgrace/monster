@@ -676,6 +676,25 @@ int main(int argc, char* argv[])
 
     zipped_tuple_map(f_, a_, b_);
 
+    luple l0;
+    luple l1(std::string("C++23"));
+
+    luple<short, char> l2;
+
+    auto l3 = make_luple(j, std::string("template"));
+    auto l4 = luple_cat(l0, l1, l2, l3);
+
+    using ltype = decltype(l4);
+
+    std::cout << l4.get<0>() << std::endl;
+    l4.apply([](std::string, short, char, double, std::string){});
+
+    is_identical<is_luple_v<ltype>>();
+    is_identical<luple_size_v<ltype>, 5>();
+
+    is_identical<luple_element_t<0, ltype>, std::string>();
+    is_identical<luple_element_t<3, ltype>, double>();
+
     is_identical<triangular_number_v<4>, 10>();
     is_identical<triangular_number_sequence_t<4>, std::integer_sequence<int, 1, 3, 6, 10>>();
 

@@ -20,7 +20,7 @@
  *   time a set of code changes is merged to the master branch.
  */
 
-#define MONSTER_VERSION_NUMBER 312
+#define MONSTER_VERSION_NUMBER 313
 #define MONSTER_VERSION_STRING "Monster/" MONSTER_STRINGIZE(MONSTER_VERSION_NUMBER)
 
 #endif

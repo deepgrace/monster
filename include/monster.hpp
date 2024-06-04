@@ -7374,6 +7374,202 @@ namespace monster
         }
     }
 
+    template <typename... Args>
+    class luple
+    {
+        public:
+            constexpr luple()
+            {
+                lambda([](storage<Args>&... s)
+                {
+                    (..., s.init());
+                });
+            }
+
+            template <typename... Brgs, decltype((..., new(nullptr) Args(std::declval<Brgs>()))) = nullptr>
+            constexpr luple(Brgs&&... brgs)
+            {
+                lambda([&](storage<Args>&... s)
+                {
+                    (..., s.init(std::forward<Brgs>(brgs)));
+                });
+            }
+
+            constexpr luple(const luple& l)
+            {
+                lambda([&](storage<Args>&... s)
+                {
+                    l.lambda([&](const storage<Args>&... t)
+                    {
+                        (..., new (s.operator->()) Args(*t));
+                    });
+                });
+            }
+
+            constexpr luple(luple&& l)
+            {
+                lambda([&](storage<Args>&... s)
+                {
+                    l.lambda([&](storage<Args>&... t)
+                    {
+                        (..., new (s.operator->()) Args(static_cast<Args&&>(*t)));
+                    });
+                });
+            }
+
+            template <typename F>
+            constexpr decltype(auto) apply(F&& f)
+            {
+                lambda([&](const storage<Args>&... s) -> decltype(auto)
+                {
+                    return std::invoke(std::forward<F>(f), *s...);
+                });
+            }
+
+            template <size_t N>
+            constexpr decltype(auto) get()
+            {
+                return [&]<auto... n>(std::index_sequence<n...>)
+                {
+                    return lambda([](nil<n>..., auto& e, auto ...) -> auto&
+                    {
+                        return *e;
+                    });
+                }
+                (std::make_index_sequence<N>());
+            }
+
+            ~luple()
+            {
+                lambda([](storage<Args>&... s)
+                {
+                    (..., s->~Args());
+                });
+            }
+
+        private:
+            template <size_t N>
+            struct nil
+            {
+                template <typename T>
+                nil(T&&)
+                {
+                }
+            };
+
+            template <typename T>
+            class alignas(T) storage
+            {
+                public:
+                    storage() = default;
+
+                    template <typename... Brgs>
+                    constexpr void init(Brgs&&... args)
+                    {
+                        new (reinterpret_cast<T*>(std::addressof(data))) T(std::forward<Brgs>(args)...);
+                    }
+
+                    T* operator->()
+                    {
+                        return reinterpret_cast<T*>(std::addressof(data));
+                    }
+
+                    const T* operator->() const
+                    {
+                        return reinterpret_cast<const T*>(std::addressof(data));
+                    }
+
+                    T& operator*()
+                    {
+                        return *operator->();
+                    }
+
+                    const T& operator*() const
+                    {
+                        return *operator->();
+                    }
+
+                private:
+                    char data[sizeof(T)];
+            };
+
+            template <typename... Brgs>
+            static constexpr decltype(auto) to_lambda(Brgs... brgs)
+            {
+                return [=](auto f) mutable -> decltype(auto)
+                {
+                    return f(brgs...);
+                };
+            }
+
+            mutable decltype(to_lambda(storage<Args>()...)) lambda = to_lambda(storage<Args>()...);
+    };
+
+    template <typename... Args>
+    luple(Args...) -> luple<Args...>;
+
+    template <typename... Args>
+    luple(const luple<Args...>&) -> luple<Args...>;
+
+    template <typename T>
+    struct is_luple : std::false_type
+    {
+    };
+
+    template <typename... Args>
+    struct is_luple<luple<Args...>> : std::true_type
+    {
+    };
+
+    template <typename T>
+    inline constexpr auto is_luple_v = is_luple<T>::value;
+
+    template <typename T>
+    struct luple_size;
+
+    template <typename... Args>
+    struct luple_size<luple<Args...>> : std::integral_constant<size_t, sizeof...(Args)>
+    {
+    };
+
+    template <typename T>
+    inline constexpr size_t luple_size_v = luple_size<T>::value;
+
+    template <size_t N, typename T>
+    struct luple_element;
+
+    template <size_t N, typename... Args>
+    struct luple_element<N, luple<Args...>>
+    {
+        using type = std::remove_cvref_t<decltype(std::declval<luple<Args...>>().template get<N>())>;
+    };
+
+    template <size_t N, typename T>
+    using luple_element_t = typename luple_element<N, T>::type;
+
+    template <typename... Args>
+    constexpr decltype(auto) make_luple(Args&&... args)
+    {
+        return luple(static_cast<std::unwrap_ref_decay_t<Args>>(args)...);
+    }
+
+    template <typename... Args>
+    constexpr decltype(auto) luple_cat(Args&&... args)
+    {
+        auto t = make_luple(std::forward<Args>(args)...);
+
+        if constexpr(!sizeof...(Args))
+            return t;
+        else
+        {
+            return [&]<template <typename ...> typename T, template <auto ...> typename U, auto... m, auto... n>(T<U<m, n>...>)
+            {
+                return make_luple(t.template get<m>().template get<n>()...);
+            }
+            (rank_pack(std::forward<Args>(args)...));
+        }
+    }
+
     template <typename T>
     struct matrix_index_sequences
     {
