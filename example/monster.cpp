@@ -637,6 +637,7 @@ int main(int argc, char* argv[])
             std::tuple<std::tuple<int, char, double>, std::tuple<char, double, float>>>();
 
     is_identical<fibonacci_v<4>, 3>();
+    is_identical<factorial_v<4>, 24>();
 
     constexpr std::tuple<int, short, char> first(1, 2, 3);
     constexpr std::tuple<short, float> second(4, 5);
@@ -2178,6 +2179,8 @@ int main(int argc, char* argv[])
                               std::tuple<double, char, int>,
                               std::tuple<double, int, char>>;
 
+    is_identical<rank_permutation_t<std::tuple<char, int, double>>, list_t>();
+
     is_identical<swap_matrix_element_t<1, 2, 4, 0, list_t>,
             std::tuple<std::tuple<char, int, double>,
                        std::tuple<char, double, double>,
@@ -2234,6 +2237,48 @@ int main(int argc, char* argv[])
                               std::index_sequence<1, 2, 4>,
                               std::index_sequence<1, 3, 4>,
                               std::index_sequence<2, 3, 4>>;
+
+    using rank_perm0 = std::index_sequence<0, 0, 0>;
+
+    using rank_perm1 = rank_to_permutation_t<0, rank_perm0>;
+    using rank_perm2 = rank_to_permutation_t<1, rank_perm1>;
+
+    using rank_perm3 = rank_to_permutation_t<2, rank_perm2>;
+    using rank_perm4 = rank_to_permutation_t<3, rank_perm3>;
+
+    using rank_perm5 = rank_to_permutation_t<4, rank_perm4>;
+    using rank_perm6 = rank_to_permutation_t<5, rank_perm5>;
+
+    is_identical<rank_perm1, std::index_sequence<0, 1, 2>>();
+    is_identical<rank_perm2, std::index_sequence<0, 2, 1>>();
+
+    is_identical<rank_perm3, std::index_sequence<1, 0, 2>>();
+    is_identical<rank_perm4, std::index_sequence<1, 2, 0>>();
+
+    is_identical<rank_perm5, std::index_sequence<2, 0, 1>>();
+    is_identical<rank_perm6, std::index_sequence<2, 1, 0>>();
+
+    is_identical<permutation_to_rank_v<rank_perm1>, 0>();
+    is_identical<permutation_to_rank_v<rank_perm2>, 1>();
+
+    is_identical<permutation_to_rank_v<rank_perm3>, 2>();
+    is_identical<permutation_to_rank_v<rank_perm4>, 3>();
+
+    is_identical<permutation_to_rank_v<rank_perm5>, 4>();
+    is_identical<permutation_to_rank_v<rank_perm6>, 5>();
+
+    using X = std::tuple<T0<double>, T1<char>, T2<int>>;
+
+    is_identical<next_rank_permutation_t<rank_perm1, X>, std::tuple<T0<double>, T1<char>, T2<int>>>();
+    is_identical<next_rank_permutation_t<rank_perm2, X>, std::tuple<T0<double>, T2<int>, T1<char>>>();
+
+    is_identical<next_rank_permutation_t<rank_perm3, X>, std::tuple<T1<char>, T0<double>, T2<int>>>();
+    is_identical<next_rank_permutation_t<rank_perm4, X>, std::tuple<T1<char>, T2<int>, T0<double>>>();
+
+    is_identical<next_rank_permutation_t<rank_perm5, X>, std::tuple<T2<int>, T0<double>, T1<char>>>();
+    is_identical<next_rank_permutation_t<rank_perm6, X>, std::tuple<T2<int>, T1<char>, T0<double>>>();
+
+    is_identical<rank_permutation_t<std::index_sequence<0, 1, 2>>, index3>();
 
     is_identical<permutation_index_t<3>, index3>();
     is_identical<combination_index_t<3, 5>, index4>();

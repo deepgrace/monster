@@ -5933,6 +5933,26 @@ namespace monster
     template <size_t N>
     inline constexpr auto fibonacci_v = typev<fibonacci<N>>;
 
+    template <size_t N, bool = (N < 3)>
+    struct fac
+    {
+        static constexpr auto value = N * typev<fac<N - 1>>;
+    };
+
+    template <size_t N>
+    struct fac<N, true>
+    {
+        static constexpr auto value = N;
+    };
+
+    template <size_t N>
+    struct factorial : fac<N, (N < 3)>
+    {
+    };
+
+    template <size_t N>
+    inline constexpr auto factorial_v = typev<factorial<N>>;
+
     template <size_t N>
     struct triangular_number
     {
@@ -14064,6 +14084,126 @@ namespace monster
 
     template <typename T, typename U>
     inline constexpr auto is_in_matrix_v = typev<is_in_matrix_t<T, U>>;
+
+    template <int R, typename T>
+    struct rank_to_permutation
+    {
+        static constexpr auto N = sizeof_t_v<T>;
+
+        template <typename U, int i, int j>
+        struct next : next<sub_t<i, element_v<i + 1, U>, U>, i + 1, j>
+        {
+        };
+
+        template <typename U, int j>
+        struct next<U, j, j> : std::type_identity<U>
+        {
+        };
+
+        template <typename U, typename V, int f, int r, int p, int q>
+        struct impl
+        {
+            static constexpr auto i = r / f;
+
+            using curr = typeof_t<next<V, i, N - 1>>;
+            using type = typeof_t<impl<sub_t<p, element_v<i, V>, U>, curr, f / (N - p - 1), r % f, p + 1, q>>;
+        };
+
+        template <typename U, typename V, int f, int r, int q>
+        struct impl<U, V, f, r, q, q>
+        {
+            using type = sub_t<q, element_v<0, V>, U>;
+        };
+
+        using type = typeof_t<impl<T, index_range<0, N>, factorial_v<N - 1>, R, 0, N - 1>>;
+    };
+
+    template <int R, typename T>
+    using rank_to_permutation_t = typeof_t<rank_to_permutation<R, T>>;
+
+    template <typename T>
+    struct permutation_to_rank
+    {
+        static constexpr auto N = sizeof_t_v<T>;
+
+        template <typename U, int n, int i, int j>
+        struct next : next<U, n + !element_v<i, U>, i + 1, j>
+        {
+        };
+
+        template <typename U, int n, int j>
+        struct next<U, n, j, j>
+        {
+            static constexpr auto value = n;
+        };
+
+        template <typename U, int f, int r, int p, int q>
+        struct impl
+        {
+            static constexpr auto upper = element_v<p, T>;
+
+            static constexpr auto index = r + typev<next<U, 0, 0, upper>> * f;
+            static constexpr auto value = typev<impl<sub_t<upper, 1, U>, f / (N - p - 1), index, p + 1, q>>;
+        };
+
+        template <typename U, int f, int r, int q>
+        struct impl<U, f, r, q, q>
+        {
+            static constexpr auto value = r;
+        };
+
+        static constexpr auto value = typev<impl<fill_c<N, 0>, factorial_v<N - 1>, 0, 0, N - 1>>;
+    };
+
+    template <typename T>
+    inline constexpr auto permutation_to_rank_v = typev<permutation_to_rank<T>>;
+
+    template <typename P, typename T>
+    struct next_rank_permutation
+    {
+        static constexpr auto N = sizeof_t_v<T>;
+
+        template <typename U, typename V, int i, int j>
+        struct impl : impl<U, append_t<V, element_t<element_v<i, U>, T>>, i + 1, j>
+        {
+        };
+
+        template <typename U, typename V, int j>
+        struct impl<U, V, j, j> : std::type_identity<V>
+        {
+        };
+
+        using type = typeof_t<impl<P, clear_t<T>, 0, N>>;
+    };
+
+    template <typename P, typename T>
+    using next_rank_permutation_t = typeof_t<next_rank_permutation<P, T>>;
+
+    template <typename T>
+    struct rank_permutation
+    {
+        static constexpr auto N = sizeof_t_v<T>;
+
+        template <typename U, typename V, int i, int j>
+        struct impl
+        {
+            using perm = rank_to_permutation_t<i, U>;
+            using next = append_t<V, next_rank_permutation_t<perm, T>>;
+
+            static constexpr auto rank = permutation_to_rank_v<perm>;
+            using type = typeof_t<impl<perm, next, rank + 1, j>>;
+        };
+
+        template <typename U, typename V, int j>
+        struct impl<U, V, j, j> : std::type_identity<V>
+        {
+        };
+
+        using type = typeof_t<impl<fill_c<N, 0>, std::tuple<>, 0, factorial_v<N>>>;
+    };
+
+    template <typename T>
+    using rank_permutation_t = typeof_t<rank_permutation<T>>;
 }
 
 #endif
