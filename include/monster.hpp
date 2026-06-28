@@ -1115,8 +1115,29 @@ namespace monster
     template <typename T, size_t N>
     using make_integer_sequence = next_integer_sequence_t<T, N>;
 
+    template <typename T, size_t N>
+    struct make_reverse_integer_sequence
+    {
+        template <typename U>
+        struct impl;
+
+        template <template <typename, auto ...> typename U, typename V, V... indices>
+        struct impl<U<V, indices...>>
+        {
+            using type = integer_sequence<T, (N - 1 - indices)...>;
+        };
+
+        using type = typeof_t<impl<make_integer_sequence<T, N>>>;
+    };
+
+    template <typename T, size_t N>
+    using make_reverse_integer_sequence_t = typeof_t<make_reverse_integer_sequence<T, N>>;
+
     template <typename T, typename... Args>
     using integer_sequence_for = make_integer_sequence<T, sizeof_v<Args...>>;
+
+    template <typename T, typename... Args>
+    using reverse_integer_sequence_for = make_reverse_integer_sequence_t<T, sizeof_v<Args...>>;
 
     template <size_t... indices>
     using index_sequence = integer_sequence<size_t, indices...>;
@@ -1124,8 +1145,14 @@ namespace monster
     template <size_t N>
     using make_index_sequence = make_integer_sequence<size_t, N>;
 
+    template <size_t N>
+    using make_reverse_index_sequence = make_reverse_integer_sequence_t<size_t, N>;
+
     template <typename... Args>
     using index_sequence_for = make_index_sequence<sizeof_v<Args...>>;
+
+    template <typename... Args>
+    using reverse_index_sequence_for = make_reverse_index_sequence<sizeof_v<Args...>>;
 
     template <auto N>
     using index_sequence_of_c = std::make_index_sequence<N>;
@@ -11484,7 +11511,7 @@ namespace monster
             static constexpr auto index = find_if_not_v<comparator, left_partition, m, m + half>;
 
             using right_partition = partition_adaptive<index, r, half, size, left_partition, comparator>;
-            using right_split = type_if<half, right_partition, index_upper<index, left_partition>>;
+            using right_split = type_if<!!half, right_partition, index_upper<index, left_partition>>;
 
             static constexpr auto b = typev<left_split>;
             static constexpr auto e = typev<right_split>;

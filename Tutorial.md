@@ -711,6 +711,9 @@ int main(int argc, char* argv[])
     is_identical<make_index_sequence<4>, index_sequence<0, 1, 2, 3>>();
     is_identical<index_sequence_for<int, char, double>, index_sequence<0, 1, 2>>();
 
+    is_identical<make_reverse_index_sequence<4>, index_sequence<3, 2, 1, 0>>();
+    is_identical<reverse_index_sequence_for<int, char, double>, index_sequence<2, 1, 0>>();
+
     is_identical<make_sequence_t<3>, index_sequence<0, 1, 2>>();
     is_identical<make_sequence_t<4>, index_sequence<0, 1, 2, 3>>();
 
